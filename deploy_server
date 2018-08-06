@@ -1,0 +1,19 @@
+#!/bin/bash -x
+
+set -o errexit
+
+rm -rf build
+./gradlew build
+
+remote=attestation@attestation.app
+current=$(ssh $remote readlink deploy)
+
+if [[ $current = deploy_a ]]; then
+    target=deploy_b
+else
+    target=deploy_a
+fi
+
+ssh $remote rm -rf $target
+scp -r build/libs $remote:$target
+ssh $remote ln -snf $target deploy

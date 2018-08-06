@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="theme-color" content="#212121"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Device integrity monitoring</title>
+        <meta name="description" content="Hardware-based remote attestation service for monitoring the security of Android devices using the Auditor app."/>
+        <link rel="stylesheet" href="/devices.css?8"/>
+        <!--<link rel="manifest" href="/manifest.webmanifest"/>-->
+    </head>
+    <body>
+        <!--
+        <nav>
+            <ul>
+                <li><a href="#"></a></li>
+                <li><a href="#"></a></li>
+                <li><a href="#"></a></li>
+            </ul>
+        </nav>
+        -->
+        <div id="content">
+            <noscript><p><strong>JavaScript is required to use the device integrity monitoring application.</strong></p></noscript>
+            <span id="login_status" class="hidden">Logged in as <strong id="username"></strong>.</span>
+            <span id="form_toggles" class="hidden">
+                <button id="create">Create account</button>
+                <button id="login">Login</button>
+            </span>
+            <span id="account_buttons" class="hidden">
+                <button id="logout" class="logout">Logout</button>
+                <button id="logout_everywhere" class="logout">Logout everywhere</button>
+                <button id="change_password">Change password</button>
+            </span>
+            <form id="create_form" class="hidden">
+                <h3>Create account:</h3>
+                <label>Username: <input id="create_username" type="text" autocomplete="username" maxlength="32" pattern="[a-zA-Z0-9]+" required="required"/></label><br/>
+                <label>Password: <input id="create_password" type="password" autocomplete="new-password" maxlength="4096" minlength="8" required="required"/></label><br/>
+                <label>Confirm password: <input id="create_password_confirm" type="password" autocomplete="new-password" maxlength="4096" minlength="8" required="required"/></label><br/>
+                <p>There's currently no form of account recovery. If you forget your password, you'll need to make a new account and move your devices over to it.</p>
+                <p>Accounts will eventually expire if they have no paired devices.</p>
+                <button name="submit">Create account</button>
+                <button type="button" class="cancel">Cancel</button>
+            </form>
+            <form id="login_form" class="hidden">
+                <h3>Login:</h3>
+                <label>Username: <input id="login_username" type="text" autocomplete="username" maxlength="32" pattern="[a-zA-Z0-9]+" required="required"/></label><br/>
+                <label>Password: <input id="login_password" type="password" autocomplete="current-password" maxlength="4096" minlength="8" required="required"/></label><br/>
+                <button name="submit">Login</button>
+                <button type="button" class="cancel">Cancel</button>
+            </form>
+            <form id="change_password_form" class="hidden">
+                <h3>Change password:</h3>
+                <label>Current password: <input id="current_password" type="password" autocomplete="current-password" maxlength="4096" minlength="8" required="required"/></label><br/>
+                <label>New Password: <input id="new_password" type="password" autocomplete="new-password" maxlength="4096" minlength="8" required="required"/></label><br/>
+                <label>Confirm new password: <input id="new_password_confirm" type="password" autocomplete="new-password" maxlength="4096" minlength="8" required="required"/></label><br/>
+                <button name="submit">Change password</button>
+                <button type="button" class="cancel_account">Cancel</button>
+            </form>
+            <br/>
+            <h1>Device integrity monitoring</h1>
+            <p>Hardware-based remote attestation service for monitoring the security of Android devices using <a href="https://play.google.com/store/apps/details?id=app.attestation.auditor">the Auditor app</a>.</p>
+            <div id="account_content" class="hidden">
+                <p>Subscribe a device to regularly submitting attestations to this account by pressing 'Enable remote verification' in the Auditor app menu and scanning the QR code for this account:</p>
+                <img id="qr" height="300" width="300" alt="" src="/placeholder.png"/>
+                <button id="rotate">Rotate device subscription key</button>
+                <form id="configuration">
+                    <h2>Configuration:</h2>
+                    <label>Verify interval (hours): <input name="verify_interval" type="number" min="1" max="168" required="required"/></label><br/>
+                    <label>Permitted delay until alerts (hours): <input name="alert_delay" type="number" min="12" max="336" required="required"/></label><br/>
+                    <label>Alert email: <input name="email" type="email"/></label><br/>
+                    <button name="submit">Set configuration</button>
+                </form>
+                <div id="devices"></div>
+                <script src="/devices.js?17"></script>
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,35 @@
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+jar {
+    manifest {
+        attributes('Main-Class': 'app.attestation.server.AttestationServer')
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'com.almworks.sqlite4java:sqlite4java:1.0.392'
+    compile 'com.almworks.sqlite4java:libsqlite4java-linux-amd64:1.0.392'
+    compile 'com.github.ben-manes.caffeine:caffeine:2.6.2'
+    compile 'com.google.guava:guava:24.1-jre'
+    compile 'com.google.zxing:core:3.3.2'
+    compile 'com.google.zxing:javase:3.3.2'
+    compile 'com.sun.mail:javax.mail:1.6.1'
+    compile 'javax.activation:activation:1.1.1'
+    compile 'javax.json:javax.json-api:1.1.2'
+    compile 'org.bouncycastle:bcpkix-jdk15on:1.59'
+    compile 'org.glassfish:javax.json:1.1.2'
+}
+
+task copyJavaDeps(type: Copy) {
+    from (configurations.compile + configurations.testCompile)
+    into 'build/libs'
+}
+
+build.dependsOn(copyJavaDeps)
