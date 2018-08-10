@@ -3,6 +3,9 @@ font-src 'self'; img-src blob: 'self'; manifest-src 'self'; script-src 'self'; s
 form-action 'self'; frame-ancestors 'none'; block-all-mixed-content; base-uri 'none'; \
 report-uri https://danielmicay.report-uri.com/r/d/csp/enforce"
 
+Header always set Feature-Policy "camera 'none'; geolocation 'none'; microphone 'none'; \
+midi 'none'; usb 'none'; vr 'none'"
+
 <FilesMatch "\.(html|ico|txt|webmanifest|xml)$">
 Header set Cache-Control "public, max-age=1800"
 </FilesMatch>
