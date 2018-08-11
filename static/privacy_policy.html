@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="theme-color" content="#212121"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>Privacy policy</title>
+        <meta name="description" content="Privacy policy for the Auditor Android app and associated service."/>
+        <link rel="stylesheet" href="/devices.css?8"/>
+        <link rel="manifest" href="/manifest.webmanifest"/>
+    </head>
+    <body>
+        <nav>
+            <ul>
+                <li><a href="/">Device integrity monitoring</a></li>
+                <li><a href="/privacy_policy">Privacy policy</a></li>
+            </ul>
+        </nav>
+        <div id="content">
+            <h1>Privacy policy</h1>
+            <p>The 'Submit sample data' and 'Enable remote verification' features make HTTPS
+            connections to the https://attestation.app/ server which will be logged by the web
+            server.</p>
+            <p>The 'Submit sample data' feature will submit a sample attestation and a survey of
+            system properties accessible to every app without permissions.</p>
+            <p>The 'Enable remote verification' feature will prompt to scan a QR code from an account
+            on https://attestation.app/ and will use that to subscribe to submitting attestations to
+            that account on https://attestation.app/ at the configured rate.</p>
+            <p>Attestations contain a certificate chain provided by the hardware-based Trusted
+            Execution Environment on the device including assorted verifiable system information. The
+            app also collects other supplementary security information which is displayed in the app
+            and service for successful verifications.</p>
+            <p>A persistent hardware-backed key is generated for each Auditor-Auditee pairing either
+            between two instances of the app or between the app and https://attestation.app/. The
+            ability to use the persistent key to sign verifiably fresh attestations is used as part of
+            performing verification of the integrity and identity of the device. The keys are wiped
+            when the app is uninstalled or app data is cleared via the OS.</p>
+            <p>The camera permission is used to scan QR codes from the Auditor app on another device
+            or the https://attestation.app/ service. Images captured by the camera are not stored,
+            exported in any way or used for anything else other than decoding QR codes.</p>
+            <p>Samples submitted with 'Submit sample data' are published in an anonymized form at
+            https://github.com/AndroidHardening/AttestationSamples and elsewhere.</p>
+            <p>The app and service are both open source and can be audited.</p>
+            <p>This privacy policy will be updated to explain how permissions and data are used as the
+            Auditor app and https://attestation.app/ service are developed. It will always retain the
+            property of requiring user consent to make network connections or otherwise export any
+            data.</p>
+        </div>
+    </body>
+</html>

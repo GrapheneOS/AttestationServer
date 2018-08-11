@@ -14,4 +14,16 @@ Header set Cache-Control "public, max-age=1800"
 Header set Cache-Control "public, max-age=31536000"
 </FilesMatch>
 
+RewriteEngine on
+
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME}\.html -f
+RewriteRule ^([^\.]+)$ $1.html [L]
+
+RewriteCond %{ENV:REDIRECT_STATUS} ^$
+RewriteCond %{REQUEST_URI} ".*\.html$"
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^(.*)\.html$ /$1 [L,R=301]
+
 AddType application/manifest+json webmanifest

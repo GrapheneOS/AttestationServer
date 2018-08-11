@@ -6,4 +6,8 @@
         <loc>https://attestation.app/</loc>
         <priority>1.0</priority>
     </url>
+    <url>
+        <loc>https://attestation.app/privacy_policy</loc>
+        <priority>0.2</priority>
+    </url>
 </urlset>
