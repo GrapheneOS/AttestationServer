@@ -161,7 +161,7 @@ class AttestationProtocol {
     private static final int OS_PATCH_LEVEL_MINIMUM = 201801;
 
     private static final String DEVICE_BKL_L04 = "Huawei Honor View 10 (BKL-L04)";
-    private static final String DEVICE_NOKIA_6_1 = "Nokia 6.1";
+    private static final String DEVICE_NOKIA = "Nokia (6.1, 7 Plus)";
     private static final String DEVICE_PIXEL_2 = "Google Pixel 2";
     private static final String DEVICE_PIXEL_2_XL = "Google Pixel 2 XL";
     private static final String DEVICE_SM_G960F = "Samsung Galaxy S9 (SM-G960F)";
@@ -198,7 +198,7 @@ class AttestationProtocol {
             .put("5341E6B2646979A70E57653007A1F310169421EC9BDD9F1A5648F75ADE005AF1",
                     new DeviceInfo(DEVICE_BKL_L04, 2, 3, false))
             .put("DFC2920C81E136FDD2A510478FDA137B262DC51D449EDD7D0BDB554745725CFE",
-                    new DeviceInfo(DEVICE_NOKIA_6_1, 2, 3, true))
+                    new DeviceInfo(DEVICE_NOKIA, 2, 3, true))
             .put("1962B0538579FFCE9AC9F507C46AFE3B92055BAC7146462283C85C500BE78D82",
                     new DeviceInfo(DEVICE_PIXEL_2, 2, 3, true))
             .put("171616EAEF26009FC46DC6D89F3D24217E926C81A67CE65D2E3A9DC27040C7AB",
