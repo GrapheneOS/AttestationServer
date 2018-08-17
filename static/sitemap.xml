@@ -7,6 +7,10 @@
         <priority>1.0</priority>
     </url>
     <url>
+        <loc>https://attestation.app/about</loc>
+        <priority>1.0</priority>
+    </url>
+    <url>
         <loc>https://attestation.app/tutorial</loc>
         <priority>1.0</priority>
     </url>

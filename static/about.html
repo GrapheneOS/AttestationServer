@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="theme-color" content="#212121"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>About</title>
+        <meta name="description" content="."/>
+        <link rel="stylesheet" href="/devices.css?8"/>
+        <link rel="manifest" href="/manifest.webmanifest"/>
+    </head>
+    <body>
+        <nav>
+            <ul>
+                <li><a href="/">Device integrity monitoring</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/tutorial">Tutorial</a></li>
+                <li><a href="/privacy_policy">Privacy policy</a></li>
+            </ul>
+        </nav>
+        <div id="content">
+            <h1>About</h1>
+            <p>The Auditor app uses hardware-based security features to validate the identity of a
+            device along with authenticity and integrity of the operating system. It will verify
+            that the device is running the stock operating system with the bootloader locked and
+            that no tampering with the operating system has occurred. A downgrade to a previous
+            version will also be detected. It builds upon the hardware-based verification of the
+            operating system by performing basic software-based sanity checks and gathering
+            additional information about device state and configuration beyond what the hardware
+            can attest to directly.</p>
+            <p>The foundation of the Auditor app is generating a persistent key in the <a
+            href="https://source.android.com/security/keystore/">hardware-backed keystore</a>
+            for verifying the identity of the device and providing assurance that the operating
+            system hasn't been tampered with or downgraded via verified boot. It performs a
+            pairing process between the device performing verification (Auditor) and the device
+            being verified (Auditee) to implement a Trust On First Use (TOFU) model. The device
+            performing verification can either be another Android device running the app in the
+            Auditor mode or the https://attestation.app/ service for automated verification on a
+            regular schedule.</p>
+            <p><a href="https://source.android.com/security/verifiedboot/">Verified boot</a>
+            validates the integrity and authenticity of firmware and the entire operating system
+            (both the kernel and userspace) from an immutable hardware root of trust. The results
+            are passed along to the hardware-backed keystore and used to protect the keys.</p>
+            <p>The <a href="https://source.android.com/security/keystore/attestation">key attestation</a>
+            feature provided by the hardware-backed keystore provides direct support for attesting
+            to device properties and bootstrapping the Trust On First Use model of the Auditor app
+            with a basic initial verification chained up to a known root certificate. The latest
+            version of key attestation provides a signed result with the verified boot state,
+            verified boot key, a hash of all data protected by verified boot and the version of
+            the operating system partitions among other properties. It also has support for
+            chaining trust to the application performing the attestation checks, which is used by
+            the Auditor app for bootstrapping checks at the software layer.</p>
+            <p>Security enhancements offered by future generations of hardware and future Android
+            releases will be closely tracked by these projects. The core workflow and feature set
+            is already implemented but the foundation will be regularly improved along with major
+            improvements to the user interface and documentation. The app and service are designed
+            to be forwards and backwards compatible via a versioned protocol to permit substantial
+            changes down the road.</p>
+        </div>
+    </body>
+</html>
