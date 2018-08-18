@@ -169,7 +169,7 @@ class AttestationProtocol {
     private static final String DEVICE_SM_G965F = "Samsung Galaxy S9+ (SM-G965F)";
     private static final String DEVICE_SM_G965_MSM = "Samsung Galaxy S9+ (Snapdragon)";
     private static final String DEVICE_SONY_XPERIA_XA2 = "Sony Xperia XA2";
-    private static final String DEVICE_SONY_XPERIA_XZ1_COMPACT = "Sony Xperia XZ1 Compact";
+    private static final String DEVICE_SONY_XPERIA_XZ1 = "Sony Xperia XZ1 / XZ1 Compact";
 
     static class DeviceInfo {
         final String name;
@@ -214,7 +214,7 @@ class AttestationProtocol {
             .put("4285AD64745CC79B4499817F264DC16BF2AF5163AF6C328964F39E61EC84693E",
                     new DeviceInfo(DEVICE_SONY_XPERIA_XA2, 2, 3, true))
             .put("54A9F21E9CFAD3A2D028517EF333A658302417DB7FB75E0A109A019646CC5F39",
-                    new DeviceInfo(DEVICE_SONY_XPERIA_XZ1_COMPACT, 2, 3, true))
+                    new DeviceInfo(DEVICE_SONY_XPERIA_XZ1, 2, 3, true))
             .build();
 
     private static final String GOOGLE_ROOT_CERTIFICATE =
