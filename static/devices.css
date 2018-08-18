@@ -21,6 +21,7 @@ pre {
 }
 
 nav ul {
+    display: flex;
     margin: 0;
     padding: 0;
 }
@@ -31,7 +32,6 @@ nav {
 }
 
 nav ul li {
-    display: inline-block;
     list-style-type: none;
 }
 
