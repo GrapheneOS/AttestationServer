@@ -36,7 +36,7 @@ nav ul li {
 }
 
 nav ul li:hover {
-    background-color: #323232;
+    background-color: #424242; /* grey800 */
 }
 
 nav ul li a {
