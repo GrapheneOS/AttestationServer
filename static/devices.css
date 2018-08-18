@@ -46,6 +46,10 @@ nav ul li a {
     padding: 1em;
 }
 
+nav ul li.active a {
+    color: #64B5F6; /* blue300 */
+}
+
 a {
     text-decoration: none;
 }
