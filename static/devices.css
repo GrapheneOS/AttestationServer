@@ -22,6 +22,8 @@ pre {
 
 nav ul {
     display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
     margin: 0;
     padding: 0;
 }
