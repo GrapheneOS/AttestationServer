@@ -74,8 +74,8 @@ public class AttestationServer {
     private static final int DEFAULT_VERIFY_INTERVAL = 4 * 60 * 60;
     private static final int MIN_VERIFY_INTERVAL = 60 * 60;
     private static final int MAX_VERIFY_INTERVAL = 7 * 24 * 70 * 60;
-    private static final int DEFAULT_ALERT_DELAY = 24 * 60 * 60;
-    private static final int MIN_ALERT_DELAY = 12 * 60 * 60;
+    private static final int DEFAULT_ALERT_DELAY = 48 * 60 * 60;
+    private static final int MIN_ALERT_DELAY = 32 * 60 * 60;
     private static final int MAX_ALERT_DELAY = 2 * 7 * 24 * 60 * 60;
     private static final int BUSY_TIMEOUT = 10 * 1000;
     private static final int QR_CODE_SIZE = 300;
