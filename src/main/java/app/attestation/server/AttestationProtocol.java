@@ -160,7 +160,7 @@ class AttestationProtocol {
     private static final int OS_VERSION_MINIMUM = 80000;
     private static final int OS_PATCH_LEVEL_MINIMUM = 201801;
 
-    private static final String DEVICE_BKL_L04 = "Huawei Honor View 10";
+    private static final String DEVICE_BKL_L04 = "Huawei Honor View 10 / Mate 10";
     private static final String DEVICE_NOKIA = "Nokia (6.1, 7 Plus)";
     private static final String DEVICE_PIXEL_2 = "Google Pixel 2";
     private static final String DEVICE_PIXEL_2_XL = "Google Pixel 2 XL";
@@ -169,7 +169,7 @@ class AttestationProtocol {
     private static final String DEVICE_SM_G965F = "Samsung Galaxy S9+ (SM-G965F)";
     private static final String DEVICE_SM_G965_MSM = "Samsung Galaxy S9+ (Snapdragon)";
     private static final String DEVICE_SONY_XPERIA_XA2 = "Sony Xperia XA2";
-    private static final String DEVICE_SONY_XPERIA_XZ1 = "Sony Xperia XZ1 / XZ1 Compact";
+    private static final String DEVICE_SONY_XPERIA_XZ1 = "Sony Xperia XZ1 / Xperia XZ1 Compact";
     private static final String DEVICE_SONY_XPERIA_XZ2 = "Sony Xperia XZ2 (H8216)";
     private static final String DEVICE_ONEPLUS_6_A6003 = "OnePlus 6 A6003";
 
