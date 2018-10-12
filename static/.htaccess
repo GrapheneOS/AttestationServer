@@ -35,3 +35,10 @@ RewriteCond %{REQUEST_FILENAME} -f
 RewriteRule ^(.*)\.html$ /$1 [L,R=301]
 
 AddType application/manifest+json webmanifest
+
+AddOutputFilterByType DEFLATE application/manifest+json
+AddOutputFilterByType DEFLATE application/javascript
+AddOutputFilterByType DEFLATE image/vnd.microsoft.icon
+AddOutputFilterByType DEFLATE text/css
+AddOutputFilterByType DEFLATE text/html
+AddOutputFilterByType DEFLATE text/plain
