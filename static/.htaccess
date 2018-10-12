@@ -8,8 +8,12 @@ report-uri https://danielmicay.report-uri.com/r/d/csp/enforce"
 Header always set Feature-Policy "accelerometer 'none'; camera 'none'; geolocation 'none'; \
 gyroscope 'none'; magnetometer 'none'; microphone 'none'; midi 'none'; usb 'none'; vr 'none'"
 
-<FilesMatch "\.(html|ico|txt|webmanifest|xml)$">
+<FilesMatch "\.(html|txt|webmanifest|xml)$">
 Header set Cache-Control "public, max-age=1800"
+</FilesMatch>
+
+<FilesMatch "\.(ico)$">
+Header set Cache-Control "public, max-age=86400"
 </FilesMatch>
 
 <FilesMatch "\.(css|js|png|woff2)$">
