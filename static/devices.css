@@ -100,6 +100,17 @@ input {
     margin: 2px;
 }
 
+#bitcoin_address {
+    display: inline-block;
+}
+
+#bitcoin_address > * {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
 /* latin */
 @font-face {
     font-family: 'Roboto';
