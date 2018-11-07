@@ -172,6 +172,7 @@ class AttestationProtocol {
     private static final String DEVICE_SONY_XPERIA_XZ1 = "Sony Xperia XZ1 / Xperia XZ1 Compact";
     private static final String DEVICE_SONY_XPERIA_XZ2 = "Sony Xperia XZ2 (H8216)";
     private static final String DEVICE_ONEPLUS_6_A6003 = "OnePlus 6 A6003";
+    private static final String DEVICE_BLACKBERRY_KEY2 = "BlackBerry Key2";
 
     static class DeviceInfo {
         final String name;
@@ -221,6 +222,8 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_SONY_XPERIA_XZ1, 2, 3, true))
             .put("BC3B5E121974113939B8A2FE758F9B923F1D195F038D2FD1C04929F886E83BB5",
                     new DeviceInfo(DEVICE_SONY_XPERIA_XZ2, 2, 3, false))
+            .put("728800FEBB119ADD74519618AFEDB715E1C39FE08A4DE37D249BF54ACF1CE00F",
+                    new DeviceInfo(DEVICE_BLACKBERRY_KEY2, 2, 3, true))
             .build();
 
     private static final String GOOGLE_ROOT_CERTIFICATE =
