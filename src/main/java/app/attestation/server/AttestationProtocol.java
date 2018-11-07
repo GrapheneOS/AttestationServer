@@ -160,7 +160,7 @@ class AttestationProtocol {
     private static final int OS_VERSION_MINIMUM = 80000;
     private static final int OS_PATCH_LEVEL_MINIMUM = 201801;
 
-    private static final String DEVICE_BKL_L04 = "Huawei Honor View 10 / Mate 10";
+    private static final String DEVICE_HUAWEI = "Huawei Honor View 10 / Mate 10 / P20 Pro";
     private static final String DEVICE_NOKIA = "Nokia (6.1, 7 Plus)";
     private static final String DEVICE_PIXEL_2 = "Google Pixel 2";
     private static final String DEVICE_PIXEL_2_XL = "Google Pixel 2 XL";
@@ -198,7 +198,7 @@ class AttestationProtocol {
     static final ImmutableMap<String, DeviceInfo> fingerprintsStock = ImmutableMap
             .<String, DeviceInfo>builder()
             .put("5341E6B2646979A70E57653007A1F310169421EC9BDD9F1A5648F75ADE005AF1",
-                    new DeviceInfo(DEVICE_BKL_L04, 2, 3, false))
+                    new DeviceInfo(DEVICE_HUAWEI, 2, 3, false))
             .put("DFC2920C81E136FDD2A510478FDA137B262DC51D449EDD7D0BDB554745725CFE",
                     new DeviceInfo(DEVICE_NOKIA, 2, 3, true))
             .put("6101853DFF451FAE5B137DF914D5E6C15C659337F2C405AC50B513A159071958",
