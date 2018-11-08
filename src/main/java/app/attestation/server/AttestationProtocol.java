@@ -168,6 +168,7 @@ class AttestationProtocol {
     private static final String DEVICE_SM_G960U = "Samsung Galaxy S9 (SM-G960U)";
     private static final String DEVICE_SM_G965F = "Samsung Galaxy S9+ (SM-G965F)";
     private static final String DEVICE_SM_G965_MSM = "Samsung Galaxy S9+ (Snapdragon)";
+    private static final String DEVICE_SM_N960U = "Samsung Galaxy Note 9 (SM-N960U)";
     private static final String DEVICE_SONY_XPERIA_XA2 = "Sony Xperia XA2";
     private static final String DEVICE_SONY_XPERIA_XZ1 = "Sony Xperia XZ1 / Xperia XZ1 Compact";
     private static final String DEVICE_SONY_XPERIA_XZ2 = "Sony Xperia XZ2 (H8216)";
@@ -217,6 +218,8 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_SM_G965F, 1, 2, false))
             .put("A4A544C2CFBAEAA88C12360C2E4B44C29722FC8DBB81392A6C1FAEDB7BF63010",
                     new DeviceInfo(DEVICE_SM_G965_MSM, 1, 2, false))
+            .put("173ACFA8AE9EDE7BBD998F45A49231F3A4BDDF0779345732E309446B46B5641B",
+                    new DeviceInfo(DEVICE_SM_N960U, 1, 2, false))
             .put("4285AD64745CC79B4499817F264DC16BF2AF5163AF6C328964F39E61EC84693E",
                     new DeviceInfo(DEVICE_SONY_XPERIA_XA2, 2, 3, true))
             .put("54A9F21E9CFAD3A2D028517EF333A658302417DB7FB75E0A109A019646CC5F39",
