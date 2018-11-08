@@ -175,6 +175,7 @@ class AttestationProtocol {
     private static final String DEVICE_ONEPLUS_6_A6003 = "OnePlus 6 A6003";
     private static final String DEVICE_BLACKBERRY_KEY2 = "BlackBerry Key2";
     private static final String DEVICE_BQ_AQUARIS_X2_PRO = "BQ Aquaris X2 Pro";
+    private static final String DEVICE_XIAOMI_MI_A2_LITE = "Xiaomi Mi A2 Lite";
 
     static class DeviceInfo {
         final String name;
@@ -230,6 +231,9 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_BLACKBERRY_KEY2, 2, 3, true))
             .put("1194659B40EA291245E54A3C4EC4AA5B7077BD244D65C7DD8C0A2DBB9DB1FB35",
                     new DeviceInfo(DEVICE_BQ_AQUARIS_X2_PRO, 2, 3, true))
+            .put("6FA710B639848C9D47378937A1AFB1B6A52DDA738BEB6657E2AE70A15B40541A",
+                    new DeviceInfo(DEVICE_XIAOMI_MI_A2_LITE, 2, 3, true))
+
             .build();
 
     private static final String GOOGLE_ROOT_CERTIFICATE =
