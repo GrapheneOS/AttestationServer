@@ -159,6 +159,8 @@ class AttestationProtocol {
             "990E04F0864B19F14F84E0E432F7A393F297AB105A22C1E1B10B442A4A62C42C";
     private static final int OS_VERSION_MINIMUM = 80000;
     private static final int OS_PATCH_LEVEL_MINIMUM = 201801;
+    private static final int VENDOR_PATCH_LEVEL_MINIMUM = 201809;
+    private static final int BOOT_PATCH_LEVEL_MINIMUM = 201809;
 
     private static final String DEVICE_HUAWEI = "Huawei Honor 10 / Honor View 10 / Mate 10 / P20 Pro";
     private static final String DEVICE_NOKIA = "Nokia (6.1, 7 Plus)";
@@ -335,15 +337,20 @@ class AttestationProtocol {
         final String verifiedBootKey;
         final int osVersion;
         final int osPatchLevel;
+        final int vendorPatchLevel;
+        final int bootPatchLevel;
         final int appVersion;
         final boolean isStock;
 
         Verified(final String device, final String verifiedBootKey, final int osVersion,
-                final int osPatchLevel, final int appVersion, final boolean isStock) {
+                final int osPatchLevel, final int vendorPatchLevel, final int bootPatchLevel,
+                final int appVersion, final boolean isStock) {
             this.device = device;
             this.verifiedBootKey = verifiedBootKey;
             this.osVersion = osVersion;
             this.osPatchLevel = osPatchLevel;
+            this.vendorPatchLevel = vendorPatchLevel;
+            this.bootPatchLevel = bootPatchLevel;
             this.appVersion = appVersion;
             this.isStock = isStock;
         }
@@ -426,6 +433,24 @@ class AttestationProtocol {
         if (osPatchLevel < OS_PATCH_LEVEL_MINIMUM) {
             throw new GeneralSecurityException("OS patch level too old");
         }
+        final int vendorPatchLevel;
+        if (teeEnforced.getVendorPatchLevel() == null) {
+            vendorPatchLevel = 0;
+        } else {
+            vendorPatchLevel = teeEnforced.getVendorPatchLevel();
+            if (vendorPatchLevel < VENDOR_PATCH_LEVEL_MINIMUM) {
+                throw new GeneralSecurityException("Vendor patch level too old");
+            }
+        }
+        final int bootPatchLevel;
+        if (teeEnforced.getBootPatchLevel() == null) {
+            bootPatchLevel = 0;
+        } else {
+            bootPatchLevel = teeEnforced.getBootPatchLevel();
+            if (bootPatchLevel < BOOT_PATCH_LEVEL_MINIMUM) {
+                throw new GeneralSecurityException("Boot patch level too old");
+            }
+        }
 
         final int verifiedBootState = rootOfTrust.getVerifiedBootState();
         final String verifiedBootKey = BaseEncoding.base16().encode(rootOfTrust.getVerifiedBootKey());
@@ -464,8 +489,8 @@ class AttestationProtocol {
             throw new GeneralSecurityException("keymaster version below " + device.keymasterVersion);
         }
 
-        return new Verified(device.name, verifiedBootKey, osVersion, osPatchLevel, appVersion,
-                stock);
+        return new Verified(device.name, verifiedBootKey, osVersion, osPatchLevel, vendorPatchLevel,
+                bootPatchLevel, appVersion, stock);
     }
 
     private static void verifyCertificateSignatures(Certificate[] certChain)
