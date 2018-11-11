@@ -24,7 +24,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 
-//import android.security.keystore.KeyProperties;
 //import android.util.Log;
 
 import org.bouncycastle.asn1.ASN1Encodable;
@@ -438,25 +437,25 @@ public class AuthorizationList {
 
         ImmutableSet.Builder<String> builder = ImmutableSet.builder();
         for (int paddingMode : paddingModes) {
-            //switch (paddingMode) {
-                //case KM_PAD_NONE:
-                    //builder.add(KeyProperties.ENCRYPTION_PADDING_NONE);
-                    //break;
-                //case KM_PAD_RSA_OAEP:
-                    //builder.add(KeyProperties.ENCRYPTION_PADDING_RSA_OAEP);
-                    //break;
-                //case KM_PAD_RSA_PKCS1_1_5_ENCRYPT:
-                    //builder.add(KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1);
-                    //break;
-                //case KM_PAD_RSA_PKCS1_1_5_SIGN:
-                    //builder.add(KeyProperties.SIGNATURE_PADDING_RSA_PKCS1);
-                    //break;
-                //case KM_PAD_RSA_PSS:
-                    //builder.add(KeyProperties.SIGNATURE_PADDING_RSA_PSS);
-                    //break;
-                //default:
-                    //throw new CertificateParsingException("Invalid padding mode " + paddingMode);
-            //}
+            switch (paddingMode) {
+                case KM_PAD_NONE:
+                    builder.add(KeyProperties.ENCRYPTION_PADDING_NONE);
+                    break;
+                case KM_PAD_RSA_OAEP:
+                    builder.add(KeyProperties.ENCRYPTION_PADDING_RSA_OAEP);
+                    break;
+                case KM_PAD_RSA_PKCS1_1_5_ENCRYPT:
+                    builder.add(KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1);
+                    break;
+                case KM_PAD_RSA_PKCS1_1_5_SIGN:
+                    builder.add(KeyProperties.SIGNATURE_PADDING_RSA_PKCS1);
+                    break;
+                case KM_PAD_RSA_PSS:
+                    builder.add(KeyProperties.SIGNATURE_PADDING_RSA_PSS);
+                    break;
+                default:
+                    throw new CertificateParsingException("Invalid padding mode " + paddingMode);
+            }
         }
         return builder.build();
     }
