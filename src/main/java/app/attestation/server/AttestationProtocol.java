@@ -76,8 +76,8 @@ class AttestationProtocol {
     // The Auditor will eventually start trying to be backwards compatible with older Auditee app
     // versions but not the other way around.
     //
-    // Compression is done with raw DEFLATE (no zlib wrapper) with a preset dictionary
-    // (DEFLATE_DICTIONARY) generated from sample certificates.
+    // Compression is done with raw DEFLATE (no zlib wrapper) with a preset dictionary generated from
+    // sample certificates.
     //
     // signed message {
     // byte version = min(maxVersion, PROTOCOL_VERSION)
@@ -87,6 +87,10 @@ class AttestationProtocol {
     // int osEnforcedFlags
     // }
     // byte[] signature (rest of message)
+    //
+    // Protocol version changes:
+    //
+    // 1: replace deflate_dictionary_0 with deflate_dictionary_1
     //
     // For each audit, the Auditee generates a fresh hardware-backed key with key attestation
     // using the provided challenge. It reports back the certificate chain to be verified by the
@@ -123,7 +127,7 @@ class AttestationProtocol {
     // the outer signature and the rest of the chain for pinning the expected chain. It enforces
     // downgrade protection for the OS version/patch (bootloader/TEE enforced) and app version (OS
     // enforced) by keeping them updated.
-    static final byte PROTOCOL_VERSION = 0;
+    static final byte PROTOCOL_VERSION = 1;
     private static final byte PROTOCOL_VERSION_MINIMUM = 0;
     // can become longer in the future, but this is the minimum length
     private static final byte CHALLENGE_MESSAGE_LENGTH = 1 + CHALLENGE_LENGTH * 2;
@@ -282,7 +286,7 @@ class AttestationProtocol {
             "wDB5y0USicV3YgYGmi+NZfhA4URSh77Yd6uuJOJENRaNVTzk\n" +
             "-----END CERTIFICATE-----";
 
-    private static final byte[] DEFLATE_DICTIONARY = BaseEncoding.base64().decode(
+    private static final byte[] DEFLATE_DICTIONARY_0 = BaseEncoding.base64().decode(
             "MIICZjCCAg2gAwIBAgIBATAKBggqhkjOPQQDAjAbMRkwFwYDVQQFExBkNzc1MjM0ODY2ZjM3ZjUz" +
             "MCAXDTE4MDIwNTAxNDM1OVoYDzIxMDYwMjA3MDYyODE1WjAfMR0wGwYDVQQDDBRBbmRyb2lkIEtl" +
             "eXN0b3JlIEtleTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABODxAGPDQUKeGN90LJ30XS5voSvK" +
@@ -321,6 +325,45 @@ class AttestationProtocol {
             "6ryfWqDkjolZ4R74rnxJtENWg1CCwo/3+I+u5cxTmubbLA/EgJUbKyXUaAA/4Undfqg/S1cVZCVi" +
             "hZ1KWhJUc1lCqPZ6//r2wycaxN4nDVXsjSBH55k0R/F769kPgo/zwrG6I8J73iun4Cqzn9jC4Kjq" +
             "tD4caLk5k0GxBdgi58KVIGN746mNBvscmCKEl3Ojb8gH");
+
+    private static final byte[] DEFLATE_DICTIONARY_1 = BaseEncoding.base64().decode(
+            "MIICOzCCAeKgAwIBAgIBATAKBggqhkjOPQQDAjAbMRkwFwYDVQQFExBkNzc1MjM0ODY2ZjM3ZjUz" +
+            "MCAXDTcwMDEwMTAwMDAwMFoYDzIxMDYwMjA3MDYyODE1WjAfMR0wGwYDVQQDDBRBbmRyb2lkIEtl" +
+            "eXN0b3JlIEtleTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABL//uGYRGvZkKMBn+OD141iz+Roo" +
+            "KosorGyVa0lqW/BK40odihF55g1elhnVqjclcGE/H4b4jIKuC5vq+r+vF16jggEPMIIBCzAOBgNV" +
+            "HQ8BAf8EBAMCB4AwgfgGCisGAQQB1nkCAREEgekwgeYCAQIKAQECAQMKAQEEBnNhbXBsZQQAMFi/" +
+            "hT0IAgYBZwC3xBC/hUVIBEYwRDEeMBwEF2FwcC5hdHRlc3RhdGlvbi5hdWRpdG9yAgEEMSIEIJkO" +
+            "BPCGSxnxT4Tg5DL3o5Pyl6sQWiLB4bELRCpKYsQsMHShCDEGAgECAgEDogMCAQOjBAICAQClBTED" +
+            "AgEEqgMCAQG/g3cCBQC/hT4DAgEAv4U/AgUAv4VAKjAoBCAXFhbq7yYAn8RtxtifPSQhfpJsgaZ8" +
+            "5l0uOp3CcEDHqwEB/woBAL+FQQUCAwFfkL+FQgUCAwMUUzAKBggqhkjOPQQDAgNHADBEAiBXQsil" +
+            "fWfag1ubiMjD4AQrawdvNmQj5Qi62uAIfv+ZzgIgfZTibp2AVtBWSAezlalyOaZIMo+z7wS8ZFq3" +
+            "eHicabgwggIpMIIBr6ADAgECAgloORJGdChHOWEwCgYIKoZIzj0EAwIwGzEZMBcGA1UEBRMQODdm" +
+            "NDUxNDQ3NWJhMGEyYjAeFw0xNjA1MjYxNzA3MzNaFw0yNjA1MjQxNzA3MzNaMBsxGTAXBgNVBAUT" +
+            "EGQ3NzUyMzQ4NjZmMzdmNTMwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASqtc7KxE2tv4aOkx2u" +
+            "axeuqr6PItpqGRyAKjqsBE7JhY4poRG9oWjC0azGRJ8xJuqimPeqn/8kE5bmJGsdFyngo4HbMIHY" +
+            "MB0GA1UdDgQWBBQvvxzSWU7SsNOWC3CeF0TcGhBQSzAfBgNVHSMEGDAWgBQwRCPlovYG4VCrd18W" +
+            "FruRzGPGWTAMBgNVHRMBAf8EAjAAMA4GA1UdDwEB/wQEAwIHgDAkBgNVHR4EHTAboBkwF4IVaW52" +
+            "YWxpZDtlbWFpbDppbnZhbGlkMFIGA1UdHwRLMEkwR6BFoEOGQWh0dHBzOi8vYW5kcm9pZC5nb29n" +
+            "bGVhcGlzLmNvbS9hdHRlc3RhdGlvbi9jcmwvNjgzOTEyNDY3NDI4NDczOTYxMAoGCCqGSM49BAMC" +
+            "A2gAMGUCMD2sDgFbg20egPedfKwfOIqUugCEK6nxXh02Za7qG0i3jcjcA2ZWbsLN602qASM08AIx" +
+            "AIG4MorAs4cED1r90dv3LwCkZn4BTpK13Ef+sc9hEWrzj/lY6ZRXu894W5Ggw97TzTCCA8MwggGr" +
+            "oAMCAQICCgOIJmdgZYmWhXUwDQYJKoZIhvcNAQELBQAwGzEZMBcGA1UEBRMQZjkyMDA5ZTg1M2I2" +
+            "YjA0NTAeFw0xNjA1MjYxNzAxNTFaFw0yNjA1MjQxNzAxNTFaMBsxGTAXBgNVBAUTEDg3ZjQ1MTQ0" +
+            "NzViYTBhMmIwdjAQBgcqhkjOPQIBBgUrgQQAIgNiAARkO1ZoHSf6xILPbCBN687wKVw1DAGqjDJ/" +
+            "PtX0Sa70KWZCXzk9hHY7Xa1WsQ0EWcYsak+TJVaokpPD0U6i8d/vDjy6InKjIjnhsrR9rFULq7xc" +
+            "p1XiqkhiitY8dv9n3HKjgbYwgbMwHQYDVR0OBBYEFDBEI+Wi9gbhUKt3XxYWu5HMY8ZZMB8GA1Ud" +
+            "IwQYMBaAFDZh4QB8iAUJUYtEbEf/GkzJ6k8SMA8GA1UdEwEB/wQFMAMBAf8wDgYDVR0PAQH/BAQD" +
+            "AgGGMFAGA1UdHwRJMEcwRaBDoEGGP2h0dHBzOi8vYW5kcm9pZC5nb29nbGVhcGlzLmNvbS9hdHRl" +
+            "c3RhdGlvbi9jcmwvRThGQTE5NjMxNEQyRkExODANBgkqhkiG9w0BAQsFAAOCAgEAQDmKiza8k5mz" +
+            "pZ645yLw6F8c2izoAl7tvZeyqWxR2nFS8YGLhkYiBEKs2QalGErfT4Mfj9ir6B7c/fbBGa9sU3tA" +
+            "8Ogkx0wJsVl1BXa5bxDJthskn7yUXzDQrl9aCEvzOT30RGNmGR8i6v7J9bCa9xY2yjHVDAaOQHGp" +
+            "nA9x/MJfTv+qn4V/ue4l86CusjMyURvzJZJufP7BZNKY2slAXIZlCS9BUOiISmIMvEShNlA8lyjh" +
+            "O/mTEjFFJAHc8p9jxb+070LQ5NIHtppFaza3z0oJTMwTb60gxzwZk5LV88LHlWoCEU+ViPdTq1Dm" +
+            "DxYKLLbHx+NobOcCbQBRj8A4P9ZjWvFMh/ZNWzK0at0q3s9VxtCbu0hjf7jV+XZHML3wJmnbZjOz" +
+            "6fpdlR0WEUetNIwHDNvu25fHoKnzPwO78gy2ajyMQ8JC149njffZyWSVWhnwfXR8hTqgagTOkncl" +
+            "ejEiK9wB6KOrvgViF/fqvJ9aoOSOiVnhHviufEm0Q1aDUILCj/f4j67lzFOa5tssD8SAlRsrJdRo" +
+            "AD/hSd1+qD9LVxVkJWKFnUpaElRzWUKo9nr/+vbDJxrE3icNVeyNIEfnmTRH8Xvr2Q+Cj/PCsboj" +
+            "wnveK6fgKrOf2MLgqOq0PhxouTmTQbEF2CLnwpUgY3vjqY0G+xyYIoSXc6NvyAc=");
 
     static byte[] getChallenge() {
         final SecureRandom random = new SecureRandom();
@@ -774,7 +817,7 @@ class AttestationProtocol {
         final byte[] chain = new byte[MAX_ENCODED_CHAIN_LENGTH];
         final Inflater inflater = new Inflater(true);
         inflater.setInput(compressedChain);
-        inflater.setDictionary(DEFLATE_DICTIONARY);
+        inflater.setDictionary(version > 0 ? DEFLATE_DICTIONARY_1 : DEFLATE_DICTIONARY_0);
         final int chainLength = inflater.inflate(chain);
         if (!inflater.finished()) {
             throw new GeneralSecurityException("certificate chain is too large");
