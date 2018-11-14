@@ -181,6 +181,7 @@ class AttestationProtocol {
     private static final String DEVICE_BQ_AQUARIS_X2_PRO = "BQ Aquaris X2 Pro";
     private static final String DEVICE_XIAOMI_MI_A2 = "Xiaomi Mi A2";
     private static final String DEVICE_XIAOMI_MI_A2_LITE = "Xiaomi Mi A2 Lite";
+    private static final String DEVICE_HTC_EXODUS_1 = "HTC EXODUS 1";
 
     static class DeviceInfo {
         final String name;
@@ -244,7 +245,8 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_XIAOMI_MI_A2, 2, 3, true))
             .put("6FA710B639848C9D47378937A1AFB1B6A52DDA738BEB6657E2AE70A15B40541A",
                     new DeviceInfo(DEVICE_XIAOMI_MI_A2_LITE, 2, 3, true))
-
+            .put("1CC39488D2F85DEE0A8E0903CDC4124CFDF2BE2531ED6060B678057ED2CB89B4",
+                    new DeviceInfo(DEVICE_HTC_EXODUS_1, 2, 3, true))
             .build();
 
     private static final String GOOGLE_ROOT_CERTIFICATE =
