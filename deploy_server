@@ -17,3 +17,4 @@ fi
 ssh $remote rm -rf $target
 scp -r build/libs $remote:$target
 ssh $remote ln -snf $target deploy
+ssh root@attestation.app systemctl restart attestation
