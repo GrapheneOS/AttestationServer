@@ -184,7 +184,7 @@ class AttestationProtocol {
     private static final String DEVICE_ONEPLUS_6_A6003 = "OnePlus 6 A6003";
     private static final String DEVICE_BLACKBERRY_KEY2 = "BlackBerry Key2";
     private static final String DEVICE_BQ_AQUARIS_X2_PRO = "BQ Aquaris X2 Pro";
-    private static final String DEVICE_XIAOMI_MI_A2 = "Xiaomi Mi A2";
+    private static final String DEVICE_XIAOMI_MI_A2 = "Xiaomi Mi A2 / POCOPHONE F1";
     private static final String DEVICE_XIAOMI_MI_A2_LITE = "Xiaomi Mi A2 Lite";
     private static final String DEVICE_HTC = "HTC EXODUS 1 / U12+";
 
