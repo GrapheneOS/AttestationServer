@@ -13,4 +13,5 @@ fi
 
 ssh $remote rm -rf /var/www/$target
 scp -r static $remote:/var/www/$target
+ssh $remote chmod -R a+rX /var/www/$target
 ssh $remote ln -snf $target /var/www/html
