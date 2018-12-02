@@ -579,6 +579,18 @@ class AttestationProtocol {
         final String osPatchLevel = Integer.toString(verified.osPatchLevel);
         builder.append(String.format("OS patch level: %s\n",
                 osPatchLevel.substring(0, 4) + "-" + osPatchLevel.substring(4, 6)));
+
+        final String vendorPatchLevel = Integer.toString(verified.vendorPatchLevel);
+        if (verified.vendorPatchLevel != 0) {
+            builder.append(String.format("Vendor patch level: %s\n",
+                    vendorPatchLevel.substring(0, 4) + "-" + vendorPatchLevel.substring(4, 6)));
+        }
+
+        final String bootPatchLevel = Integer.toString(verified.bootPatchLevel);
+        if (verified.bootPatchLevel != 0) {
+            builder.append(String.format("Boot patch level: %s\n",
+                    bootPatchLevel.substring(0, 4) + "-" + bootPatchLevel.substring(4, 6)));
+        }
     }
 
     private static void verifySignature(final PublicKey key, final ByteBuffer message,
