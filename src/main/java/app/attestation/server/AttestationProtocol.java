@@ -644,11 +644,14 @@ class AttestationProtocol {
             byte[] pinnedVerifiedBootKey = null;
             int pinnedOsVersion = Integer.MAX_VALUE;
             int pinnedOsPatchLevel = Integer.MAX_VALUE;
+            int pinnedVendorPatchLevel = 0;
+            int pinnedBootPatchLevel = 0;
             int pinnedAppVersion = Integer.MAX_VALUE;
             if (hasPersistentKey) {
                 final SQLiteStatement st = conn.prepare("SELECT pinnedCertificate0, " +
                         "pinnedCertificate1, pinnedCertificate2, pinnedVerifiedBootKey, " +
-                        "pinnedOsVersion, pinnedOsPatchLevel, pinnedAppVersion, userId " +
+                        "pinnedOsVersion, pinnedOsPatchLevel, pinnedVendorPatchLevel, " +
+                        "pinnedBootPatchLevel, pinnedAppVersion, userId " +
                         "FROM Devices WHERE fingerprint = ?");
                 st.bind(1, fingerprint);
                 if (st.step()) {
@@ -658,8 +661,10 @@ class AttestationProtocol {
                     pinnedVerifiedBootKey = st.columnBlob(3);
                     pinnedOsVersion = st.columnInt(4);
                     pinnedOsPatchLevel = st.columnInt(5);
-                    pinnedAppVersion = st.columnInt(6);
-                    if (userId != st.columnLong(7)) {
+                    pinnedVendorPatchLevel = st.columnInt(6);
+                    pinnedBootPatchLevel = st.columnInt(7);
+                    pinnedAppVersion = st.columnInt(8);
+                    if (userId != st.columnLong(9)) {
                         throw new GeneralSecurityException("wrong userId");
                     }
                     st.dispose();
@@ -706,6 +711,12 @@ class AttestationProtocol {
                 if (verified.osPatchLevel < pinnedOsPatchLevel) {
                     throw new GeneralSecurityException("OS patch level downgrade detected");
                 }
+                if (verified.vendorPatchLevel < pinnedVendorPatchLevel) {
+                    throw new GeneralSecurityException("Vendor patch level downgrade detected");
+                }
+                if (verified.bootPatchLevel < pinnedBootPatchLevel) {
+                    throw new GeneralSecurityException("Boot patch level downgrade detected");
+                }
                 if (verified.appVersion < pinnedAppVersion) {
                     throw new GeneralSecurityException("App version downgraded");
                 }
@@ -713,24 +724,28 @@ class AttestationProtocol {
                 appendVerifiedInformation(teeEnforced, verified);
 
                 final SQLiteStatement update = conn.prepare("UPDATE Devices SET " +
-                        "pinnedOsVersion = ?, pinnedOsPatchLevel = ?, pinnedAppVersion = ?, " +
-                        "userProfileSecure = ?, enrolledFingerprints = ?, accessibility = ?, " +
-                        "deviceAdmin = ?, adbEnabled = ?, addUsersWhenLocked = ?, " +
-                        "denyNewUsb = ?, oemUnlockAllowed = ?, verifiedTimeLast = ? " +
+                        "pinnedOsVersion = ?, pinnedOsPatchLevel = ?, " +
+                        "pinnedVendorPatchLevel = ?, pinnedBootPatchLevel = ?, " +
+                        "pinnedAppVersion = ?, userProfileSecure = ?, enrolledFingerprints = ?, " +
+                        "accessibility = ?, deviceAdmin = ?, adbEnabled = ?, " +
+                        "addUsersWhenLocked = ?, denyNewUsb = ?, oemUnlockAllowed = ?, " +
+                        "verifiedTimeLast = ? " +
                         "WHERE fingerprint = ?");
                 update.bind(1, verified.osVersion);
                 update.bind(2, verified.osPatchLevel);
-                update.bind(3, verified.appVersion);
-                update.bind(4, userProfileSecure ? 1 : 0);
-                update.bind(5, enrolledFingerprints ? 1 : 0);
-                update.bind(6, accessibility ? 1 : 0);
-                update.bind(7, deviceAdmin ? (deviceAdminNonSystem ? 2 : 1) : 0);
-                update.bind(8, adbEnabled ? 1 : 0);
-                update.bind(9, addUsersWhenLocked ? 1 : 0);
-                update.bind(10, denyNewUsb ? 1 : 0);
-                update.bind(11, oemUnlockAllowed ? 1 : 0);
-                update.bind(12, now);
-                update.bind(13, fingerprint);
+                update.bind(3, verified.vendorPatchLevel);
+                update.bind(4, verified.bootPatchLevel);
+                update.bind(5, verified.appVersion);
+                update.bind(6, userProfileSecure ? 1 : 0);
+                update.bind(7, enrolledFingerprints ? 1 : 0);
+                update.bind(8, accessibility ? 1 : 0);
+                update.bind(9, deviceAdmin ? (deviceAdminNonSystem ? 2 : 1) : 0);
+                update.bind(10, adbEnabled ? 1 : 0);
+                update.bind(11, addUsersWhenLocked ? 1 : 0);
+                update.bind(12, denyNewUsb ? 1 : 0);
+                update.bind(13, oemUnlockAllowed ? 1 : 0);
+                update.bind(14, now);
+                update.bind(15, fingerprint);
                 update.step();
                 update.dispose();
             } else {
