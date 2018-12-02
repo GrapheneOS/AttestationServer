@@ -182,6 +182,12 @@ function fetchDevices() {
             appendLine(info, "OS: " + device.os);
             appendLine(info, "OS version: " + formatOsVersion(device.pinnedOsVersion));
             appendLine(info, "OS patch level: " + formatOsPatchLevel(device.pinnedOsPatchLevel));
+            if (device.pinnedVendorPatchLevel !== undefined) {
+                appendLine(info, "Vendor patch level: " + formatOsPatchLevel(device.pinnedVendorPatchLevel));
+            }
+            if (device.pinnedBootPatchLevel !== undefined) {
+                appendLine(info, "Boot patch level: " + formatOsPatchLevel(device.pinnedBootPatchLevel));
+            }
 
             info.appendChild(create("button", "show advanced information", "toggle"));
             const advanced = info.appendChild(document.createElement("span"));
