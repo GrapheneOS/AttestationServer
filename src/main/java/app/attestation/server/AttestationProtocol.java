@@ -170,7 +170,9 @@ class AttestationProtocol {
     private static final String DEVICE_NOKIA = "Nokia (6.1, 7 Plus)";
     private static final String DEVICE_PIXEL_2 = "Google Pixel 2";
     private static final String DEVICE_PIXEL_2_XL = "Google Pixel 2 XL";
+    private static final String DEVICE_PIXEL_3_GENERIC = "Google Pixel 3 / Pixel 3 XL";
     private static final String DEVICE_PIXEL_3 = "Google Pixel 3";
+    private static final String DEVICE_PIXEL_3_XL = "Google Pixel 3 XL";
     private static final String DEVICE_SM_G960F = "Samsung Galaxy S9 (SM-G960F)";
     private static final String DEVICE_SM_G960_NA = "Samsung Galaxy S9 USA/Canada (SM-G960U/SM-G960W)";
     private static final String DEVICE_SM_G965F = "Samsung Galaxy S9+ (SM-G965F)";
@@ -211,6 +213,8 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_PIXEL_2_XL, 2, 3, true))
             .put("4F308FF86A7D10FC5B5D0B7852DD2727103E71E6DE6E0772AC01AD25CA38C076",
                     new DeviceInfo(DEVICE_PIXEL_3, 3, 3, false /* uses new API */))
+            .put("02E67A84095D0D0E25BB042CE2935CC688765444EA895A95B3DF988329204E8C",
+                    new DeviceInfo(DEVICE_PIXEL_3_XL, 3, 3, false /* uses new API */))
             .build();
     static final ImmutableMap<String, DeviceInfo> fingerprintsStock = ImmutableMap
             .<String, DeviceInfo>builder()
@@ -225,7 +229,7 @@ class AttestationProtocol {
             .put("171616EAEF26009FC46DC6D89F3D24217E926C81A67CE65D2E3A9DC27040C7AB",
                     new DeviceInfo(DEVICE_PIXEL_2_XL, 2, 3, true))
             .put("B799391AFAE3B35522D1EDC5C70A3746B097BDD1CABD59F72BB049705C7A03EF",
-                    new DeviceInfo(DEVICE_PIXEL_3, 3, 3, false /* needs new API */))
+                    new DeviceInfo(DEVICE_PIXEL_3_GENERIC, 3, 3, false /* needs new API */))
             .put("33D9484FD512E610BCF00C502827F3D55A415088F276C6506657215E622FA770",
                     new DeviceInfo(DEVICE_SM_G960F, 1, 2, false))
             .put("266869F7CF2FB56008EFC4BE8946C8F84190577F9CA688F59C72DD585E696488",
@@ -262,11 +266,13 @@ class AttestationProtocol {
             .<String, DeviceInfo>builder()
             .put("1CFBCCC117998B87373356F4BC2E68F688EFD2BEB367CBE27796AA299563D4D3",
                     new DeviceInfo(DEVICE_PIXEL_3, 3, 3, false /* uses new API */))
+            .put("5BAA7D390606C9FC243BD0D61DAB0BBB375555E0703F0CB5B5BA41FDAC67EFC0",
+                    new DeviceInfo(DEVICE_PIXEL_3_XL, 3, 3, false /* uses new API */))
             .build();
     private static final ImmutableMap<String, DeviceInfo> fingerprintsStrongBoxStock = ImmutableMap
             .<String, DeviceInfo>builder()
             .put("61FDA12B32ED84214A9CF13D1AFFB7AA80BD8A268A861ED4BB7A15170F1AB00C",
-                    new DeviceInfo(DEVICE_PIXEL_3, 3, 3, false /* uses new API */))
+                    new DeviceInfo(DEVICE_PIXEL_3_GENERIC, 3, 3, false /* uses new API */))
             .build();
 
     private static final String GOOGLE_ROOT_CERTIFICATE =
