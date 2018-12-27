@@ -258,6 +258,17 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_HTC, 2, 3, true))
             .build();
 
+    private static final ImmutableMap<String, DeviceInfo> fingerprintsStrongBoxSampleOS = ImmutableMap
+            .<String, DeviceInfo>builder()
+            .put("1CFBCCC117998B87373356F4BC2E68F688EFD2BEB367CBE27796AA299563D4D3",
+                    new DeviceInfo(DEVICE_PIXEL_3, 3, 3, false /* uses new API */))
+            .build();
+    private static final ImmutableMap<String, DeviceInfo> fingerprintsStrongBoxStock = ImmutableMap
+            .<String, DeviceInfo>builder()
+            .put("61FDA12B32ED84214A9CF13D1AFFB7AA80BD8A268A861ED4BB7A15170F1AB00C",
+                    new DeviceInfo(DEVICE_PIXEL_3, 3, 3, false /* uses new API */))
+            .build();
+
     private static final String GOOGLE_ROOT_CERTIFICATE =
             "-----BEGIN CERTIFICATE-----\n" +
             "MIIFYDCCA0igAwIBAgIJAOj6GWMU0voYMA0GCSqGSIb3DQEBCwUAMBsxGTAXBgNV" +
@@ -423,12 +434,15 @@ class AttestationProtocol {
 
         final Attestation attestation = new Attestation((X509Certificate) certificates[0]);
 
+        final int attestationSecurityLevel = attestation.getAttestationSecurityLevel();
+
         // enforce hardware-based attestation
-        if (attestation.getAttestationSecurityLevel() != Attestation.KM_SECURITY_LEVEL_TRUSTED_ENVIRONMENT) {
-            throw new GeneralSecurityException("attestation security level is software");
+        if (attestationSecurityLevel != Attestation.KM_SECURITY_LEVEL_TRUSTED_ENVIRONMENT &&
+                attestationSecurityLevel != 2) {
+            throw new GeneralSecurityException("attestation security level is not valid");
         }
-        if (attestation.getKeymasterSecurityLevel() != Attestation.KM_SECURITY_LEVEL_TRUSTED_ENVIRONMENT) {
-            throw new GeneralSecurityException("keymaster security level is software");
+        if (attestation.getKeymasterSecurityLevel() != attestationSecurityLevel) {
+            throw new GeneralSecurityException("keymaster security level is not valid");
         }
 
         // prevent replay attacks
@@ -507,10 +521,18 @@ class AttestationProtocol {
         final DeviceInfo device;
         final boolean stock;
         if (verifiedBootState == RootOfTrust.KM_VERIFIED_BOOT_SELF_SIGNED) {
-            device = fingerprintsSampleOS.get(verifiedBootKey);
+            if (attestationSecurityLevel == 2) {
+                device = fingerprintsStrongBoxSampleOS.get(verifiedBootKey);
+            } else {
+                device = fingerprintsSampleOS.get(verifiedBootKey);
+            }
             stock = false;
         } else if (verifiedBootState == RootOfTrust.KM_VERIFIED_BOOT_VERIFIED) {
-            device = fingerprintsStock.get(verifiedBootKey);
+            if (attestationSecurityLevel == 2) {
+                device = fingerprintsStrongBoxStock.get(verifiedBootKey);
+            } else {
+                device = fingerprintsStock.get(verifiedBootKey);
+            }
             stock = true;
         } else {
             throw new GeneralSecurityException("verified boot state is not verified or self signed");
