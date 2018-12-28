@@ -782,10 +782,11 @@ class AttestationProtocol {
                 final SQLiteStatement insert = conn.prepare("INSERT INTO Devices " +
                         "(fingerprint, pinnedCertificate0, pinnedCertificate1, pinnedCertificate2, " +
                         "pinnedVerifiedBootKey, pinnedOsVersion, pinnedOsPatchLevel, " +
-                        "pinnedAppVersion, userProfileSecure, enrolledFingerprints, " +
-                        "accessibility, deviceAdmin, adbEnabled, addUsersWhenLocked, " +
-                        "denyNewUsb, oemUnlockAllowed, verifiedTimeFirst, verifiedTimeLast, " +
-                        "userId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                        "pinnedVendorPatchLevel, pinnedBootPatchLevel, pinnedAppVersion, " +
+                        "userProfileSecure, enrolledFingerprints, accessibility, deviceAdmin, " +
+                        "adbEnabled, addUsersWhenLocked, denyNewUsb, oemUnlockAllowed, " +
+                        "verifiedTimeFirst, verifiedTimeLast, userId) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 insert.bind(1, fingerprint);
                 insert.bind(2, attestationCertificates[0].getEncoded());
                 insert.bind(3, attestationCertificates[1].getEncoded());
@@ -793,18 +794,20 @@ class AttestationProtocol {
                 insert.bind(5, verifiedBootKey);
                 insert.bind(6, verified.osVersion);
                 insert.bind(7, verified.osPatchLevel);
-                insert.bind(8, verified.appVersion);
-                insert.bind(9, userProfileSecure ? 1 : 0);
-                insert.bind(10, enrolledFingerprints ? 1 : 0);
-                insert.bind(11, accessibility ? 1 : 0);
-                insert.bind(12, deviceAdmin ? (deviceAdminNonSystem ? 2 : 1) : 0);
-                insert.bind(13, adbEnabled ? 1 : 0);
-                insert.bind(14, addUsersWhenLocked ? 1 : 0);
-                insert.bind(15, denyNewUsb ? 1 : 0);
-                insert.bind(16, oemUnlockAllowed ? 1 : 0);
-                insert.bind(17, now);
-                insert.bind(18, now);
-                insert.bind(19, userId);
+                insert.bind(8, verified.vendorPatchLevel);
+                insert.bind(9, verified.bootPatchLevel);
+                insert.bind(10, verified.appVersion);
+                insert.bind(11, userProfileSecure ? 1 : 0);
+                insert.bind(12, enrolledFingerprints ? 1 : 0);
+                insert.bind(13, accessibility ? 1 : 0);
+                insert.bind(14, deviceAdmin ? (deviceAdminNonSystem ? 2 : 1) : 0);
+                insert.bind(15, adbEnabled ? 1 : 0);
+                insert.bind(16, addUsersWhenLocked ? 1 : 0);
+                insert.bind(17, denyNewUsb ? 1 : 0);
+                insert.bind(18, oemUnlockAllowed ? 1 : 0);
+                insert.bind(19, now);
+                insert.bind(20, now);
+                insert.bind(21, userId);
                 insert.step();
                 insert.dispose();
 
