@@ -23,7 +23,11 @@
         </nav>
         <div id="content">
             <h1>Tutorial</h1>
-            <p>The device being verified (Auditee) must be one of the supported devices. Android developer previews aren't supported since the hardware verified version is set to a placeholder value. The device performing verification (Auditor) just needs to be any Android 7.0+ compatible device with a camera.</p>
+            <h2>Local verification</h2>
+            <p>The device being verified (Auditee) must be one of the supported devices. Android
+            developer previews aren't supported since the hardware verified version is set to a
+            placeholder value. The device performing verification (Auditor) just needs to be any
+            Android 7.0+ compatible device with a camera.</p>
             <ol>
                 <li>press Auditor on the device that will be verifying the Auditee</li>
                 <li>press Auditee on the device that's going to be verified</li>
@@ -32,7 +36,12 @@
                 <li>point the camera of the Auditor at the QR code on the Auditee to read the attestation</li>
                 <li>view verification of the attestation results</li>
             </ol>
-            <p>An Auditor can verify any number of different Auditee devices. It shows a fingerprint and the first / last verification time in successful paired attestation results. An Auditee can be verified by any number of Auditors but there will be a different fingerprint for each unique pairing rather than the same fingerprint shown on each Auditor for the same Auditee.</p>
+            <h2>Scheduled remote verification</h2>
+            <p>An Auditor can verify any number of different Auditee devices. It shows a
+            fingerprint and the first / last verification time in successful paired attestation
+            results. An Auditee can be verified by any number of Auditors but there will be a
+            different fingerprint for each unique pairing rather than the same fingerprint shown
+            on each Auditor for the same Auditee.</p>
             <p>To set up regularly scheduled remote verification via the remote attestation service:</p>
             <ol>
                 <li>create an account on https://attestation.app/ from a separate device</li>
@@ -42,6 +51,20 @@
                 <li>configure an alert email address to receive alerts if the device fails to provide valid attestations in time</li>
                 <li>refresh https://attestation.app/ to view the initial attestation result</li>
             </ol>
+            <h2>Expanding device support</h2>
+            <p>Support for verifying a device needs to be added to the app based on at least one
+            valid key attestation sample from the stock OS with the bootloader locked. The Auditor
+            app can theoretically support verifying any Android devices launched with Android 8 or
+            later. An upgrade to Android 8 isn't enough since hardware key attestation support is
+            required and the minimum requirements only became mandatory with Android 8.</p>
+            <p>To submit a sample, open the menu from the action bar and select 'Submit sample
+            data'. This will submit a sample attestation and device information, enabling the
+            development of support for the device. It may take a few weeks before support is
+            shipped in a new version of the app.</p>
+            <p>A valid key attestation sample for each device model along with a stripped down
+            subset of the system properties is published
+            <a href="https://github.com/AndroidHardening/AttestationSamples">on GitHub</a> to help
+            other projects interested in using key attestation.</a>
         </div>
     </body>
 </html>
