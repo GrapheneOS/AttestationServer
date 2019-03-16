@@ -66,7 +66,7 @@ import app.attestation.server.AttestationProtocol.DeviceInfo;
 
 import static com.almworks.sqlite4java.SQLiteConstants.SQLITE_CONSTRAINT_UNIQUE;
 
-import static app.attestation.server.AttestationProtocol.fingerprintsSampleOS;
+import static app.attestation.server.AttestationProtocol.fingerprintsGrapheneOS;
 import static app.attestation.server.AttestationProtocol.fingerprintsStock;
 
 public class AttestationServer {
@@ -961,9 +961,9 @@ public class AttestationServer {
                 device.add("pinnedCertificate2", convertToPem(select.columnBlob(3)));
                 final String verifiedBootKey = select.columnString(4);
                 device.add("verifiedBootKey", verifiedBootKey);
-                DeviceInfo info = fingerprintsSampleOS.get(verifiedBootKey);
+                DeviceInfo info = fingerprintsGrapheneOS.get(verifiedBootKey);
                 if (info != null) {
-                    device.add("os", "SampleOS");
+                    device.add("os", "GrapheneOS");
                 } else {
                     device.add("os", "Stock");
                     info = fingerprintsStock.get(verifiedBootKey);

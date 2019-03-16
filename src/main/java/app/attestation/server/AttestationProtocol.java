@@ -206,7 +206,7 @@ class AttestationProtocol {
         }
     }
 
-    static final ImmutableMap<String, DeviceInfo> fingerprintsSampleOS = ImmutableMap
+    static final ImmutableMap<String, DeviceInfo> fingerprintsGrapheneOS = ImmutableMap
             .<String, DeviceInfo>builder()
             .put("B094E48B27C6E15661223CEFF539CF35E481DEB4E3250331E973AC2C15CAD6CD",
                     new DeviceInfo(DEVICE_PIXEL_2, 2, 3, true))
@@ -265,7 +265,7 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_HTC, 2, 3, true))
             .build();
 
-    private static final ImmutableMap<String, DeviceInfo> fingerprintsStrongBoxSampleOS = ImmutableMap
+    private static final ImmutableMap<String, DeviceInfo> fingerprintsStrongBoxGrapheneOS = ImmutableMap
             .<String, DeviceInfo>builder()
             .put("0F9A9CC8ADE73064A54A35C5509E77994E3AA37B6FB889DD53AF82C3C570C5CF",
                     new DeviceInfo(DEVICE_PIXEL_3, 3, 3, false /* uses new API */))
@@ -531,9 +531,9 @@ class AttestationProtocol {
         final boolean stock;
         if (verifiedBootState == RootOfTrust.KM_VERIFIED_BOOT_SELF_SIGNED) {
             if (attestationSecurityLevel == 2) {
-                device = fingerprintsStrongBoxSampleOS.get(verifiedBootKey);
+                device = fingerprintsStrongBoxGrapheneOS.get(verifiedBootKey);
             } else {
-                device = fingerprintsSampleOS.get(verifiedBootKey);
+                device = fingerprintsGrapheneOS.get(verifiedBootKey);
             }
             stock = false;
         } else if (verifiedBootState == RootOfTrust.KM_VERIFIED_BOOT_VERIFIED) {
