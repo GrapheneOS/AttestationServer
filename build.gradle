@@ -17,7 +17,7 @@ dependencies {
     compile 'com.almworks.sqlite4java:sqlite4java:1.0.392'
     compile 'com.almworks.sqlite4java:libsqlite4java-linux-amd64:1.0.392'
     compile 'com.github.ben-manes.caffeine:caffeine:2.6.2'
-    compile 'com.google.guava:guava:27.0.1-jre'
+    compile 'com.google.guava:guava:27.1-jre'
     compile 'com.google.zxing:core:3.3.3'
     compile 'com.google.zxing:javase:3.3.3'
     compile 'com.sun.mail:javax.mail:1.6.2'
