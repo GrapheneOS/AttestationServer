@@ -40,8 +40,10 @@
             being verified (Auditee) to implement a Trust On First Use (TOFU) model. The device
             performing verification can either be another Android device running the app in the
             Auditor mode or the <a href="https://attestation.app/">https://attestation.app/</a>
-            service for automated verification on a regular schedule. See <a href="/tutorial">the
-            tutorial</a> for usage instructions.</p>
+            service for automated verification on a regular schedule with support for email
+            alerts. See <a href="/tutorial">the tutorial</a> for usage instructions. The protocol
+            used for both local and remote attestation is
+            <a href="https://github.com/GrapheneOS/Auditor/blob/567e0957deccd55a57e86c932546858977fac90d/app/src/main/java/app/attestation/auditor/AttestationProtocol.java#L108-L180">documented in the source code</a>.</p>
             <p><a href="https://source.android.com/security/verifiedboot/">Verified boot</a>
             validates the integrity and authenticity of firmware and the entire operating system
             (both the kernel and userspace) from an immutable hardware root of trust. The results
