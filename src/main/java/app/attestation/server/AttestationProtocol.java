@@ -764,8 +764,12 @@ class AttestationProtocol {
                         "WHERE fingerprint = ?");
                 update.bind(1, verified.osVersion);
                 update.bind(2, verified.osPatchLevel);
-                update.bind(3, verified.vendorPatchLevel);
-                update.bind(4, verified.bootPatchLevel);
+                if (verified.vendorPatchLevel != 0) {
+                    update.bind(3, verified.vendorPatchLevel);
+                }
+                if (verified.bootPatchLevel != 0) {
+                    update.bind(4, verified.bootPatchLevel);
+                }
                 update.bind(5, verified.appVersion);
                 update.bind(6, userProfileSecure ? 1 : 0);
                 update.bind(7, enrolledFingerprints ? 1 : 0);
@@ -797,8 +801,12 @@ class AttestationProtocol {
                 insert.bind(5, verifiedBootKey);
                 insert.bind(6, verified.osVersion);
                 insert.bind(7, verified.osPatchLevel);
-                insert.bind(8, verified.vendorPatchLevel);
-                insert.bind(9, verified.bootPatchLevel);
+                if (verified.vendorPatchLevel != 0) {
+                    insert.bind(8, verified.vendorPatchLevel);
+                }
+                if (verified.bootPatchLevel != 0) {
+                    insert.bind(9, verified.bootPatchLevel);
+                }
                 insert.bind(10, verified.appVersion);
                 insert.bind(11, userProfileSecure ? 1 : 0);
                 insert.bind(12, enrolledFingerprints ? 1 : 0);
