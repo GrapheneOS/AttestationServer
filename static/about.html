@@ -107,6 +107,17 @@
                 <li>Google Pixel 3</li>
                 <li>Google Pixel 3 XL</li>
             </ul>
+            <p>Devices shipping with Android 9 or later <em>may</em> ship a
+            <a href="https://developer.android.com/training/articles/keystore#HardwareSecurityModule">
+            StrongBox Keymaster</a> implementation, allowing the Auditor app to keep the keys used
+            by the attestation protocol in the dedicated Hardware Security Module (HSM) (such as
+            the <a href="https://android-developers.googleblog.com/2018/10/building-titan-better-security-through.html">
+            Titan M</a> in Pixel phones) rather than using the Trusted Execution Environment (TEE)
+            on the main processor. This is supported on the following devices:</p>
+            <ul>
+                <li>Google Pixel 3</li>
+                <li>Google Pixel 3 XL</li>
+            </ul>
             <p>Alternative operating systems need their verified boot key included in the Auditor
             app and Attestation Server. The app and service display the name of the operating
             system being verified on the device. Unfortunately, most alternative operating systems
