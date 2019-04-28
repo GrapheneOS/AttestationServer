@@ -2,7 +2,7 @@
 
 set -o errexit
 
-remote=attestation@attestation.app
+remote=www-data@attestation.app
 current=$(ssh $remote readlink /var/www/html)
 
 if [[ $current = html_a ]]; then
