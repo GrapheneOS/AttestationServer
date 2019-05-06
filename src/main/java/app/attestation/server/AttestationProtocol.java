@@ -204,15 +204,32 @@ class AttestationProtocol {
         }
     }
 
+    private static final ImmutableMap<String, String> fingerprintsMigration = ImmutableMap
+            .<String, String>builder()
+            // GrapheneOS Pixel 3
+            .put("0F9A9CC8ADE73064A54A35C5509E77994E3AA37B6FB889DD53AF82C3C570C5CF", // v2
+                    "213AA4392BF7CABB9676C2680E134FB5FD3E5937D7E607B4EB907CB0A9D9E400") // v1
+            // GrapheneOS Pixel 3 XL
+            .put("06DD526EE9B1CB92AA19D9835B68B4FF1A48A3AD31D813F27C9A7D6C271E9451", // v2
+                    "60D551860CC7FD32A9DC65FB3BCEB87A5E5C1F88928026F454A234D69B385580") // v1
+            // Stock OS Pixel 3 and Pixel 3 XL
+            .put("61FDA12B32ED84214A9CF13D1AFFB7AA80BD8A268A861ED4BB7A15170F1AB00C", // v2
+                    "B799391AFAE3B35522D1EDC5C70A3746B097BDD1CABD59F72BB049705C7A03EF") // v1
+            .build();
+
     static final ImmutableMap<String, DeviceInfo> fingerprintsGrapheneOS = ImmutableMap
             .<String, DeviceInfo>builder()
             .put("B094E48B27C6E15661223CEFF539CF35E481DEB4E3250331E973AC2C15CAD6CD",
                     new DeviceInfo(DEVICE_PIXEL_2, 2, 3, true))
             .put("B6851E9B9C0EBB7185420BD0E79D20A84CB15AB0B018505EFFAA4A72B9D9DAC7",
                     new DeviceInfo(DEVICE_PIXEL_2_XL, 2, 3, true))
-            .put("213AA4392BF7CABB9676C2680E134FB5FD3E5937D7E607B4EB907CB0A9D9E400",
+            .put("213AA4392BF7CABB9676C2680E134FB5FD3E5937D7E607B4EB907CB0A9D9E400", // v1
                     new DeviceInfo(DEVICE_PIXEL_3, 3, 3, false /* uses new API */))
-            .put("60D551860CC7FD32A9DC65FB3BCEB87A5E5C1F88928026F454A234D69B385580",
+            .put("0F9A9CC8ADE73064A54A35C5509E77994E3AA37B6FB889DD53AF82C3C570C5CF", // v2
+                    new DeviceInfo(DEVICE_PIXEL_3, 3, 3, false /* uses new API */))
+            .put("60D551860CC7FD32A9DC65FB3BCEB87A5E5C1F88928026F454A234D69B385580", // v1
+                    new DeviceInfo(DEVICE_PIXEL_3_XL, 3, 3, false /* uses new API */))
+            .put("06DD526EE9B1CB92AA19D9835B68B4FF1A48A3AD31D813F27C9A7D6C271E9451", // v2
                     new DeviceInfo(DEVICE_PIXEL_3_XL, 3, 3, false /* uses new API */))
             .build();
     static final ImmutableMap<String, DeviceInfo> fingerprintsStock = ImmutableMap
@@ -229,8 +246,10 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_PIXEL_2, 2, 3, true))
             .put("171616EAEF26009FC46DC6D89F3D24217E926C81A67CE65D2E3A9DC27040C7AB",
                     new DeviceInfo(DEVICE_PIXEL_2_XL, 2, 3, true))
-            .put("B799391AFAE3B35522D1EDC5C70A3746B097BDD1CABD59F72BB049705C7A03EF",
+            .put("B799391AFAE3B35522D1EDC5C70A3746B097BDD1CABD59F72BB049705C7A03EF", // v1
                     new DeviceInfo(DEVICE_PIXEL_3_GENERIC, 3, 3, false /* needs new API */))
+            .put("61FDA12B32ED84214A9CF13D1AFFB7AA80BD8A268A861ED4BB7A15170F1AB00C", // v2
+                    new DeviceInfo(DEVICE_PIXEL_3_GENERIC, 3, 3, false /* uses new API */))
             .put("33D9484FD512E610BCF00C502827F3D55A415088F276C6506657215E622FA770",
                     new DeviceInfo(DEVICE_SM_G960F, 1, 2, false))
             .put("266869F7CF2FB56008EFC4BE8946C8F84190577F9CA688F59C72DD585E696488",
@@ -692,7 +711,12 @@ class AttestationProtocol {
                 verifySignature(persistentCertificate.getPublicKey(), signedMessage, signature);
 
                 if (!Arrays.equals(verifiedBootKey, pinnedVerifiedBootKey)) {
-                    throw new GeneralSecurityException("pinned verified boot key mismatch");
+                    final String legacyFingerprint = fingerprintsMigration.get(verified.verifiedBootKey);
+                    if (legacyFingerprint != null && legacyFingerprint.equals(BaseEncoding.base16().encode(pinnedVerifiedBootKey))) {
+                        //Log.d(TAG, "migration from legacy fingerprint " + legacyFingerprint + " to " + verified.verifiedBootKey);
+                    } else {
+                        throw new GeneralSecurityException("pinned verified boot key mismatch");
+                    }
                 }
                 if (verified.osVersion < pinnedOsVersion) {
                     throw new GeneralSecurityException("OS version downgrade detected");
@@ -713,6 +737,7 @@ class AttestationProtocol {
                 appendVerifiedInformation(teeEnforced, verified);
 
                 final SQLiteStatement update = conn.prepare("UPDATE Devices SET " +
+                        "pinnedVerifiedBootKey = ?, " +
                         "pinnedOsVersion = ?, pinnedOsPatchLevel = ?, " +
                         "pinnedVendorPatchLevel = ?, pinnedBootPatchLevel = ?, " +
                         "pinnedAppVersion = ?, userProfileSecure = ?, enrolledFingerprints = ?, " +
@@ -720,25 +745,27 @@ class AttestationProtocol {
                         "addUsersWhenLocked = ?, denyNewUsb = ?, oemUnlockAllowed = ?, " +
                         "verifiedTimeLast = ? " +
                         "WHERE fingerprint = ?");
-                update.bind(1, verified.osVersion);
-                update.bind(2, verified.osPatchLevel);
+                // handle migration to v2 verified boot key fingerprint
+                update.bind(1, verifiedBootKey);
+                update.bind(2, verified.osVersion);
+                update.bind(3, verified.osPatchLevel);
                 if (verified.vendorPatchLevel != 0) {
-                    update.bind(3, verified.vendorPatchLevel);
+                    update.bind(4, verified.vendorPatchLevel);
                 }
                 if (verified.bootPatchLevel != 0) {
-                    update.bind(4, verified.bootPatchLevel);
+                    update.bind(5, verified.bootPatchLevel);
                 }
-                update.bind(5, verified.appVersion);
-                update.bind(6, userProfileSecure ? 1 : 0);
-                update.bind(7, enrolledFingerprints ? 1 : 0);
-                update.bind(8, accessibility ? 1 : 0);
-                update.bind(9, deviceAdmin ? (deviceAdminNonSystem ? 2 : 1) : 0);
-                update.bind(10, adbEnabled ? 1 : 0);
-                update.bind(11, addUsersWhenLocked ? 1 : 0);
-                update.bind(12, denyNewUsb ? 1 : 0);
-                update.bind(13, oemUnlockAllowed ? 1 : 0);
-                update.bind(14, now);
-                update.bind(15, fingerprint);
+                update.bind(6, verified.appVersion);
+                update.bind(7, userProfileSecure ? 1 : 0);
+                update.bind(8, enrolledFingerprints ? 1 : 0);
+                update.bind(9, accessibility ? 1 : 0);
+                update.bind(10, deviceAdmin ? (deviceAdminNonSystem ? 2 : 1) : 0);
+                update.bind(11, adbEnabled ? 1 : 0);
+                update.bind(12, addUsersWhenLocked ? 1 : 0);
+                update.bind(13, denyNewUsb ? 1 : 0);
+                update.bind(14, oemUnlockAllowed ? 1 : 0);
+                update.bind(15, now);
+                update.bind(16, fingerprint);
                 update.step();
                 update.dispose();
             } else {
