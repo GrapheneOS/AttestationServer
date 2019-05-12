@@ -1,3 +1,5 @@
+See the overview of the project at https://attestation.app/about.
+
 ## Email alert configuration
 
 In order to send email alerts, AttestationServer needs to be configured with valid credentials for
