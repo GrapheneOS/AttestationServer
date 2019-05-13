@@ -31,15 +31,15 @@
             </ul>
         </nav>
         <div id="content">
-            <h1>Tutorial</h1>
-            <h2>Installation</h2>
+            <h1 id="tutorial">Tutorial</h1>
+            <h2 id="installation">Installation</h2>
             <p>Auditor can be installed from either the
             <a href="https://play.google.com/store/apps/details?id=app.attestation.auditor">Google Play Store</a>
             or the <a href="https://github.com/GrapheneOS/Auditor/releases">releases on GitHub</a>. The
             releases through both are identical and use the same signing key so
             you can install updates from either regardless of how you installed it.</p>
             <p><a href="https://grapheneos.org/">GrapheneOS</a> comes with Auditor included.</p>
-            <h2>Local verification</h2>
+            <h2 id="local-verification">Local verification</h2>
             <p>The device being verified (Auditee) must be one of the supported devices. Android
             developer previews aren't supported since the hardware verified version is set to a
             placeholder value. The device performing verification (Auditor) just needs to be any
@@ -52,7 +52,7 @@
                 <li>point the camera of the Auditor at the QR code on the Auditee to read the attestation</li>
                 <li>view verification of the attestation results</li>
             </ol>
-            <h2>Scheduled remote verification</h2>
+            <h2 id="scheduled-remote-verification">Scheduled remote verification</h2>
             <p>An Auditor can verify any number of different Auditee devices. It shows a
             fingerprint and the first / last verification time in successful paired attestation
             results. An Auditee can be verified by any number of Auditors but there will be a
