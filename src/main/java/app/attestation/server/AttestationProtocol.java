@@ -188,6 +188,7 @@ class AttestationProtocol {
     private static final String DEVICE_BQ_AQUARIS_X2_PRO = "BQ Aquaris X2 Pro";
     private static final String DEVICE_XIAOMI_MI_A2 = "Xiaomi Mi A2 / POCOPHONE F1";
     private static final String DEVICE_XIAOMI_MI_A2_LITE = "Xiaomi Mi A2 Lite";
+    private static final String DEVICE_XIAOMI_MI_9 = "Xiaomi Mi 9";
     private static final String DEVICE_HTC = "HTC EXODUS 1 / U12+";
 
     static class DeviceInfo {
@@ -281,6 +282,8 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_XIAOMI_MI_A2, 2, 3, true))
             .put("6FA710B639848C9D47378937A1AFB1B6A52DDA738BEB6657E2AE70A15B40541A",
                     new DeviceInfo(DEVICE_XIAOMI_MI_A2_LITE, 2, 3, true))
+            .put("84BC8445A29B5444A2D1629C9774C8626DAFF3574D865EC5067A78FAEC96B013",
+                    new DeviceInfo(DEVICE_XIAOMI_MI_9, 3, 3, false /* uses new API */))
             .put("1CC39488D2F85DEE0A8E0903CDC4124CFDF2BE2531ED6060B678057ED2CB89B4",
                     new DeviceInfo(DEVICE_HTC, 2, 3, true))
             .build();
