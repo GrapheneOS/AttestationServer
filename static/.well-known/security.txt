@@ -1,1 +1,2 @@
 Contact: mailto:security@attestation.app
+Canonical: https://attestation.app/.well-known/security.txt
