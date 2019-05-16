@@ -30,4 +30,8 @@
         <loc>https://attestation.app/contact</loc>
         <priority>0.1</priority>
     </url>
+    <url>
+        <loc>https://attestation.app/.well-known/security.txt</loc>
+        <priority>0.0</priority>
+    </url>
 </urlset>
