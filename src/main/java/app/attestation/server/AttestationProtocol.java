@@ -172,6 +172,7 @@ class AttestationProtocol {
     private static final String DEVICE_PIXEL_3_GENERIC = "Google Pixel 3 / Pixel 3 XL";
     private static final String DEVICE_PIXEL_3 = "Google Pixel 3";
     private static final String DEVICE_PIXEL_3_XL = "Google Pixel 3 XL";
+    private static final String DEVICE_PIXEL_3A = "Google Pixel 3a";
     private static final String DEVICE_SM_G960F = "Samsung Galaxy S9 (SM-G960F)";
     private static final String DEVICE_SM_G960_NA = "Samsung Galaxy S9 USA/Canada (SM-G960U/SM-G960W)";
     private static final String DEVICE_SM_G965F = "Samsung Galaxy S9+ (SM-G965F)";
@@ -250,6 +251,8 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_PIXEL_3_GENERIC, 3, 3, false /* needs new API */))
             .put("61FDA12B32ED84214A9CF13D1AFFB7AA80BD8A268A861ED4BB7A15170F1AB00C", // v2
                     new DeviceInfo(DEVICE_PIXEL_3_GENERIC, 3, 3, false /* uses new API */))
+            .put("E75B86C52C7496255A95FB1E2B1C044BFA9D5FE34DD1E4EEBD752EEF0EA89875",
+                    new DeviceInfo(DEVICE_PIXEL_3A, 3, 3, false /* uses new API */))
             .put("33D9484FD512E610BCF00C502827F3D55A415088F276C6506657215E622FA770",
                     new DeviceInfo(DEVICE_SM_G960F, 1, 2, false))
             .put("266869F7CF2FB56008EFC4BE8946C8F84190577F9CA688F59C72DD585E696488",
@@ -293,6 +296,8 @@ class AttestationProtocol {
             .<String, DeviceInfo>builder()
             .put("61FDA12B32ED84214A9CF13D1AFFB7AA80BD8A268A861ED4BB7A15170F1AB00C",
                     new DeviceInfo(DEVICE_PIXEL_3_GENERIC, 3, 3, false /* uses new API */))
+            .put("8CA89AF1A6DAA74B00810849356DE929CFC4498EF36AF964757BDE8A113BF46D",
+                    new DeviceInfo(DEVICE_PIXEL_3A, 3, 3, false /* uses new API */))
             .build();
 
     private static final String GOOGLE_ROOT_CERTIFICATE =
