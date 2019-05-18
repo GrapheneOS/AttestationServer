@@ -54,7 +54,7 @@ class AttestationProtocol {
     private static final HashFunction FINGERPRINT_HASH_FUNCTION = Hashing.sha256();
     private static final int FINGERPRINT_LENGTH = FINGERPRINT_HASH_FUNCTION.bits() / 8;
 
-    private static final int SECURITY_LEVEL_STRONGBOX = 2;
+    static final int SECURITY_LEVEL_STRONGBOX = 2;
 
     // Challenge message:
     //
@@ -288,14 +288,14 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_HTC, 2, 3, true))
             .build();
 
-    private static final ImmutableMap<String, DeviceInfo> fingerprintsStrongBoxGrapheneOS = ImmutableMap
+    static final ImmutableMap<String, DeviceInfo> fingerprintsStrongBoxGrapheneOS = ImmutableMap
             .<String, DeviceInfo>builder()
             .put("0F9A9CC8ADE73064A54A35C5509E77994E3AA37B6FB889DD53AF82C3C570C5CF",
                     new DeviceInfo(DEVICE_PIXEL_3, 3, 3, false /* uses new API */))
             .put("06DD526EE9B1CB92AA19D9835B68B4FF1A48A3AD31D813F27C9A7D6C271E9451",
                     new DeviceInfo(DEVICE_PIXEL_3_XL, 3, 3, false /* uses new API */))
             .build();
-    private static final ImmutableMap<String, DeviceInfo> fingerprintsStrongBoxStock = ImmutableMap
+    static final ImmutableMap<String, DeviceInfo> fingerprintsStrongBoxStock = ImmutableMap
             .<String, DeviceInfo>builder()
             .put("61FDA12B32ED84214A9CF13D1AFFB7AA80BD8A268A861ED4BB7A15170F1AB00C",
                     new DeviceInfo(DEVICE_PIXEL_3_GENERIC, 3, 3, false /* uses new API */))
@@ -395,11 +395,12 @@ class AttestationProtocol {
         final int vendorPatchLevel;
         final int bootPatchLevel;
         final int appVersion;
+        final int securityLevel;
         final boolean isStock;
 
         Verified(final String device, final String verifiedBootKey, final int osVersion,
                 final int osPatchLevel, final int vendorPatchLevel, final int bootPatchLevel,
-                final int appVersion, final boolean isStock) {
+                final int appVersion, final int securityLevel, final boolean isStock) {
             this.device = device;
             this.verifiedBootKey = verifiedBootKey;
             this.osVersion = osVersion;
@@ -407,6 +408,7 @@ class AttestationProtocol {
             this.vendorPatchLevel = vendorPatchLevel;
             this.bootPatchLevel = bootPatchLevel;
             this.appVersion = appVersion;
+            this.securityLevel = securityLevel;
             this.isStock = isStock;
         }
     }
@@ -556,7 +558,7 @@ class AttestationProtocol {
         }
 
         return new Verified(device.name, verifiedBootKey, osVersion, osPatchLevel, vendorPatchLevel,
-                bootPatchLevel, appVersion, stock);
+                bootPatchLevel, appVersion, attestationSecurityLevel, stock);
     }
 
     private static void verifyCertificateSignatures(Certificate[] certChain)
@@ -663,11 +665,12 @@ class AttestationProtocol {
             int pinnedVendorPatchLevel = 0;
             int pinnedBootPatchLevel = 0;
             int pinnedAppVersion = Integer.MAX_VALUE;
+            int pinnedSecurityLevel = 1;
             if (hasPersistentKey) {
                 final SQLiteStatement st = conn.prepare("SELECT pinnedCertificate0, " +
                         "pinnedCertificate1, pinnedCertificate2, pinnedVerifiedBootKey, " +
                         "pinnedOsVersion, pinnedOsPatchLevel, pinnedVendorPatchLevel, " +
-                        "pinnedBootPatchLevel, pinnedAppVersion, userId " +
+                        "pinnedBootPatchLevel, pinnedAppVersion, pinnedSecurityLevel, userId " +
                         "FROM Devices WHERE fingerprint = ?");
                 st.bind(1, fingerprint);
                 if (st.step()) {
@@ -680,7 +683,8 @@ class AttestationProtocol {
                     pinnedVendorPatchLevel = st.columnInt(6);
                     pinnedBootPatchLevel = st.columnInt(7);
                     pinnedAppVersion = st.columnInt(8);
-                    if (userId != st.columnLong(9)) {
+                    pinnedSecurityLevel = st.columnInt(9);
+                    if (userId != st.columnLong(10)) {
                         throw new GeneralSecurityException("wrong userId");
                     }
                     st.dispose();
@@ -741,6 +745,9 @@ class AttestationProtocol {
                 if (verified.appVersion < pinnedAppVersion) {
                     throw new GeneralSecurityException("App version downgraded");
                 }
+                if (verified.securityLevel != pinnedSecurityLevel) {
+                    throw new GeneralSecurityException("Security level mismatch");
+                }
 
                 appendVerifiedInformation(teeEnforced, verified);
 
@@ -748,7 +755,7 @@ class AttestationProtocol {
                         "pinnedVerifiedBootKey = ?, " +
                         "pinnedOsVersion = ?, pinnedOsPatchLevel = ?, " +
                         "pinnedVendorPatchLevel = ?, pinnedBootPatchLevel = ?, " +
-                        "pinnedAppVersion = ?, userProfileSecure = ?, enrolledFingerprints = ?, " +
+                        "pinnedAppVersion = ?, pinnedSecurityLevel = ?, userProfileSecure = ?, enrolledFingerprints = ?, " +
                         "accessibility = ?, deviceAdmin = ?, adbEnabled = ?, " +
                         "addUsersWhenLocked = ?, denyNewUsb = ?, oemUnlockAllowed = ?, " +
                         "verifiedTimeLast = ? " +
@@ -764,16 +771,17 @@ class AttestationProtocol {
                     update.bind(5, verified.bootPatchLevel);
                 }
                 update.bind(6, verified.appVersion);
-                update.bind(7, userProfileSecure ? 1 : 0);
-                update.bind(8, enrolledFingerprints ? 1 : 0);
-                update.bind(9, accessibility ? 1 : 0);
-                update.bind(10, deviceAdmin ? (deviceAdminNonSystem ? 2 : 1) : 0);
-                update.bind(11, adbEnabled ? 1 : 0);
-                update.bind(12, addUsersWhenLocked ? 1 : 0);
-                update.bind(13, denyNewUsb ? 1 : 0);
-                update.bind(14, oemUnlockAllowed ? 1 : 0);
-                update.bind(15, now);
-                update.bind(16, fingerprint);
+                update.bind(7, verified.securityLevel); // new field
+                update.bind(8, userProfileSecure ? 1 : 0);
+                update.bind(9, enrolledFingerprints ? 1 : 0);
+                update.bind(10, accessibility ? 1 : 0);
+                update.bind(11, deviceAdmin ? (deviceAdminNonSystem ? 2 : 1) : 0);
+                update.bind(12, adbEnabled ? 1 : 0);
+                update.bind(13, addUsersWhenLocked ? 1 : 0);
+                update.bind(14, denyNewUsb ? 1 : 0);
+                update.bind(15, oemUnlockAllowed ? 1 : 0);
+                update.bind(16, now);
+                update.bind(17, fingerprint);
                 update.step();
                 update.dispose();
             } else {
@@ -782,11 +790,11 @@ class AttestationProtocol {
                 final SQLiteStatement insert = conn.prepare("INSERT INTO Devices " +
                         "(fingerprint, pinnedCertificate0, pinnedCertificate1, pinnedCertificate2, " +
                         "pinnedVerifiedBootKey, pinnedOsVersion, pinnedOsPatchLevel, " +
-                        "pinnedVendorPatchLevel, pinnedBootPatchLevel, pinnedAppVersion, " +
+                        "pinnedVendorPatchLevel, pinnedBootPatchLevel, pinnedAppVersion, pinnedSecurityLevel, " +
                         "userProfileSecure, enrolledFingerprints, accessibility, deviceAdmin, " +
                         "adbEnabled, addUsersWhenLocked, denyNewUsb, oemUnlockAllowed, " +
                         "verifiedTimeFirst, verifiedTimeLast, userId) " +
-                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 insert.bind(1, fingerprint);
                 insert.bind(2, attestationCertificates[0].getEncoded());
                 insert.bind(3, attestationCertificates[1].getEncoded());
@@ -801,17 +809,18 @@ class AttestationProtocol {
                     insert.bind(9, verified.bootPatchLevel);
                 }
                 insert.bind(10, verified.appVersion);
-                insert.bind(11, userProfileSecure ? 1 : 0);
-                insert.bind(12, enrolledFingerprints ? 1 : 0);
-                insert.bind(13, accessibility ? 1 : 0);
-                insert.bind(14, deviceAdmin ? (deviceAdminNonSystem ? 2 : 1) : 0);
-                insert.bind(15, adbEnabled ? 1 : 0);
-                insert.bind(16, addUsersWhenLocked ? 1 : 0);
-                insert.bind(17, denyNewUsb ? 1 : 0);
-                insert.bind(18, oemUnlockAllowed ? 1 : 0);
-                insert.bind(19, now);
+                insert.bind(11, verified.securityLevel);
+                insert.bind(12, userProfileSecure ? 1 : 0);
+                insert.bind(13, enrolledFingerprints ? 1 : 0);
+                insert.bind(14, accessibility ? 1 : 0);
+                insert.bind(15, deviceAdmin ? (deviceAdminNonSystem ? 2 : 1) : 0);
+                insert.bind(16, adbEnabled ? 1 : 0);
+                insert.bind(17, addUsersWhenLocked ? 1 : 0);
+                insert.bind(18, denyNewUsb ? 1 : 0);
+                insert.bind(19, oemUnlockAllowed ? 1 : 0);
                 insert.bind(20, now);
-                insert.bind(21, userId);
+                insert.bind(21, now);
+                insert.bind(22, userId);
                 insert.step();
                 insert.dispose();
 
