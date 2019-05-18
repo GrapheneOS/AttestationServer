@@ -79,6 +79,16 @@ function toYesNoString(value) {
     return value ? "yes" : "no";
 }
 
+function toSecurityLevelString(value) {
+    if (value == 1) {
+        return "Standard - Trusted Execution Environment (TEE)";
+    }
+    if (value == 2) {
+        return "High (StrongBox) - Hardware Security Module (HSM)";
+    }
+    throw new Error("invalid security level");
+}
+
 function showLoggedOut() {
     formToggles.style.display = "inline";
 }
@@ -190,6 +200,7 @@ function fetchDevices() {
             if (device.pinnedBootPatchLevel !== undefined) {
                 appendLine(info, "Boot patch level: " + formatOsPatchLevel(device.pinnedBootPatchLevel));
             }
+            appendLine(info, "Security level: " + toSecurityLevelString(device.pinnedSecurityLevel));
 
             info.appendChild(create("button", "show advanced information", "toggle"));
             const advanced = info.appendChild(document.createElement("span"));
