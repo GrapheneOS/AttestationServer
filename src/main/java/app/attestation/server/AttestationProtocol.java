@@ -161,7 +161,7 @@ class AttestationProtocol {
             "990E04F0864B19F14F84E0E432F7A393F297AB105A22C1E1B10B442A4A62C42C";
     private static final int OS_VERSION_MINIMUM = 80000;
     private static final int OS_PATCH_LEVEL_MINIMUM = 201801;
-    private static final int VENDOR_PATCH_LEVEL_MINIMUM = 201809;
+    private static final int VENDOR_PATCH_LEVEL_MINIMUM = 201808;
     private static final int BOOT_PATCH_LEVEL_MINIMUM = 201809;
 
     private static final String DEVICE_HUAWEI = "Huawei Honor 10 / Honor View 10 / Mate 10 / Mate 20 Pro / P20 Pro";
