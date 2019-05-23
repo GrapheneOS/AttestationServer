@@ -184,6 +184,7 @@ class AttestationProtocol {
     private static final String DEVICE_SONY_XPERIA_XZ2 = "Sony Xperia XZ2 (H8216)";
     private static final String DEVICE_SONY_XPERIA_XZ2_COMPACT = "Sony Xperia XZ2 Compact";
     private static final String DEVICE_ONEPLUS_6_A6003 = "OnePlus 6 A6003";
+    private static final String DEVICE_ONEPLUS_7_PRO_GM1913 = "OnePlus 7 Pro GM1913";
     private static final String DEVICE_BLACKBERRY_KEY2 = "BlackBerry Key2";
     private static final String DEVICE_BQ_AQUARIS_X2_PRO = "BQ Aquaris X2 Pro";
     private static final String DEVICE_XIAOMI_MI_A2 = "Xiaomi Mi A2 / POCOPHONE F1";
@@ -244,6 +245,8 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_NOKIA, 2, 3, true))
             .put("6101853DFF451FAE5B137DF914D5E6C15C659337F2C405AC50B513A159071958",
                     new DeviceInfo(DEVICE_ONEPLUS_6_A6003, 2, 3, true))
+            .put("6101853DFF451FAE5B137DF914D5E6C15C659337F2C405AC50B513A159071958",
+                    new DeviceInfo(DEVICE_ONEPLUS_7_PRO_GM1913, 3, 3, false /* needs new API */))
             .put("1962B0538579FFCE9AC9F507C46AFE3B92055BAC7146462283C85C500BE78D82",
                     new DeviceInfo(DEVICE_PIXEL_2, 2, 3, true))
             .put("171616EAEF26009FC46DC6D89F3D24217E926C81A67CE65D2E3A9DC27040C7AB",
