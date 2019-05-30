@@ -211,17 +211,17 @@ public class AttestationServer {
 
         final HttpServer server = HttpServer.create(new InetSocketAddress("localhost", 8080), 0);
         server.createContext("/submit", new SubmitHandler());
-        server.createContext("/create_account", new CreateAccountHandler());
-        server.createContext("/change_password", new ChangePasswordHandler());
-        server.createContext("/login", new LoginHandler());
-        server.createContext("/logout", new LogoutHandler());
-        server.createContext("/logout_everywhere", new LogoutEverywhereHandler());
-        server.createContext("/rotate", new RotateHandler());
-        server.createContext("/account", new AccountHandler());
-        server.createContext("/account.png", new AccountQrHandler());
-        server.createContext("/configuration", new ConfigurationHandler());
-        server.createContext("/delete_device", new DeleteDeviceHandler());
-        server.createContext("/devices.json", new DevicesHandler());
+        server.createContext("/api/create_account", new CreateAccountHandler());
+        server.createContext("/api/change_password", new ChangePasswordHandler());
+        server.createContext("/api/login", new LoginHandler());
+        server.createContext("/api/logout", new LogoutHandler());
+        server.createContext("/api/logout_everywhere", new LogoutEverywhereHandler());
+        server.createContext("/api/rotate", new RotateHandler());
+        server.createContext("/api/account", new AccountHandler());
+        server.createContext("/api/account.png", new AccountQrHandler());
+        server.createContext("/api/configuration", new ConfigurationHandler());
+        server.createContext("/api/delete_device", new DeleteDeviceHandler());
+        server.createContext("/api/devices.json", new DevicesHandler());
         server.createContext("/challenge", new ChallengeHandler());
         server.createContext("/verify", new VerifyHandler());
         server.setExecutor(new ThreadPoolExecutor(10, 100, 60, TimeUnit.SECONDS, new SynchronousQueue<Runnable>()));

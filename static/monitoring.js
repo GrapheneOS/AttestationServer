@@ -96,7 +96,7 @@ function showLoggedOut() {
 function reloadQrCode() {
     qr.src = "/placeholder.png";
     qr.alt = "";
-    fetch("/account.png", {method: "POST", body: localStorage.getItem("requestToken"), credentials: "same-origin"}).then(response => {
+    fetch("/api/account.png", {method: "POST", body: localStorage.getItem("requestToken"), credentials: "same-origin"}).then(response => {
         if (!response.ok) {
             return Promise.reject();
         }
@@ -144,7 +144,7 @@ function fetchDevices() {
     devices.appendChild(create("p", "Loading device data..."));
 
     const token = localStorage.getItem("requestToken");
-    fetch("/devices.json", {method: "POST", body: token, credentials: "same-origin"}).then(response => {
+    fetch("/api/devices.json", {method: "POST", body: token, credentials: "same-origin"}).then(response => {
         if (!response.ok) {
             return Promise.reject();
         }
@@ -172,7 +172,7 @@ function fetchDevices() {
                         "requestToken": localStorage.getItem("requestToken"),
                         "fingerprint": device.fingerprint
                     });
-                    fetch("/delete_device", {method: "POST", body: data, credentials: "same-origin"}).then(response => {
+                    fetch("/api/delete_device", {method: "POST", body: data, credentials: "same-origin"}).then(response => {
                         if (response.status === 403) {
                             localStorage.removeItem("requestToken");
                         }
@@ -282,7 +282,7 @@ const token = localStorage.getItem("requestToken");
 if (token === null) {
     showLoggedOut();
 } else {
-    fetch("/account", {method: "POST", body: token, credentials: "same-origin"}).then(response => {
+    fetch("/api/account", {method: "POST", body: token, credentials: "same-origin"}).then(response => {
         if (response.status === 403) {
             localStorage.removeItem("requestToken");
         }
@@ -334,7 +334,7 @@ loginPassword.oninput = clearValidity;
 
 function login(username, password) {
     const loginJson = JSON.stringify({username: username, password: password});
-    fetch("/login", {method: "POST", body: loginJson, credentials: "same-origin"}).then(response => {
+    fetch("/api/login", {method: "POST", body: loginJson, credentials: "same-origin"}).then(response => {
         if (!response.ok) {
             if (response.status === 400) {
                 loginUsername.setCustomValidity("Username does not exist");
@@ -348,7 +348,7 @@ function login(username, password) {
         return response.text();
     }).then(requestToken => {
         localStorage.setItem("requestToken", requestToken);
-        fetch("/account", {method: "POST", body: requestToken, credentials: "same-origin"}).then(response => {
+        fetch("/api/account", {method: "POST", body: requestToken, credentials: "same-origin"}).then(response => {
             if (!response.ok) {
                 return Promise.reject();
             }
@@ -376,7 +376,7 @@ createForm.onsubmit = event => {
     const username = createUsername.value;
     const createJson = JSON.stringify({username: username, password: password});
     createForm.submit.disabled = true;
-    fetch("/create_account", {method: "POST", body: createJson}).then(response => {
+    fetch("/api/create_account", {method: "POST", body: createJson}).then(response => {
         if (!response.ok) {
             if (response.status === 409) {
                 createUsername.setCustomValidity("Username is already taken");
@@ -417,7 +417,7 @@ for (const logoutButton of document.getElementsByClassName("logout")) {
         const requestToken = localStorage.getItem("requestToken");
         logout.disabled = true;
         logoutEverywhere.disabled = true;
-        const path = logoutButton === logout ? "/logout" : "/logout_everywhere";
+        const path = logoutButton === logout ? "/api/logout" : "/api/logout_everywhere";
         fetch(path, {method: "POST", body: requestToken, credentials: "same-origin"}).then(response => {
             if (!response.ok) {
                 return Promise.reject();
@@ -462,7 +462,7 @@ changePasswordForm.onsubmit = event => {
         "currentPassword": changePasswordForm.current_password.value,
         "newPassword": newPassword
     });
-    fetch("/change_password", {method: "POST", body: data, credentials: "same-origin"}).then(response => {
+    fetch("/api/change_password", {method: "POST", body: data, credentials: "same-origin"}).then(response => {
         if (!response.ok) {
             return Promise.reject();
         }
@@ -486,7 +486,7 @@ rotate.onclick = event => {
     if (confirm("Are you sure you want to rotate the device subscription key?")) {
         rotate.disabled = true;
         const requestToken = localStorage.getItem("requestToken");
-        fetch("/rotate", {method: "POST", body: requestToken, credentials: "same-origin"}).then(response => {
+        fetch("/api/rotate", {method: "POST", body: requestToken, credentials: "same-origin"}).then(response => {
             if (!response.ok) {
                 return Promise.reject();
             }
@@ -518,7 +518,7 @@ configuration.onsubmit = event => {
         "alertDelay": alertDelay * 60 * 60,
         "email": configuration.email.value
     });
-    fetch("/configuration", {method: "POST", body: data, credentials: "same-origin"}).then(response => {
+    fetch("/api/configuration", {method: "POST", body: data, credentials: "same-origin"}).then(response => {
         if (!response.ok) {
             return Promise.reject();
         }
