@@ -210,7 +210,6 @@ public class AttestationServer {
         new Thread(new Maintenance()).start();
 
         final HttpServer server = HttpServer.create(new InetSocketAddress("localhost", 8080), 0);
-        server.createContext("/submit", new SubmitHandler());
         server.createContext("/api/create_account", new CreateAccountHandler());
         server.createContext("/api/change_password", new ChangePasswordHandler());
         server.createContext("/api/login", new LoginHandler());
@@ -224,6 +223,7 @@ public class AttestationServer {
         server.createContext("/api/devices.json", new DevicesHandler());
         server.createContext("/challenge", new ChallengeHandler());
         server.createContext("/verify", new VerifyHandler());
+        server.createContext("/submit", new SubmitHandler());
         server.setExecutor(new ThreadPoolExecutor(10, 100, 60, TimeUnit.SECONDS, new SynchronousQueue<Runnable>()));
         server.start();
     }
@@ -239,43 +239,6 @@ public class AttestationServer {
                 return;
             }
             handlePost(exchange);
-        }
-    }
-
-    private static class SubmitHandler extends PostHandler {
-        @Override
-        public void handlePost(final HttpExchange exchange) throws IOException {
-            final InputStream input = exchange.getRequestBody();
-
-            final ByteArrayOutputStream sample = new ByteArrayOutputStream();
-            final byte[] buffer = new byte[4096];
-            for (int read = input.read(buffer); read != -1; read = input.read(buffer)) {
-                sample.write(buffer, 0, read);
-
-                if (sample.size() > 64 * 1024) {
-                    exchange.sendResponseHeaders(413, -1);
-                    return;
-                }
-            }
-
-            final SQLiteConnection conn = new SQLiteConnection(SAMPLES_DATABASE);
-            try {
-                open(conn, false);
-                final SQLiteStatement insert = conn.prepare("INSERT INTO Samples " +
-                       "(sample, time) VALUES (?, ?)");
-                insert.bind(1, sample.toByteArray());
-                insert.bind(2, System.currentTimeMillis());
-                insert.step();
-                insert.dispose();
-            } catch (final SQLiteException e) {
-                e.printStackTrace();
-                exchange.sendResponseHeaders(500, -1);
-                return;
-            } finally {
-                conn.dispose();
-            }
-
-            exchange.sendResponseHeaders(200, -1);
         }
     }
 
@@ -1157,6 +1120,43 @@ public class AttestationServer {
             try (final OutputStream output = exchange.getResponseBody()) {
                 output.write(result);
             }
+        }
+    }
+
+    private static class SubmitHandler extends PostHandler {
+        @Override
+        public void handlePost(final HttpExchange exchange) throws IOException {
+            final InputStream input = exchange.getRequestBody();
+
+            final ByteArrayOutputStream sample = new ByteArrayOutputStream();
+            final byte[] buffer = new byte[4096];
+            for (int read = input.read(buffer); read != -1; read = input.read(buffer)) {
+                sample.write(buffer, 0, read);
+
+                if (sample.size() > 64 * 1024) {
+                    exchange.sendResponseHeaders(413, -1);
+                    return;
+                }
+            }
+
+            final SQLiteConnection conn = new SQLiteConnection(SAMPLES_DATABASE);
+            try {
+                open(conn, false);
+                final SQLiteStatement insert = conn.prepare("INSERT INTO Samples " +
+                       "(sample, time) VALUES (?, ?)");
+                insert.bind(1, sample.toByteArray());
+                insert.bind(2, System.currentTimeMillis());
+                insert.step();
+                insert.dispose();
+            } catch (final SQLiteException e) {
+                e.printStackTrace();
+                exchange.sendResponseHeaders(500, -1);
+                return;
+            } finally {
+                conn.dispose();
+            }
+
+            exchange.sendResponseHeaders(200, -1);
         }
     }
 }
