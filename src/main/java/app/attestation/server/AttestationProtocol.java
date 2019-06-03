@@ -202,13 +202,15 @@ class AttestationProtocol {
         final int attestationVersion;
         final int keymasterVersion;
         final boolean rollbackResistant;
+        final boolean perUserEncryption;
 
         DeviceInfo(final String name, final int attestationVersion, final int keymasterVersion,
-                final boolean rollbackResistant) {
+                final boolean rollbackResistant, final boolean perUserEncryption) {
             this.name = name;
             this.attestationVersion = attestationVersion;
             this.keymasterVersion = keymasterVersion;
             this.rollbackResistant = rollbackResistant;
+            this.perUserEncryption = perUserEncryption;
         }
     }
 
@@ -228,87 +230,87 @@ class AttestationProtocol {
     static final ImmutableMap<String, DeviceInfo> fingerprintsGrapheneOS = ImmutableMap
             .<String, DeviceInfo>builder()
             .put("B094E48B27C6E15661223CEFF539CF35E481DEB4E3250331E973AC2C15CAD6CD",
-                    new DeviceInfo(DEVICE_PIXEL_2, 2, 3, true))
+                    new DeviceInfo(DEVICE_PIXEL_2, 2, 3, true, true))
             .put("B6851E9B9C0EBB7185420BD0E79D20A84CB15AB0B018505EFFAA4A72B9D9DAC7",
-                    new DeviceInfo(DEVICE_PIXEL_2_XL, 2, 3, true))
+                    new DeviceInfo(DEVICE_PIXEL_2_XL, 2, 3, true, true))
             .put("213AA4392BF7CABB9676C2680E134FB5FD3E5937D7E607B4EB907CB0A9D9E400", // v1
-                    new DeviceInfo(DEVICE_PIXEL_3, 3, 3, false /* uses new API */))
+                    new DeviceInfo(DEVICE_PIXEL_3, 3, 3, false /* uses new API */, true))
             .put("0F9A9CC8ADE73064A54A35C5509E77994E3AA37B6FB889DD53AF82C3C570C5CF", // v2
-                    new DeviceInfo(DEVICE_PIXEL_3, 3, 3, false /* uses new API */))
+                    new DeviceInfo(DEVICE_PIXEL_3, 3, 3, false /* uses new API */, true))
             .put("60D551860CC7FD32A9DC65FB3BCEB87A5E5C1F88928026F454A234D69B385580", // v1
-                    new DeviceInfo(DEVICE_PIXEL_3_XL, 3, 3, false /* uses new API */))
+                    new DeviceInfo(DEVICE_PIXEL_3_XL, 3, 3, false /* uses new API */, true))
             .put("06DD526EE9B1CB92AA19D9835B68B4FF1A48A3AD31D813F27C9A7D6C271E9451", // v2
-                    new DeviceInfo(DEVICE_PIXEL_3_XL, 3, 3, false /* uses new API */))
+                    new DeviceInfo(DEVICE_PIXEL_3_XL, 3, 3, false /* uses new API */, true))
             .build();
     static final ImmutableMap<String, DeviceInfo> fingerprintsStock = ImmutableMap
             .<String, DeviceInfo>builder()
             .put("5341E6B2646979A70E57653007A1F310169421EC9BDD9F1A5648F75ADE005AF1",
-                    new DeviceInfo(DEVICE_HUAWEI, 2, 3, false))
+                    new DeviceInfo(DEVICE_HUAWEI, 2, 3, false, true))
             .put("7E2E8CC82A77CA74554457E5DF3A3ED82E7032B3182D17FE17919BC6E989FF09",
-                    new DeviceInfo(DEVICE_HUAWEI_HONOR_7A_PRO, 2, 3, false))
+                    new DeviceInfo(DEVICE_HUAWEI_HONOR_7A_PRO, 2, 3, false, true))
             .put("DFC2920C81E136FDD2A510478FDA137B262DC51D449EDD7D0BDB554745725CFE",
-                    new DeviceInfo(DEVICE_NOKIA, 2, 3, true))
+                    new DeviceInfo(DEVICE_NOKIA, 2, 3, true, true))
             .put("4B9201B11685BE6710E2B2BA8482F444E237E0C8A3D1F7F447FE29C37CECC559",
-                    new DeviceInfo(DEVICE_ONEPLUS_6_A6003, 2, 3, true))
+                    new DeviceInfo(DEVICE_ONEPLUS_6_A6003, 2, 3, true, true))
             .put("6101853DFF451FAE5B137DF914D5E6C15C659337F2C405AC50B513A159071958",
-                    new DeviceInfo(DEVICE_ONEPLUS_7_PRO_GM1913, 3, 3, false /* needs new API */))
+                    new DeviceInfo(DEVICE_ONEPLUS_7_PRO_GM1913, 3, 3, false /* needs new API */, true))
             .put("1962B0538579FFCE9AC9F507C46AFE3B92055BAC7146462283C85C500BE78D82",
-                    new DeviceInfo(DEVICE_PIXEL_2, 2, 3, true))
+                    new DeviceInfo(DEVICE_PIXEL_2, 2, 3, true, true))
             .put("171616EAEF26009FC46DC6D89F3D24217E926C81A67CE65D2E3A9DC27040C7AB",
-                    new DeviceInfo(DEVICE_PIXEL_2_XL, 2, 3, true))
+                    new DeviceInfo(DEVICE_PIXEL_2_XL, 2, 3, true, true))
             .put("B799391AFAE3B35522D1EDC5C70A3746B097BDD1CABD59F72BB049705C7A03EF", // v1
-                    new DeviceInfo(DEVICE_PIXEL_3_GENERIC, 3, 3, false /* needs new API */))
+                    new DeviceInfo(DEVICE_PIXEL_3_GENERIC, 3, 3, false /* needs new API */, true))
             .put("61FDA12B32ED84214A9CF13D1AFFB7AA80BD8A268A861ED4BB7A15170F1AB00C", // v2
-                    new DeviceInfo(DEVICE_PIXEL_3_GENERIC, 3, 3, false /* uses new API */))
+                    new DeviceInfo(DEVICE_PIXEL_3_GENERIC, 3, 3, false /* uses new API */, true))
             .put("E75B86C52C7496255A95FB1E2B1C044BFA9D5FE34DD1E4EEBD752EEF0EA89875",
-                    new DeviceInfo(DEVICE_PIXEL_3A_GENERIC, 3, 3, false /* uses new API */))
+                    new DeviceInfo(DEVICE_PIXEL_3A_GENERIC, 3, 3, false /* uses new API */, true))
             .put("33D9484FD512E610BCF00C502827F3D55A415088F276C6506657215E622FA770",
-                    new DeviceInfo(DEVICE_SM_G960F, 1, 2, false))
+                    new DeviceInfo(DEVICE_SM_G960F, 1, 2, false, false))
             .put("266869F7CF2FB56008EFC4BE8946C8F84190577F9CA688F59C72DD585E696488",
-                    new DeviceInfo(DEVICE_SM_G960_NA, 1, 2, false))
+                    new DeviceInfo(DEVICE_SM_G960_NA, 1, 2, false, false))
             .put("D1C53B7A931909EC37F1939B14621C6E4FD19BF9079D195F86B3CEA47CD1F92D",
-                    new DeviceInfo(DEVICE_SM_G965F, 1, 2, false))
+                    new DeviceInfo(DEVICE_SM_G965F, 1, 2, false, false))
             .put("A4A544C2CFBAEAA88C12360C2E4B44C29722FC8DBB81392A6C1FAEDB7BF63010",
-                    new DeviceInfo(DEVICE_SM_G965_MSM, 1, 2, false))
+                    new DeviceInfo(DEVICE_SM_G965_MSM, 1, 2, false, false))
             .put("2A7E4954C9F703F3AC805AC660EA1727B981DB39B1E0F41E4013FA2586D3DF7F",
-                    new DeviceInfo(DEVICE_SM_N960F, 1, 2, false))
+                    new DeviceInfo(DEVICE_SM_N960F, 1, 2, false, false))
             .put("173ACFA8AE9EDE7BBD998F45A49231F3A4BDDF0779345732E309446B46B5641B",
-                    new DeviceInfo(DEVICE_SM_N960U, 1, 2, false))
+                    new DeviceInfo(DEVICE_SM_N960U, 1, 2, false, false))
             .put("4285AD64745CC79B4499817F264DC16BF2AF5163AF6C328964F39E61EC84693E",
-                    new DeviceInfo(DEVICE_SONY_XPERIA_XA2, 2, 3, true))
+                    new DeviceInfo(DEVICE_SONY_XPERIA_XA2, 2, 3, true, true))
             .put("54A9F21E9CFAD3A2D028517EF333A658302417DB7FB75E0A109A019646CC5F39",
-                    new DeviceInfo(DEVICE_SONY_XPERIA_XZ1, 2, 3, true))
+                    new DeviceInfo(DEVICE_SONY_XPERIA_XZ1, 2, 3, true, true))
             .put("BC3B5E121974113939B8A2FE758F9B923F1D195F038D2FD1C04929F886E83BB5",
-                    new DeviceInfo(DEVICE_SONY_XPERIA_XZ2, 2, 3, false))
+                    new DeviceInfo(DEVICE_SONY_XPERIA_XZ2, 2, 3, false, true))
             .put("94B8B4E3260B4BF8211A02CF2F3DE257A127CFFB2E4047D5580A752A5E253DE0",
-                    new DeviceInfo(DEVICE_SONY_XPERIA_XZ2_COMPACT, 2, 3, false))
+                    new DeviceInfo(DEVICE_SONY_XPERIA_XZ2_COMPACT, 2, 3, false, true))
             .put("728800FEBB119ADD74519618AFEDB715E1C39FE08A4DE37D249BF54ACF1CE00F",
-                    new DeviceInfo(DEVICE_BLACKBERRY_KEY2, 2, 3, true))
+                    new DeviceInfo(DEVICE_BLACKBERRY_KEY2, 2, 3, true, true))
             .put("1194659B40EA291245E54A3C4EC4AA5B7077BD244D65C7DD8C0A2DBB9DB1FB35",
-                    new DeviceInfo(DEVICE_BQ_AQUARIS_X2_PRO, 2, 3, true))
+                    new DeviceInfo(DEVICE_BQ_AQUARIS_X2_PRO, 2, 3, true, false))
             .put("A9C6758D509600D0EB94FA8D2BF6EE7A6A6097F0CCEF94A755DDE065AA1AA1B0",
-                    new DeviceInfo(DEVICE_XIAOMI_MI_A2, 2, 3, true))
+                    new DeviceInfo(DEVICE_XIAOMI_MI_A2, 2, 3, true, false))
             .put("6FA710B639848C9D47378937A1AFB1B6A52DDA738BEB6657E2AE70A15B40541A",
-                    new DeviceInfo(DEVICE_XIAOMI_MI_A2_LITE, 2, 3, true))
+                    new DeviceInfo(DEVICE_XIAOMI_MI_A2_LITE, 2, 3, true, false))
             .put("84BC8445A29B5444A2D1629C9774C8626DAFF3574D865EC5067A78FAEC96B013",
-                    new DeviceInfo(DEVICE_XIAOMI_MI_9, 3, 3, false /* uses new API */))
+                    new DeviceInfo(DEVICE_XIAOMI_MI_9, 3, 3, false /* uses new API */, false))
             .put("1CC39488D2F85DEE0A8E0903CDC4124CFDF2BE2531ED6060B678057ED2CB89B4",
-                    new DeviceInfo(DEVICE_HTC, 2, 3, true))
+                    new DeviceInfo(DEVICE_HTC, 2, 3, true, false))
             .build();
 
     static final ImmutableMap<String, DeviceInfo> fingerprintsStrongBoxGrapheneOS = ImmutableMap
             .<String, DeviceInfo>builder()
             .put("0F9A9CC8ADE73064A54A35C5509E77994E3AA37B6FB889DD53AF82C3C570C5CF",
-                    new DeviceInfo(DEVICE_PIXEL_3, 3, 3, false /* uses new API */))
+                    new DeviceInfo(DEVICE_PIXEL_3, 3, 3, false /* uses new API */, true))
             .put("06DD526EE9B1CB92AA19D9835B68B4FF1A48A3AD31D813F27C9A7D6C271E9451",
-                    new DeviceInfo(DEVICE_PIXEL_3_XL, 3, 3, false /* uses new API */))
+                    new DeviceInfo(DEVICE_PIXEL_3_XL, 3, 3, false /* uses new API */, true))
             .build();
     static final ImmutableMap<String, DeviceInfo> fingerprintsStrongBoxStock = ImmutableMap
             .<String, DeviceInfo>builder()
             .put("61FDA12B32ED84214A9CF13D1AFFB7AA80BD8A268A861ED4BB7A15170F1AB00C",
-                    new DeviceInfo(DEVICE_PIXEL_3_GENERIC, 3, 3, false /* uses new API */))
+                    new DeviceInfo(DEVICE_PIXEL_3_GENERIC, 3, 3, false /* uses new API */, true))
             .put("8CA89AF1A6DAA74B00810849356DE929CFC4498EF36AF964757BDE8A113BF46D",
-                    new DeviceInfo(DEVICE_PIXEL_3A_GENERIC, 3, 3, false /* uses new API */))
+                    new DeviceInfo(DEVICE_PIXEL_3A_GENERIC, 3, 3, false /* uses new API */, true))
             .build();
 
     private static final String GOOGLE_ROOT_CERTIFICATE =
