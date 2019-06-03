@@ -191,7 +191,7 @@ function fetchDevices() {
 
             info.appendChild(create("h3", "Verified device information:"));
             appendLine(info, "Device: " + device.name);
-            appendLine(info, "OS: " + device.os);
+            appendLine(info, "OS: " + device.osName);
             appendLine(info, "OS version: " + formatOsVersion(device.pinnedOsVersion));
             appendLine(info, "OS patch level: " + formatOsPatchLevel(device.pinnedOsPatchLevel));
             if (device.pinnedVendorPatchLevel !== undefined) {

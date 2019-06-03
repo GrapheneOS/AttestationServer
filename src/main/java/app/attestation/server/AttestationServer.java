@@ -66,9 +66,9 @@ import app.attestation.server.AttestationProtocol.DeviceInfo;
 
 import static com.almworks.sqlite4java.SQLiteConstants.SQLITE_CONSTRAINT_UNIQUE;
 
-import static app.attestation.server.AttestationProtocol.fingerprintsGrapheneOS;
+import static app.attestation.server.AttestationProtocol.fingerprintsCustomOS;
 import static app.attestation.server.AttestationProtocol.fingerprintsStock;
-import static app.attestation.server.AttestationProtocol.fingerprintsStrongBoxGrapheneOS;
+import static app.attestation.server.AttestationProtocol.fingerprintsStrongBoxCustomOS;
 import static app.attestation.server.AttestationProtocol.fingerprintsStrongBoxStock;
 
 public class AttestationServer {
@@ -934,28 +934,25 @@ public class AttestationServer {
                 DeviceInfo info;
                 final int pinnedSecurityLevel = select.columnInt(10);
                 if (pinnedSecurityLevel == AttestationProtocol.SECURITY_LEVEL_STRONGBOX) {
-                    info = fingerprintsStrongBoxGrapheneOS.get(verifiedBootKey);
+                    info = fingerprintsStrongBoxCustomOS.get(verifiedBootKey);
                     if (info != null) {
-                        device.add("os", "GrapheneOS");
                     } else {
-                        device.add("os", "Stock");
                         info = fingerprintsStrongBoxStock.get(verifiedBootKey);
                         if (info == null) {
                             throw new RuntimeException("invalid fingerprint");
                         }
                     }
                 } else {
-                    info = fingerprintsGrapheneOS.get(verifiedBootKey);
+                    info = fingerprintsCustomOS.get(verifiedBootKey);
                     if (info != null) {
-                        device.add("os", "GrapheneOS");
                     } else {
-                        device.add("os", "Stock");
                         info = fingerprintsStock.get(verifiedBootKey);
                         if (info == null) {
                             throw new RuntimeException("invalid fingerprint");
                         }
                     }
                 }
+                device.add("osName", info.osName);
                 device.add("name", info.name);
                 device.add("pinnedOsVersion", select.columnInt(5));
                 device.add("pinnedOsPatchLevel", select.columnInt(6));
