@@ -256,13 +256,13 @@ class AttestationProtocol {
             .put("1B90B7D1449D697FB2732A7D2DFA405D587254593F5137F7B6E64F7A0CE03BFD",
                     new DeviceInfo(DEVICE_ONEPLUS_6T_A6013, 3, 3, false /* uses new API */, true))
             .put("4B9201B11685BE6710E2B2BA8482F444E237E0C8A3D1F7F447FE29C37CECC559",
-                    new DeviceInfo(DEVICE_ONEPLUS_7_PRO_GM1913, 3, 3, false /* needs new API */, true))
+                    new DeviceInfo(DEVICE_ONEPLUS_7_PRO_GM1913, 3, 3, false /* uses new API */, true))
             .put("1962B0538579FFCE9AC9F507C46AFE3B92055BAC7146462283C85C500BE78D82",
                     new DeviceInfo(DEVICE_PIXEL_2, 2, 3, true, true))
             .put("171616EAEF26009FC46DC6D89F3D24217E926C81A67CE65D2E3A9DC27040C7AB",
                     new DeviceInfo(DEVICE_PIXEL_2_XL, 2, 3, true, true))
             .put("B799391AFAE3B35522D1EDC5C70A3746B097BDD1CABD59F72BB049705C7A03EF", // v1
-                    new DeviceInfo(DEVICE_PIXEL_3_GENERIC, 3, 3, false /* needs new API */, true))
+                    new DeviceInfo(DEVICE_PIXEL_3_GENERIC, 3, 3, false /* uses new API */, true))
             .put("61FDA12B32ED84214A9CF13D1AFFB7AA80BD8A268A861ED4BB7A15170F1AB00C", // v2
                     new DeviceInfo(DEVICE_PIXEL_3_GENERIC, 3, 3, false /* uses new API */, true))
             .put("E75B86C52C7496255A95FB1E2B1C044BFA9D5FE34DD1E4EEBD752EEF0EA89875",
