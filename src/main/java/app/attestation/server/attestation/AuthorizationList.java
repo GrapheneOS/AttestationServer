@@ -184,6 +184,7 @@ public class AuthorizationList {
     private Date creationDateTime;
     private Integer origin;
     private boolean rollbackResistant;
+    private boolean rollbackResistance;
     private RootOfTrust rootOfTrust;
     private Integer osVersion;
     private Integer osPatchLevel;
@@ -273,6 +274,9 @@ public class AuthorizationList {
                     break;
                 case KM_TAG_ROLLBACK_RESISTANT & KEYMASTER_TAG_TYPE_MASK:
                     rollbackResistant = true;
+                    break;
+                case KM_TAG_ROLLBACK_RESISTANCE & KEYMASTER_TAG_TYPE_MASK:
+                    rollbackResistance = true;
                     break;
                 case KM_TAG_AUTH_TIMEOUT & KEYMASTER_TAG_TYPE_MASK:
                     authTimeout = Asn1Utils.getIntegerFromAsn1(value);
@@ -539,6 +543,10 @@ public class AuthorizationList {
         return rollbackResistant;
     }
 
+    public boolean isRollbackResistance() {
+        return rollbackResistance;
+    }
+
     public RootOfTrust getRootOfTrust() {
         return rootOfTrust;
     }
@@ -677,6 +685,10 @@ public class AuthorizationList {
 
         if (rollbackResistant) {
             s.append("\nRollback resistant: true");
+        }
+
+        if (rollbackResistance) {
+            s.append("\nRollback resistance: true");
         }
 
         if (rootOfTrust != null) {
