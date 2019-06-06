@@ -158,6 +158,7 @@ public class AttestationServer {
                     "pinnedCertificate1 BLOB NOT NULL,\n" +
                     "pinnedCertificate2 BLOB NOT NULL,\n" +
                     "pinnedVerifiedBootKey BLOB NOT NULL,\n" +
+                    "verifiedBootHash BLOB,\n" +
                     "pinnedOsVersion INTEGER NOT NULL,\n" +
                     "pinnedOsPatchLevel INTEGER NOT NULL,\n" +
                     "pinnedVendorPatchLevel INTEGER,\n" +
@@ -180,6 +181,10 @@ public class AttestationServer {
                     ")");
             try {
                 attestationConn.exec("ALTER TABLE Devices ADD COLUMN pinnedSecurityLevel INTEGER NOT NULL DEFAULT 1");
+            } catch (SQLiteException e) {
+            }
+            try {
+                attestationConn.exec("ALTER TABLE Devices ADD COLUMN verifiedBootHash BLOB");
             } catch (SQLiteException e) {
             }
             attestationConn.exec("CREATE INDEX IF NOT EXISTS Devices_userId_verifiedTimeFirst " +
@@ -913,8 +918,10 @@ public class AttestationServer {
 
             final SQLiteStatement select = conn.prepare("SELECT fingerprint, " +
                     "pinnedCertificate0, pinnedCertificate1, pinnedCertificate2, " +
-                    "hex(pinnedVerifiedBootKey), pinnedOsVersion, pinnedOsPatchLevel, " +
-                    "pinnedVendorPatchLevel, pinnedBootPatchLevel, pinnedAppVersion, pinnedSecurityLevel, " +
+                    "hex(pinnedVerifiedBootKey), " +
+                    "(SELECT hex(verifiedBootHash) where verifiedBootHash IS NOT NULL), " +
+                    "pinnedOsVersion, pinnedOsPatchLevel, pinnedVendorPatchLevel, " +
+                    "pinnedBootPatchLevel, pinnedAppVersion, pinnedSecurityLevel, " +
                     "userProfileSecure, enrolledFingerprints, accessibility, deviceAdmin, " +
                     "adbEnabled, addUsersWhenLocked, denyNewUsb, oemUnlockAllowed, " +
                     "verifiedTimeFirst, verifiedTimeLast " +
@@ -932,7 +939,7 @@ public class AttestationServer {
                 final String verifiedBootKey = select.columnString(4);
                 device.add("verifiedBootKey", verifiedBootKey);
                 DeviceInfo info;
-                final int pinnedSecurityLevel = select.columnInt(10);
+                final int pinnedSecurityLevel = select.columnInt(11);
                 if (pinnedSecurityLevel == AttestationProtocol.SECURITY_LEVEL_STRONGBOX) {
                     info = fingerprintsStrongBoxCustomOS.get(verifiedBootKey);
                     if (info == null) {
@@ -952,28 +959,31 @@ public class AttestationServer {
                 }
                 device.add("osName", info.osName);
                 device.add("name", info.name);
-                device.add("pinnedOsVersion", select.columnInt(5));
-                device.add("pinnedOsPatchLevel", select.columnInt(6));
-                if (!select.columnNull(7)) {
-                    device.add("pinnedVendorPatchLevel", select.columnInt(7));
+                if (!select.columnNull(5)) {
+                    device.add("verifiedBootHash", select.columnString(5));
                 }
+                device.add("pinnedOsVersion", select.columnInt(6));
+                device.add("pinnedOsPatchLevel", select.columnInt(7));
                 if (!select.columnNull(8)) {
-                    device.add("pinnedBootPatchLevel", select.columnInt(8));
+                    device.add("pinnedVendorPatchLevel", select.columnInt(8));
                 }
-                device.add("pinnedAppVersion", select.columnInt(9));
+                if (!select.columnNull(9)) {
+                    device.add("pinnedBootPatchLevel", select.columnInt(9));
+                }
+                device.add("pinnedAppVersion", select.columnInt(10));
                 device.add("pinnedSecurityLevel", pinnedSecurityLevel);
-                device.add("userProfileSecure", select.columnInt(11));
-                device.add("enrolledFingerprints", select.columnInt(12));
-                device.add("accessibility", select.columnInt(13));
-                device.add("deviceAdmin", select.columnInt(14));
-                device.add("adbEnabled", select.columnInt(15));
-                device.add("addUsersWhenLocked", select.columnInt(16));
-                device.add("denyNewUsb", select.columnInt(17));
-                if (!select.columnNull(18)) {
-                    device.add("oemUnlockAllowed", select.columnInt(18));
+                device.add("userProfileSecure", select.columnInt(12));
+                device.add("enrolledFingerprints", select.columnInt(13));
+                device.add("accessibility", select.columnInt(14));
+                device.add("deviceAdmin", select.columnInt(15));
+                device.add("adbEnabled", select.columnInt(16));
+                device.add("addUsersWhenLocked", select.columnInt(17));
+                device.add("denyNewUsb", select.columnInt(18));
+                if (!select.columnNull(19)) {
+                    device.add("oemUnlockAllowed", select.columnInt(19));
                 }
-                device.add("verifiedTimeFirst", select.columnLong(19));
-                device.add("verifiedTimeLast", select.columnLong(20));
+                device.add("verifiedTimeFirst", select.columnLong(20));
+                device.add("verifiedTimeLast", select.columnLong(21));
 
                 final SQLiteStatement history = conn.prepare("SELECT time, strong, teeEnforced, " +
                         "osEnforced FROM Attestations WHERE fingerprint = ? ORDER BY time");
