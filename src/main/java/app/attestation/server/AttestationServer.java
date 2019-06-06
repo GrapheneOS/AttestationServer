@@ -935,8 +935,7 @@ public class AttestationServer {
                 final int pinnedSecurityLevel = select.columnInt(10);
                 if (pinnedSecurityLevel == AttestationProtocol.SECURITY_LEVEL_STRONGBOX) {
                     info = fingerprintsStrongBoxCustomOS.get(verifiedBootKey);
-                    if (info != null) {
-                    } else {
+                    if (info == null) {
                         info = fingerprintsStrongBoxStock.get(verifiedBootKey);
                         if (info == null) {
                             throw new RuntimeException("invalid fingerprint");
@@ -944,8 +943,7 @@ public class AttestationServer {
                     }
                 } else {
                     info = fingerprintsCustomOS.get(verifiedBootKey);
-                    if (info != null) {
-                    } else {
+                    if (info == null) {
                         info = fingerprintsStock.get(verifiedBootKey);
                         if (info == null) {
                             throw new RuntimeException("invalid fingerprint");
