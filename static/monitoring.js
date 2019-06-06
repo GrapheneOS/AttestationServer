@@ -200,11 +200,12 @@ function fetchDevices() {
             if (device.pinnedBootPatchLevel !== undefined) {
                 appendLine(info, "Boot patch level: " + formatOsPatchLevel(device.pinnedBootPatchLevel));
             }
-            appendLine(info, "Security level: " + toSecurityLevelString(device.pinnedSecurityLevel));
             if (device.verifiedBootHash !== undefined) {
                 info.appendChild(document.createTextNode("Verified boot hash: "));
                 info.appendChild(create("span", device.verifiedBootHash, "fingerprint"));
+                info.appendChild(document.createElement("br"));
             }
+            appendLine(info, "Security level: " + toSecurityLevelString(device.pinnedSecurityLevel));
 
             info.appendChild(create("button", "show advanced information", "toggle"));
             const advanced = info.appendChild(document.createElement("span"));
