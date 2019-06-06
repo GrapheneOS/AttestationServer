@@ -131,7 +131,9 @@ function displayLogin(account) {
 function create(tagName, text, className) {
     const element = document.createElement(tagName);
     element.innerText = text;
-    element.className = className;
+    if (className !== undefined) {
+        element.className = className;
+    }
     return element;
 }
 
