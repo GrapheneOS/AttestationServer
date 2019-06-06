@@ -16,22 +16,18 @@
 
 package app.attestation.server.attestation;
 
-import static com.google.common.base.Functions.forMap;
-import static com.google.common.collect.Collections2.transform;
+//import android.util.Log;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 
-//import android.util.Log;
-
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1Primitive;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.ASN1SequenceParser;
 import org.bouncycastle.asn1.ASN1TaggedObject;
-import org.bouncycastle.asn1.ASN1InputStream;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -41,6 +37,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+
+import static com.google.common.base.Functions.forMap;
+import static com.google.common.collect.Collections2.transform;
 
 public class AuthorizationList {
     // Algorithm values.
