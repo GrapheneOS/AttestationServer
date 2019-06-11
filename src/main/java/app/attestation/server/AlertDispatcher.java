@@ -135,7 +135,7 @@ class AlertDispatcher implements Runnable {
                     }
                     selectExpired.reset();
 
-                    if (expired.length() > 0) {
+                    if (!expiredFingerprints.isEmpty()) {
                         selectEmails.bind(1, userId);
                         while (selectEmails.step()) {
                             final String address = selectEmails.columnString(0);
