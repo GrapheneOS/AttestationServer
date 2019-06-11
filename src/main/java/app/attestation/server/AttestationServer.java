@@ -175,6 +175,7 @@ public class AttestationServer {
                     "oemUnlockAllowed INTEGER CHECK (oemUnlockAllowed in (0, 1)),\n" +
                     "verifiedTimeFirst INTEGER NOT NULL,\n" +
                     "verifiedTimeLast INTEGER NOT NULL,\n" +
+                    "expiredTimeLast INTEGER,\n" +
                     "failureTimeLast INTEGER,\n" +
                     "userId INTEGER NOT NULL REFERENCES Accounts (userId) ON DELETE CASCADE,\n" +
                     "deletionTime INTEGER\n" +
@@ -185,6 +186,10 @@ public class AttestationServer {
             }
             try {
                 attestationConn.exec("ALTER TABLE Devices ADD COLUMN verifiedBootHash BLOB");
+            } catch (SQLiteException e) {
+            }
+            try {
+                attestationConn.exec("ALTER TABLE Devices ADD COLUMN expiredTimeLast INTEGER");
             } catch (SQLiteException e) {
             }
             attestationConn.exec("CREATE INDEX IF NOT EXISTS Devices_userId_verifiedTimeFirst " +
