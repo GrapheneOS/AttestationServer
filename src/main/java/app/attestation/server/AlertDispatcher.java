@@ -143,7 +143,7 @@ class AlertDispatcher implements Runnable {
                                         "Devices failed to provide valid attestations within " +
                                         alertDelay / 60 / 60 + " hours");
                                 message.setText("The following devices have failed to provide valid attestations before the expiry time:\n\n" +
-                                        expired.toString());
+                                        expired.toString() + "\nLog in to https://attestation.app/ for more information.");
 
                                 Transport.send(message);
                             } catch (final MessagingException e) {
