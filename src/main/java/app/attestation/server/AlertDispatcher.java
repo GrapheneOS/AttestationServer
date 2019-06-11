@@ -22,6 +22,9 @@ class AlertDispatcher implements Runnable {
     private static final long WAIT_MS = 15 * 60 * 1000;
     private static final int TIMEOUT_MS = 30 * 1000;
 
+    // Split displayed fingerprint into groups of 4 characters
+    private static final int FINGERPRINT_SPLIT_INTERVAL = 4;
+
     @Override
     public void run() {
         final SQLiteConnection conn = new SQLiteConnection(AttestationProtocol.ATTESTATION_DATABASE);
@@ -109,8 +112,20 @@ class AlertDispatcher implements Runnable {
                     selectExpired.bind(2, System.currentTimeMillis() - alertDelay * 1000);
                     while (selectExpired.step()) {
                         final byte[] fingerprint = selectExpired.columnBlob(0);
+
+                        expired.append("* ");
+
                         final String encoded = BaseEncoding.base16().encode(fingerprint);
-                        expired.append("* ").append(encoded).append("\n");
+
+                        for (int i = 0; i < encoded.length(); i += FINGERPRINT_SPLIT_INTERVAL) {
+                            expired.append(encoded.substring(i,
+                                    Math.min(encoded.length(), i + FINGERPRINT_SPLIT_INTERVAL)));
+                            if (i + FINGERPRINT_SPLIT_INTERVAL < encoded.length()) {
+                                expired.append("-");
+                            }
+                        }
+
+                        expired.append("\n");
                     }
                     selectExpired.reset();
 
