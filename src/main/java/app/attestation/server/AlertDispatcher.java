@@ -22,6 +22,7 @@ import com.google.common.io.BaseEncoding;
 class AlertDispatcher implements Runnable {
     private static final long WAIT_MS = 15 * 60 * 1000;
     private static final int TIMEOUT_MS = 30 * 1000;
+    private static final long ALERT_THROTTLE_MS = 24 * 60 * 60 * 1000;
 
     // Split displayed fingerprint into groups of 4 characters
     private static final int FINGERPRINT_SPLIT_INTERVAL = 4;
@@ -44,7 +45,7 @@ class AlertDispatcher implements Runnable {
                     "(SELECT value FROM Configuration WHERE key = 'emailHost'), " +
                     "(SELECT value FROM Configuration WHERE key = 'emailPort')");
             selectAccounts = conn.prepare("SELECT userId, alertDelay FROM Accounts");
-            selectExpired = conn.prepare("SELECT fingerprint FROM Devices " +
+            selectExpired = conn.prepare("SELECT fingerprint, expiredTimeLast FROM Devices " +
                     "WHERE userId = ? AND verifiedTimeLast < ? AND deletionTime IS NULL");
             updateExpired = conn.prepare("UPDATE Devices SET expiredTimeLast = ? " +
                     "WHERE fingerprint = ?");
@@ -111,13 +112,17 @@ class AlertDispatcher implements Runnable {
                     final long userId = selectAccounts.columnLong(0);
                     final int alertDelay = selectAccounts.columnInt(1);
 
+                    final long now = System.currentTimeMillis();
+
+                    long oldestExpiredTimeLast = now;
                     final ArrayList<byte[]> expiredFingerprints = new ArrayList<>();
                     final StringBuilder expired = new StringBuilder();
                     selectExpired.bind(1, userId);
-                    selectExpired.bind(2, System.currentTimeMillis() - alertDelay * 1000);
+                    selectExpired.bind(2, now - alertDelay * 1000);
                     while (selectExpired.step()) {
                         final byte[] fingerprint = selectExpired.columnBlob(0);
                         expiredFingerprints.add(fingerprint);
+                        oldestExpiredTimeLast = Math.min(oldestExpiredTimeLast, selectExpired.columnLong(1));
 
                         expired.append("* ");
 
@@ -135,7 +140,7 @@ class AlertDispatcher implements Runnable {
                     }
                     selectExpired.reset();
 
-                    if (!expiredFingerprints.isEmpty()) {
+                    if (!expiredFingerprints.isEmpty() && oldestExpiredTimeLast < now - ALERT_THROTTLE_MS) {
                         selectEmails.bind(1, userId);
                         while (selectEmails.step()) {
                             final String address = selectEmails.columnString(0);
@@ -152,8 +157,6 @@ class AlertDispatcher implements Runnable {
                                         expired.toString() + "\nLog in to https://attestation.app/ for more information.");
 
                                 Transport.send(message);
-
-                                final long now = System.currentTimeMillis();
 
                                 for (final byte[] fingerprint : expiredFingerprints) {
                                     updateExpired.bind(1, now);
