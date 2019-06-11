@@ -14,6 +14,7 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import java.util.ArrayList;
 import java.util.Properties;
 
 import com.google.common.io.BaseEncoding;
@@ -31,6 +32,7 @@ class AlertDispatcher implements Runnable {
         final SQLiteStatement selectConfiguration;
         final SQLiteStatement selectAccounts;
         final SQLiteStatement selectExpired;
+        final SQLiteStatement updateExpired;
         final SQLiteStatement selectFailed;
         final SQLiteStatement selectEmails;
         try {
@@ -44,6 +46,8 @@ class AlertDispatcher implements Runnable {
             selectAccounts = conn.prepare("SELECT userId, alertDelay FROM Accounts");
             selectExpired = conn.prepare("SELECT fingerprint FROM Devices " +
                     "WHERE userId = ? AND verifiedTimeLast < ? AND deletionTime IS NULL");
+            updateExpired = conn.prepare("UPDATE Devices SET expiredTimeLast = ? " +
+                    "WHERE fingerprint = ?");
             selectFailed = conn.prepare("SELECT fingerprint FROM Devices " +
                     "WHERE userId = ? AND failureTimeLast IS NOT NULL AND deletionTime IS NULL");
             selectEmails = conn.prepare("SELECT address FROM EmailAddresses WHERE userId = ?");
@@ -107,11 +111,13 @@ class AlertDispatcher implements Runnable {
                     final long userId = selectAccounts.columnLong(0);
                     final int alertDelay = selectAccounts.columnInt(1);
 
+                    final ArrayList<byte[]> expiredFingerprints = new ArrayList<>();
                     final StringBuilder expired = new StringBuilder();
                     selectExpired.bind(1, userId);
                     selectExpired.bind(2, System.currentTimeMillis() - alertDelay * 1000);
                     while (selectExpired.step()) {
                         final byte[] fingerprint = selectExpired.columnBlob(0);
+                        expiredFingerprints.add(fingerprint);
 
                         expired.append("* ");
 
@@ -146,6 +152,15 @@ class AlertDispatcher implements Runnable {
                                         expired.toString() + "\nLog in to https://attestation.app/ for more information.");
 
                                 Transport.send(message);
+
+                                final long now = System.currentTimeMillis();
+
+                                for (final byte[] fingerprint : expiredFingerprints) {
+                                    updateExpired.bind(1, now);
+                                    updateExpired.bind(2, fingerprint);
+                                    updateExpired.step();
+                                    updateExpired.reset();
+                                }
                             } catch (final MessagingException e) {
                                 e.printStackTrace();
                             }
@@ -191,6 +206,7 @@ class AlertDispatcher implements Runnable {
                     selectConfiguration.reset();
                     selectAccounts.reset();
                     selectExpired.reset();
+                    updateExpired.reset();
                     selectFailed.reset();
                     selectEmails.reset();
                 } catch (final SQLiteException e) {
