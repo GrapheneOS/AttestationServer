@@ -173,6 +173,7 @@ public class AttestationServer {
                     "addUsersWhenLocked INTEGER NOT NULL CHECK (addUsersWhenLocked in (0, 1)),\n" +
                     "denyNewUsb INTEGER NOT NULL CHECK (denyNewUsb in (0, 1)),\n" +
                     "oemUnlockAllowed INTEGER CHECK (oemUnlockAllowed in (0, 1)),\n" +
+                    "systemUser INTEGER CHECK (systemUser in (0, 1)),\n" +
                     "verifiedTimeFirst INTEGER NOT NULL,\n" +
                     "verifiedTimeLast INTEGER NOT NULL,\n" +
                     "expiredTimeLast INTEGER,\n" +
@@ -190,6 +191,10 @@ public class AttestationServer {
             }
             try {
                 attestationConn.exec("ALTER TABLE Devices ADD COLUMN expiredTimeLast INTEGER");
+            } catch (SQLiteException e) {
+            }
+            try {
+                attestationConn.exec("ALTER TABLE Devices ADD COLUMN systemUser INTEGER CHECK (systemUser in (0, 1))");
             } catch (SQLiteException e) {
             }
             attestationConn.exec("CREATE INDEX IF NOT EXISTS Devices_userId_verifiedTimeFirst " +
@@ -929,7 +934,7 @@ public class AttestationServer {
                     "pinnedBootPatchLevel, pinnedAppVersion, pinnedSecurityLevel, " +
                     "userProfileSecure, enrolledFingerprints, accessibility, deviceAdmin, " +
                     "adbEnabled, addUsersWhenLocked, denyNewUsb, oemUnlockAllowed, " +
-                    "verifiedTimeFirst, verifiedTimeLast " +
+                    "systemUser, verifiedTimeFirst, verifiedTimeLast " +
                     "FROM Devices WHERE userId is ? AND deletionTime IS NULL " +
                     "ORDER BY verifiedTimeFirst");
             if (userId != 0) {
@@ -987,8 +992,11 @@ public class AttestationServer {
                 if (!select.columnNull(19)) {
                     device.add("oemUnlockAllowed", select.columnInt(19));
                 }
-                device.add("verifiedTimeFirst", select.columnLong(20));
-                device.add("verifiedTimeLast", select.columnLong(21));
+                if (!select.columnNull(20)) {
+                    device.add("systemUser", select.columnInt(20));
+                }
+                device.add("verifiedTimeFirst", select.columnLong(21));
+                device.add("verifiedTimeLast", select.columnLong(22));
 
                 final SQLiteStatement history = conn.prepare("SELECT time, strong, teeEnforced, " +
                         "osEnforced FROM Attestations WHERE fingerprint = ? ORDER BY time");
