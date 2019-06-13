@@ -315,7 +315,7 @@ class AttestationProtocol {
             .put("6FA710B639848C9D47378937A1AFB1B6A52DDA738BEB6657E2AE70A15B40541A",
                     new DeviceInfo(DEVICE_XIAOMI_MI_A2_LITE, 2, 3, true, false, OS_STOCK))
             .put("84BC8445A29B5444A2D1629C9774C8626DAFF3574D865EC5067A78FAEC96B013",
-                    new DeviceInfo(DEVICE_XIAOMI_MI_9, 3, 4, false /* uses new API */, false, OS_STOCK))
+                    new DeviceInfo(DEVICE_XIAOMI_MI_9, 3, 4, false /* uses new API */, true, OS_STOCK))
             .put("1CC39488D2F85DEE0A8E0903CDC4124CFDF2BE2531ED6060B678057ED2CB89B4",
                     new DeviceInfo(DEVICE_HTC, 2, 3, true, false, OS_STOCK))
             .put("80BAB060807CFFA45D4747DF1AD706FEE3AE3F645F80CF14871DDBE27E14C30B",
