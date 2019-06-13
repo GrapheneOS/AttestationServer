@@ -181,6 +181,8 @@ class AttestationProtocol {
     private static final String DEVICE_PIXEL_3 = "Google Pixel 3";
     private static final String DEVICE_PIXEL_3_XL = "Google Pixel 3 XL";
     private static final String DEVICE_PIXEL_3A_GENERIC = "Google Pixel 3a / Pixel 3a XL";
+    private static final String DEVICE_PIXEL_3A = "Google Pixel 3a";
+    private static final String DEVICE_PIXEL_3A_XL = "Google Pixel 3a XL";
     private static final String DEVICE_SM_G960F = "Samsung Galaxy S9 (SM-G960F)";
     private static final String DEVICE_SM_G960_NA = "Samsung Galaxy S9 USA/Canada (SM-G960U/SM-G960W)";
     private static final String DEVICE_SM_G965F = "Samsung Galaxy S9+ (SM-G965F)";
@@ -322,6 +324,10 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_PIXEL_3, 3, 4, false /* uses new API */, true, OS_GRAPHENE))
             .put("06DD526EE9B1CB92AA19D9835B68B4FF1A48A3AD31D813F27C9A7D6C271E9451",
                     new DeviceInfo(DEVICE_PIXEL_3_XL, 3, 4, false /* uses new API */, true, OS_GRAPHENE))
+            .put("73D6C63A07610404FE16A4E07DD24E41A70D331E9D3EF7BBA2D087E4761EB63A",
+                    new DeviceInfo(DEVICE_PIXEL_3A, 3, 4, false /* uses new API */, true, OS_GRAPHENE))
+            .put("3F36E3482E1FF82986576552CB4FD08AF09F8B09D3832314341E04C42D2919A4",
+                    new DeviceInfo(DEVICE_PIXEL_3A_XL, 3, 4, false /* uses new API */, true, OS_GRAPHENE))
             // CalyxOS
             .put("B4DE537A5F4B8FDAB6789EB2C06EC6E065E48A79EDD493A91F635004DD89F3E2",
                     new DeviceInfo(DEVICE_PIXEL_3_GENERIC, 3, 4, false /* uses new API */, true, OS_CALYX))
