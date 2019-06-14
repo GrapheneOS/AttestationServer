@@ -203,6 +203,7 @@ class AttestationProtocol {
     private static final String DEVICE_XIAOMI_MI_9 = "Xiaomi Mi 9";
     private static final String DEVICE_HTC = "HTC EXODUS 1 / U12+";
     private static final String DEVICE_MOTO_G7 = "Motorola moto g⁷";
+    private static final String DEVICE_VIVO_1807 = "Vivo 1807";
 
     private static final String OS_STOCK = "Stock";
     private static final String OS_GRAPHENE = "GrapheneOS";
@@ -320,6 +321,8 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_HTC, 2, 3, true, false, OS_STOCK))
             .put("80BAB060807CFFA45D4747DF1AD706FEE3AE3F645F80CF14871DDBE27E14C30B",
                     new DeviceInfo(DEVICE_MOTO_G7, 3, 4, false /* uses new API */, true, OS_STOCK))
+            .put("1F6D98D1B0E1F1CE1C872BD36C668F9DFDBE0D47594789E1540DF4E6198F657D",
+                    new DeviceInfo(DEVICE_VIVO_1807, 2, 3, true, false, OS_STOCK))
             .build();
 
     static final ImmutableMap<String, DeviceInfo> fingerprintsStrongBoxCustomOS = ImmutableMap
