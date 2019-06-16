@@ -1025,7 +1025,7 @@ public class AttestationServer {
 
     private static class VerifyHandler extends PostHandler {
         @Override
-        public void handlePost(final HttpExchange exchange) throws IOException {
+        public void handlePost(final HttpExchange exchange) throws IOException, SQLiteException {
             final List<String> authorization = exchange.getRequestHeaders().get("Authorization");
             if (authorization == null) {
                 exchange.sendResponseHeaders(400, -1);
@@ -1048,13 +1048,13 @@ public class AttestationServer {
                 final SQLiteStatement select = conn.prepare("SELECT subscribeKey, verifyInterval " +
                         "FROM Accounts WHERE userId = ?");
                 select.bind(1, userId);
-                select.step();
+                if (!select.step()) {
+                    exchange.sendResponseHeaders(400, -1);
+                    return;
+                }
                 currentSubscribeKey = select.columnBlob(0);
                 verifyInterval = select.columnInt(1);
                 select.dispose();
-            } catch (final SQLiteException e) {
-                exchange.sendResponseHeaders(403, -1);
-                return;
             } finally {
                 conn.dispose();
             }
