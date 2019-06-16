@@ -253,7 +253,12 @@ public class AttestationServer {
                 exchange.sendResponseHeaders(405, -1);
                 return;
             }
-            handlePost(exchange);
+            try {
+                handlePost(exchange);
+            } catch (final Exception e) {
+                e.printStackTrace();
+                exchange.sendResponseHeaders(500, -1);
+            }
         }
     }
 
