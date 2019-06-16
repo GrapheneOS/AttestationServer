@@ -244,7 +244,7 @@ public class AttestationServer {
     }
 
     private abstract static class PostHandler implements HttpHandler {
-        protected abstract void handlePost(final HttpExchange exchange) throws IOException;
+        protected abstract void handlePost(final HttpExchange exchange) throws IOException, SQLiteException;
 
         @Override
         public final void handle(final HttpExchange exchange) throws IOException {
@@ -418,7 +418,7 @@ public class AttestationServer {
 
     private static class CreateAccountHandler extends PostHandler {
         @Override
-        public void handlePost(final HttpExchange exchange) throws IOException {
+        public void handlePost(final HttpExchange exchange) throws IOException, SQLiteException {
             final String username;
             final String password;
             try (final JsonReader reader = Json.createReader(exchange.getRequestBody())) {
@@ -440,10 +440,6 @@ public class AttestationServer {
                 e.printStackTrace();
                 exchange.sendResponseHeaders(400, -1);
                 return;
-            } catch (final SQLiteException e) {
-                e.printStackTrace();
-                exchange.sendResponseHeaders(500, -1);
-                return;
             }
             exchange.sendResponseHeaders(200, -1);
         }
@@ -451,7 +447,7 @@ public class AttestationServer {
 
     private static class ChangePasswordHandler extends PostHandler {
         @Override
-        public void handlePost(final HttpExchange exchange) throws IOException {
+        public void handlePost(final HttpExchange exchange) throws IOException, SQLiteException {
             final String requestToken;
             final String currentPassword;
             final String newPassword;
@@ -477,10 +473,6 @@ public class AttestationServer {
                 e.printStackTrace();
                 exchange.sendResponseHeaders(400, -1);
                 return;
-            } catch (final SQLiteException e) {
-                e.printStackTrace();
-                exchange.sendResponseHeaders(500, -1);
-                return;
             }
             exchange.sendResponseHeaders(200, -1);
         }
@@ -488,7 +480,7 @@ public class AttestationServer {
 
     private static class LoginHandler extends PostHandler {
         @Override
-        public void handlePost(final HttpExchange exchange) throws IOException {
+        public void handlePost(final HttpExchange exchange) throws IOException, SQLiteException {
             final String username;
             final String password;
             try (final JsonReader reader = Json.createReader(exchange.getRequestBody())) {
@@ -510,10 +502,6 @@ public class AttestationServer {
             } catch (final GeneralSecurityException e) {
                 e.printStackTrace();
                 exchange.sendResponseHeaders(403, -1);
-                return;
-            } catch (final SQLiteException e) {
-                e.printStackTrace();
-                exchange.sendResponseHeaders(500, -1);
                 return;
             }
 
@@ -544,27 +532,21 @@ public class AttestationServer {
 
     private static class LogoutEverywhereHandler extends PostHandler {
         @Override
-        public void handlePost(final HttpExchange exchange) throws IOException {
-            try {
-                final Account account = verifySession(exchange, false, null);
-                if (account == null) {
-                    return;
-                }
-                final SQLiteConnection conn = new SQLiteConnection(AttestationProtocol.ATTESTATION_DATABASE);
-                try {
-                    open(conn, false);
-
-                    final SQLiteStatement select = conn.prepare("DELETE from Sessions where userId = ?");
-                    select.bind(1, account.userId);
-                    select.step();
-                    select.dispose();
-                } finally {
-                    conn.dispose();
-                }
-            } catch (final SQLiteException e) {
-                e.printStackTrace();
-                exchange.sendResponseHeaders(500, -1);
+        public void handlePost(final HttpExchange exchange) throws IOException, SQLiteException {
+            final Account account = verifySession(exchange, false, null);
+            if (account == null) {
                 return;
+            }
+            final SQLiteConnection conn = new SQLiteConnection(AttestationProtocol.ATTESTATION_DATABASE);
+            try {
+                open(conn, false);
+
+                final SQLiteStatement select = conn.prepare("DELETE from Sessions where userId = ?");
+                select.bind(1, account.userId);
+                select.step();
+                select.dispose();
+            } finally {
+                conn.dispose();
             }
             clearCookie(exchange);
             exchange.sendResponseHeaders(200, -1);
@@ -573,7 +555,7 @@ public class AttestationServer {
 
     private static class RotateHandler extends PostHandler {
         @Override
-        public void handlePost(final HttpExchange exchange) throws IOException {
+        public void handlePost(final HttpExchange exchange) throws IOException, SQLiteException {
             final Account account = verifySession(exchange, false, null);
             if (account == null) {
                 return;
@@ -590,10 +572,6 @@ public class AttestationServer {
                 select.bind(2, account.userId);
                 select.step();
                 select.dispose();
-            } catch (final SQLiteException e) {
-                e.printStackTrace();
-                exchange.sendResponseHeaders(500, -1);
-                return;
             } finally {
                 conn.dispose();
             }
@@ -714,7 +692,7 @@ public class AttestationServer {
 
     private static class AccountHandler extends PostHandler {
         @Override
-        public void handlePost(final HttpExchange exchange) throws IOException {
+        public void handlePost(final HttpExchange exchange) throws IOException, SQLiteException {
             final Account account = verifySession(exchange, false, null);
             if (account == null) {
                 return;
@@ -734,10 +712,6 @@ public class AttestationServer {
                     accountJson.add("email", select.columnString(0));
                 }
                 select.dispose();
-            } catch (final SQLiteException e) {
-                e.printStackTrace();
-                exchange.sendResponseHeaders(500, -1);
-                return;
             } finally {
                 conn.dispose();
             }
@@ -789,7 +763,7 @@ public class AttestationServer {
 
     private static class ConfigurationHandler extends PostHandler {
         @Override
-        public void handlePost(final HttpExchange exchange) throws IOException {
+        public void handlePost(final HttpExchange exchange) throws IOException, SQLiteException {
             final int verifyInterval;
             final int alertDelay;
             final String email;
@@ -860,10 +834,6 @@ public class AttestationServer {
                 }
 
                 conn.exec("COMMIT TRANSACTION");
-            } catch (final SQLiteException e) {
-                e.printStackTrace();
-                exchange.sendResponseHeaders(500, -1);
-                return;
             } finally {
                 conn.dispose();
             }
@@ -873,7 +843,7 @@ public class AttestationServer {
 
     private static class DeleteDeviceHandler extends PostHandler {
         @Override
-        public void handlePost(final HttpExchange exchange) throws IOException {
+        public void handlePost(final HttpExchange exchange) throws IOException, SQLiteException {
             final String requestToken;
             final String fingerprint;
             try (final JsonReader reader = Json.createReader(exchange.getRequestBody())) {
@@ -907,10 +877,6 @@ public class AttestationServer {
                     exchange.sendResponseHeaders(400, -1);
                     return;
                 }
-            } catch (final SQLiteException e) {
-                e.printStackTrace();
-                exchange.sendResponseHeaders(500, -1);
-                return;
             } finally {
                 conn.dispose();
             }
@@ -925,7 +891,7 @@ public class AttestationServer {
     }
 
     private static void writeDevicesJson(final HttpExchange exchange, final long userId)
-            throws IOException {
+            throws IOException, SQLiteException {
         final SQLiteConnection conn = new SQLiteConnection(AttestationProtocol.ATTESTATION_DATABASE);
         final JsonArrayBuilder devices = Json.createArrayBuilder();
         try {
@@ -1021,10 +987,6 @@ public class AttestationServer {
                 devices.add(device);
             }
             select.dispose();
-        } catch (final SQLiteException e) {
-            e.printStackTrace();
-            exchange.sendResponseHeaders(500, -1);
-            return;
         } finally {
             conn.dispose();
         }
@@ -1038,7 +1000,7 @@ public class AttestationServer {
 
     private static class DevicesHandler extends PostHandler {
         @Override
-        public void handlePost(final HttpExchange exchange) throws IOException {
+        public void handlePost(final HttpExchange exchange) throws IOException, SQLiteException {
             final Account account = verifySession(exchange, false, null);
             if (account == null) {
                 return;
@@ -1148,7 +1110,7 @@ public class AttestationServer {
 
     private static class SubmitHandler extends PostHandler {
         @Override
-        public void handlePost(final HttpExchange exchange) throws IOException {
+        public void handlePost(final HttpExchange exchange) throws IOException, SQLiteException {
             final InputStream input = exchange.getRequestBody();
 
             final ByteArrayOutputStream sample = new ByteArrayOutputStream();
@@ -1171,10 +1133,6 @@ public class AttestationServer {
                 insert.bind(2, System.currentTimeMillis());
                 insert.step();
                 insert.dispose();
-            } catch (final SQLiteException e) {
-                e.printStackTrace();
-                exchange.sendResponseHeaders(500, -1);
-                return;
             } finally {
                 conn.dispose();
             }
