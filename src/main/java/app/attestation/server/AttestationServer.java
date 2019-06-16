@@ -520,7 +520,7 @@ public class AttestationServer {
 
     private static class LogoutHandler extends PostHandler {
         @Override
-        public void handlePost(final HttpExchange exchange) throws IOException {
+        public void handlePost(final HttpExchange exchange) throws IOException, SQLiteException {
             final Account account = verifySession(exchange, true, null);
             if (account == null) {
                 return;
@@ -621,7 +621,7 @@ public class AttestationServer {
     }
 
     private static Account verifySession(final HttpExchange exchange, final boolean end, byte[] requestTokenEncoded)
-            throws IOException {
+            throws IOException, SQLiteException {
         final String cookie = getCookie(exchange, "__Host-session");
         if (cookie == null) {
             exchange.sendResponseHeaders(403, -1);
@@ -682,9 +682,6 @@ public class AttestationServer {
 
             return new Account(select.columnLong(5), select.columnString(3), select.columnBlob(4),
                     select.columnInt(6), select.columnInt(7));
-        } catch (final SQLiteException e) {
-            exchange.sendResponseHeaders(500, -1);
-            return null;
         } finally {
             conn.dispose();
         }
@@ -745,7 +742,7 @@ public class AttestationServer {
 
     private static class AccountQrHandler extends PostHandler {
         @Override
-        public void handlePost(final HttpExchange exchange) throws IOException {
+        public void handlePost(final HttpExchange exchange) throws IOException, SQLiteException {
             final Account account = verifySession(exchange, false, null);
             if (account == null) {
                 return;
