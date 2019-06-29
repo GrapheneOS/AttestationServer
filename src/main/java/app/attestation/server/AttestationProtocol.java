@@ -174,6 +174,7 @@ class AttestationProtocol {
     private static final String DEVICE_HUAWEI = "Huawei Honor 10 / Honor View 10 / Mate 10 / Mate 20 Pro / P20 Pro";
     private static final String DEVICE_HUAWEI_HONOR_7A_PRO = "Huawei Honor 7A Pro";
     private static final String DEVICE_NOKIA = "Nokia (6.1, 7 Plus)";
+    private static final String DEVICE_NOKIA_7_1 = "Nokia 7.1";
     private static final String DEVICE_PIXEL_2_GENERIC = "Google Pixel 2 / Pixel 2 XL";
     private static final String DEVICE_PIXEL_2 = "Google Pixel 2";
     private static final String DEVICE_PIXEL_2_XL = "Google Pixel 2 XL";
@@ -272,6 +273,8 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_HUAWEI_HONOR_7A_PRO, 2, 3, false, true, OS_STOCK))
             .put("DFC2920C81E136FDD2A510478FDA137B262DC51D449EDD7D0BDB554745725CFE",
                     new DeviceInfo(DEVICE_NOKIA, 2, 3, true, true, OS_STOCK))
+            .put("893A17FD918235DB2865F7F6439EB0134A45B766AA452E0675BAC6CFB5A773AA",
+                    new DeviceInfo(DEVICE_NOKIA_7_1, 2, 3, true, true, OS_STOCK))
             .put("6101853DFF451FAE5B137DF914D5E6C15C659337F2C405AC50B513A159071958",
                     new DeviceInfo(DEVICE_ONEPLUS_6_A6003, 2, 3, true, true, OS_STOCK))
             .put("1B90B7D1449D697FB2732A7D2DFA405D587254593F5137F7B6E64F7A0CE03BFD",
