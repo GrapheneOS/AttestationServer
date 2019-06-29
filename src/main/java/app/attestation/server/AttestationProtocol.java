@@ -188,6 +188,7 @@ class AttestationProtocol {
     private static final String DEVICE_SM_G960_NA = "Samsung Galaxy S9 USA/Canada (SM-G960U/SM-G960W)";
     private static final String DEVICE_SM_G965F = "Samsung Galaxy S9+ (SM-G965F)";
     private static final String DEVICE_SM_G965_MSM = "Samsung Galaxy S9+ (Snapdragon)";
+    private static final String DEVICE_SM_M205F = "Samsung Galaxy M20 (SM-M205F)";
     private static final String DEVICE_SM_N960F = "Samsung Galaxy Note 9 (SM-N960F)";
     private static final String DEVICE_SM_N960U = "Samsung Galaxy Note 9 (SM-N960U)";
     private static final String DEVICE_SM_T510 = "Samsung Galaxy Tab A 10.1 (2019)";
@@ -299,6 +300,8 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_SM_G965F, 1, 2, false, false, OS_STOCK))
             .put("A4A544C2CFBAEAA88C12360C2E4B44C29722FC8DBB81392A6C1FAEDB7BF63010",
                     new DeviceInfo(DEVICE_SM_G965_MSM, 1, 2, false, false, OS_STOCK))
+            .put("4E0570011025D01386D057B2B382969F804DCD19E001344535CF0CFDB8AD7CFE",
+                    new DeviceInfo(DEVICE_SM_M205F, 1, 2, false, false, OS_STOCK))
             .put("2A7E4954C9F703F3AC805AC660EA1727B981DB39B1E0F41E4013FA2586D3DF7F",
                     new DeviceInfo(DEVICE_SM_N960F, 1, 2, false, false, OS_STOCK))
             .put("173ACFA8AE9EDE7BBD998F45A49231F3A4BDDF0779345732E309446B46B5641B",
