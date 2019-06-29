@@ -171,7 +171,7 @@ class AttestationProtocol {
     private static final int VENDOR_PATCH_LEVEL_MINIMUM = 201808;
     private static final int BOOT_PATCH_LEVEL_MINIMUM = 201809;
 
-    private static final String DEVICE_HUAWEI = "Huawei Honor 10 / Honor View 10 / Mate 10 / Mate 20 Pro / P20 Pro";
+    private static final String DEVICE_HUAWEI = "Huawei Honor 10 / Honor View 10 / Mate 10 / Mate 20 Pro / P20 Pro / Y9 2019";
     private static final String DEVICE_HUAWEI_HONOR_7A_PRO = "Huawei Honor 7A Pro";
     private static final String DEVICE_NOKIA = "Nokia (6.1, 7 Plus)";
     private static final String DEVICE_NOKIA_7_1 = "Nokia 7.1";
