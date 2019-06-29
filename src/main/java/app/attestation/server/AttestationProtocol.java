@@ -189,6 +189,7 @@ class AttestationProtocol {
     private static final String DEVICE_SM_G965_MSM = "Samsung Galaxy S9+ (Snapdragon)";
     private static final String DEVICE_SM_N960F = "Samsung Galaxy Note 9 (SM-N960F)";
     private static final String DEVICE_SM_N960U = "Samsung Galaxy Note 9 (SM-N960U)";
+    private static final String DEVICE_SM_T510 = "Samsung Galaxy Tab A 10.1 (2019)";
     private static final String DEVICE_SONY_XPERIA_XA2 = "Sony Xperia XA2";
     private static final String DEVICE_SONY_XPERIA_XZ1 = "Sony Xperia XZ1 / Xperia XZ1 Compact";
     private static final String DEVICE_SONY_XPERIA_XZ2 = "Sony Xperia XZ2 (H8216)";
@@ -299,6 +300,8 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_SM_N960F, 1, 2, false, false, OS_STOCK))
             .put("173ACFA8AE9EDE7BBD998F45A49231F3A4BDDF0779345732E309446B46B5641B",
                     new DeviceInfo(DEVICE_SM_N960U, 1, 2, false, false, OS_STOCK))
+            .put("106592D051E54388C6E601DFD61D59EB1674A8B93216C65C5B3E1830B73D3B82",
+                    new DeviceInfo(DEVICE_SM_T510, 3, 4, false /* uses new API */, true, OS_STOCK))
             .put("4285AD64745CC79B4499817F264DC16BF2AF5163AF6C328964F39E61EC84693E",
                     new DeviceInfo(DEVICE_SONY_XPERIA_XA2, 2, 3, true, true, OS_STOCK))
             .put("54A9F21E9CFAD3A2D028517EF333A658302417DB7FB75E0A109A019646CC5F39",
@@ -531,34 +534,6 @@ class AttestationProtocol {
         if (!rootOfTrust.isDeviceLocked()) {
             throw new GeneralSecurityException("device is not locked");
         }
-        final int osVersion = teeEnforced.getOsVersion();
-        if (osVersion == DEVELOPER_PREVIEW_OS_VERSION) {
-            throw new GeneralSecurityException("OS version is not a production release");
-        } else if (osVersion < OS_VERSION_MINIMUM) {
-            throw new GeneralSecurityException("OS version too old");
-        }
-        final int osPatchLevel = teeEnforced.getOsPatchLevel();
-        if (osPatchLevel < OS_PATCH_LEVEL_MINIMUM) {
-            throw new GeneralSecurityException("OS patch level too old");
-        }
-        final int vendorPatchLevel;
-        if (teeEnforced.getVendorPatchLevel() == null) {
-            vendorPatchLevel = 0;
-        } else {
-            vendorPatchLevel = teeEnforced.getVendorPatchLevel();
-            if (vendorPatchLevel < VENDOR_PATCH_LEVEL_MINIMUM) {
-                throw new GeneralSecurityException("Vendor patch level too old");
-            }
-        }
-        final int bootPatchLevel;
-        if (teeEnforced.getBootPatchLevel() == null) {
-            bootPatchLevel = 0;
-        } else {
-            bootPatchLevel = teeEnforced.getBootPatchLevel();
-            if (bootPatchLevel < BOOT_PATCH_LEVEL_MINIMUM) {
-                throw new GeneralSecurityException("Boot patch level too old");
-            }
-        }
 
         final int verifiedBootState = rootOfTrust.getVerifiedBootState();
         final String verifiedBootKey = BaseEncoding.base16().encode(rootOfTrust.getVerifiedBootKey());
@@ -581,6 +556,36 @@ class AttestationProtocol {
 
         if (device == null) {
             throw new GeneralSecurityException("invalid verified boot key fingerprint: " + verifiedBootKey);
+        }
+
+        // OS version sanity checks
+        final int osVersion = teeEnforced.getOsVersion();
+        if (osVersion == DEVELOPER_PREVIEW_OS_VERSION) {
+            throw new GeneralSecurityException("OS version is not a production release");
+        } else if (osVersion < OS_VERSION_MINIMUM) {
+            throw new GeneralSecurityException("OS version too old");
+        }
+        final int osPatchLevel = teeEnforced.getOsPatchLevel();
+        if (osPatchLevel < OS_PATCH_LEVEL_MINIMUM) {
+            throw new GeneralSecurityException("OS patch level too old");
+        }
+        final int vendorPatchLevel;
+        if (teeEnforced.getVendorPatchLevel() == null) {
+            vendorPatchLevel = 0;
+        } else {
+            vendorPatchLevel = teeEnforced.getVendorPatchLevel();
+            if (vendorPatchLevel < VENDOR_PATCH_LEVEL_MINIMUM && !device.name.equals(DEVICE_SM_T510)) {
+                throw new GeneralSecurityException("Vendor patch level too old");
+            }
+        }
+        final int bootPatchLevel;
+        if (teeEnforced.getBootPatchLevel() == null) {
+            bootPatchLevel = 0;
+        } else {
+            bootPatchLevel = teeEnforced.getBootPatchLevel();
+            if (bootPatchLevel < BOOT_PATCH_LEVEL_MINIMUM && !device.name.equals(DEVICE_SM_T510)) {
+                throw new GeneralSecurityException("Boot patch level too old");
+            }
         }
 
         // key sanity checks
