@@ -21,6 +21,7 @@ echo
 
 rsync -rcve ssh --delete build/libs/ $remote:$target
 ssh $remote chmod -R a+rX $target
+ssh $remote sync
 ssh $remote ln -snf $target deploy
 ssh root@attestation.app systemctl restart attestation
 
