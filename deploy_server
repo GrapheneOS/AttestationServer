@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 set -o errexit
 
@@ -6,13 +6,18 @@ rm -rf build
 ./gradlew build
 
 remote=attestation@attestation.app
-current=$(ssh $remote readlink deploy)
+active=$(ssh $remote readlink deploy)
 
-if [[ $current = deploy_a ]]; then
+if [[ $active = deploy_a ]]; then
     target=deploy_b
 else
     target=deploy_a
 fi
+
+echo
+echo active is $active
+echo target is $target
+echo
 
 rsync -rcve ssh --delete build/libs/ $remote:$target
 ssh $remote chmod -R a+rX $target
