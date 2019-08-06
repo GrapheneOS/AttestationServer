@@ -23,7 +23,7 @@ dependencies {
     compile 'com.sun.mail:javax.mail:1.6.2'
     compile 'javax.activation:activation:1.1.1'
     compile 'javax.json:javax.json-api:1.1.4'
-    compile 'org.bouncycastle:bcpkix-jdk15on:1.61'
+    compile 'org.bouncycastle:bcpkix-jdk15on:1.62'
     compile 'org.glassfish:javax.json:1.1.4'
 }
 
