@@ -7,6 +7,7 @@ import com.almworks.sqlite4java.SQLiteStatement;
 import com.github.benmanes.caffeine.cache.Cache;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import com.google.common.io.BaseEncoding;
@@ -188,6 +189,7 @@ class AttestationProtocol {
     private static final String DEVICE_SM_G960_NA = "Samsung Galaxy S9 USA/Canada (SM-G960U/SM-G960W)";
     private static final String DEVICE_SM_G965F = "Samsung Galaxy S9+ (SM-G965F)";
     private static final String DEVICE_SM_G965_MSM = "Samsung Galaxy S9+ (Snapdragon)";
+    private static final String DEVICE_SM_G975F = "Samsung Galaxy S10+ (SM-G975F)";
     private static final String DEVICE_SM_M205F = "Samsung Galaxy M20 (SM-M205F)";
     private static final String DEVICE_SM_N960F = "Samsung Galaxy Note 9 (SM-N960F)";
     private static final String DEVICE_SM_N960U = "Samsung Galaxy Note 9 (SM-N960U)";
@@ -231,6 +233,10 @@ class AttestationProtocol {
             this.osName = osName;
         }
     }
+
+    private static final ImmutableSet<String> extraPatchLevelMissing = ImmutableSet.of(
+            DEVICE_SM_G975F,
+            DEVICE_SM_T510);
 
     private static final ImmutableMap<String, String> fingerprintsMigration = ImmutableMap
             .<String, String>builder()
@@ -301,6 +307,8 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_SM_G965F, 1, 2, false, false, OS_STOCK))
             .put("A4A544C2CFBAEAA88C12360C2E4B44C29722FC8DBB81392A6C1FAEDB7BF63010",
                     new DeviceInfo(DEVICE_SM_G965_MSM, 1, 2, false, false, OS_STOCK))
+            .put("08B2B5C6EC8F54C00C505756E1EF516BB4537B2F02D640410D287A43FCF92E3F",
+                    new DeviceInfo(DEVICE_SM_G975F, 3, 4, false /* uses new API */, true, OS_STOCK))
             .put("4E0570011025D01386D057B2B382969F804DCD19E001344535CF0CFDB8AD7CFE",
                     new DeviceInfo(DEVICE_SM_M205F, 1, 2, false, false, OS_STOCK))
             .put("2A7E4954C9F703F3AC805AC660EA1727B981DB39B1E0F41E4013FA2586D3DF7F",
@@ -583,7 +591,7 @@ class AttestationProtocol {
             vendorPatchLevel = 0;
         } else {
             vendorPatchLevel = teeEnforced.getVendorPatchLevel();
-            if (vendorPatchLevel < VENDOR_PATCH_LEVEL_MINIMUM && !device.name.equals(DEVICE_SM_T510)) {
+            if (vendorPatchLevel < VENDOR_PATCH_LEVEL_MINIMUM && !extraPatchLevelMissing.contains(device)) {
                 throw new GeneralSecurityException("Vendor patch level too old");
             }
         }
@@ -592,7 +600,7 @@ class AttestationProtocol {
             bootPatchLevel = 0;
         } else {
             bootPatchLevel = teeEnforced.getBootPatchLevel();
-            if (bootPatchLevel < BOOT_PATCH_LEVEL_MINIMUM && !device.name.equals(DEVICE_SM_T510)) {
+            if (bootPatchLevel < BOOT_PATCH_LEVEL_MINIMUM && !extraPatchLevelMissing.contains(device)) {
                 throw new GeneralSecurityException("Boot patch level too old");
             }
         }
