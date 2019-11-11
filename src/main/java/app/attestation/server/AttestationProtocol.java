@@ -660,11 +660,11 @@ class AttestationProtocol {
         if (osVersion == DEVELOPER_PREVIEW_OS_VERSION) {
             throw new GeneralSecurityException("OS version is not a production release");
         } else if (osVersion < OS_VERSION_MINIMUM) {
-            throw new GeneralSecurityException("OS version too old");
+            throw new GeneralSecurityException("OS version too old: " + osVersion);
         }
         final int osPatchLevel = teeEnforced.getOsPatchLevel();
         if (osPatchLevel < OS_PATCH_LEVEL_MINIMUM) {
-            throw new GeneralSecurityException("OS patch level too old");
+            throw new GeneralSecurityException("OS patch level too old: " + osPatchLevel);
         }
         final int vendorPatchLevel;
         if (teeEnforced.getVendorPatchLevel() == null) {
@@ -672,7 +672,7 @@ class AttestationProtocol {
         } else {
             vendorPatchLevel = teeEnforced.getVendorPatchLevel();
             if (vendorPatchLevel < VENDOR_PATCH_LEVEL_MINIMUM && !extraPatchLevelMissing.contains(device.name)) {
-                throw new GeneralSecurityException("Vendor patch level too old");
+                throw new GeneralSecurityException("Vendor patch level too old: " + vendorPatchLevel);
             }
         }
         final int bootPatchLevel;
@@ -681,7 +681,7 @@ class AttestationProtocol {
         } else {
             bootPatchLevel = teeEnforced.getBootPatchLevel();
             if (bootPatchLevel < BOOT_PATCH_LEVEL_MINIMUM && !extraPatchLevelMissing.contains(device.name)) {
-                throw new GeneralSecurityException("Boot patch level too old");
+                throw new GeneralSecurityException("Boot patch level too old: " + bootPatchLevel);
             }
         }
 
@@ -699,10 +699,11 @@ class AttestationProtocol {
         // version sanity checks
         final int attestationVersion = attestation.getAttestationVersion();
         if (attestationVersion < device.attestationVersion) {
-            throw new GeneralSecurityException("attestation version below " + device.attestationVersion);
+            throw new GeneralSecurityException("attestation version " + attestationVersion + " below " + device.attestationVersion);
         }
-        if (attestation.getKeymasterVersion() < device.keymasterVersion) {
-            throw new GeneralSecurityException("keymaster version below " + device.keymasterVersion);
+        final int keymasterVersion = attestation.getKeymasterVersion();
+        if (keymasterVersion < device.keymasterVersion) {
+            throw new GeneralSecurityException("keymaster version " + keymasterVersion + " below " + device.keymasterVersion);
         }
 
         final byte[] verifiedBootHash = rootOfTrust.getVerifiedBootHash();
