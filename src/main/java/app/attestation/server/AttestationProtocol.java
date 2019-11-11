@@ -671,7 +671,7 @@ class AttestationProtocol {
             vendorPatchLevel = 0;
         } else {
             vendorPatchLevel = teeEnforced.getVendorPatchLevel();
-            if (vendorPatchLevel < VENDOR_PATCH_LEVEL_MINIMUM && !extraPatchLevelMissing.contains(device)) {
+            if (vendorPatchLevel < VENDOR_PATCH_LEVEL_MINIMUM && !extraPatchLevelMissing.contains(device.name)) {
                 throw new GeneralSecurityException("Vendor patch level too old");
             }
         }
@@ -680,7 +680,7 @@ class AttestationProtocol {
             bootPatchLevel = 0;
         } else {
             bootPatchLevel = teeEnforced.getBootPatchLevel();
-            if (bootPatchLevel < BOOT_PATCH_LEVEL_MINIMUM && !extraPatchLevelMissing.contains(device)) {
+            if (bootPatchLevel < BOOT_PATCH_LEVEL_MINIMUM && !extraPatchLevelMissing.contains(device.name)) {
                 throw new GeneralSecurityException("Boot patch level too old");
             }
         }
