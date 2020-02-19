@@ -333,8 +333,8 @@ function clearAlertDelayValidity() {
 configuration.verify_interval.oninput = clearAlertDelayValidity;
 configuration.alert_delay.oninput = clearAlertDelayValidity;
 
-function clearValidity() {
-    this.setCustomValidity("");
+function clearValidity(event) {
+    event.currentTarget.setCustomValidity("");
 }
 
 createUsername.oninput = clearValidity;
