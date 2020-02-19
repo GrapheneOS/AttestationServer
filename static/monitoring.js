@@ -182,7 +182,6 @@ function fetchDevices() {
                             return Promise.reject();
                         }
                         event.target.disabled = false;
-                        console.log("deleted device " + device.fingerprint);
                         devices.removeChild(info);
                     }).catch(error => {
                         event.target.disabled = false;
