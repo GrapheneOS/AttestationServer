@@ -189,7 +189,7 @@ function fetchDevices() {
                         console.log(error);
                     });
                 }
-            }
+            };
 
             info.appendChild(create("h3", "Verified device information:"));
             appendLine(info, "Device: " + device.name);
@@ -279,7 +279,7 @@ function fetchDevices() {
                     target.innerText = target.innerText.replace("show", "hide");
                     cert.style.display = "block";
                 }
-            }
+            };
         }
     }).catch(error => {
         console.log(error);
@@ -311,19 +311,19 @@ if (token === null) {
 document.getElementById("create").onclick = () => {
     formToggles.style.display = "none";
     createForm.style.display = "block";
-}
+};
 
 createPasswordConfirm.oninput = () => {
     if (createPassword.value === createPasswordConfirm.value) {
         createPasswordConfirm.setCustomValidity("");
     }
-}
+};
 
 changePasswordForm.new_password_confirm.oninput = () => {
     if (changePasswordForm.new_password.value === changePasswordForm.new_password_confirm.value) {
         changePasswordForm.new_password_confirm.setCustomValidity("");
     }
-}
+};
 
 function clearAlertDelayValidity() {
     if (parseInt(configuration.alert_delay.value) > parseInt(configuration.verify_interval.value)) {
@@ -401,25 +401,25 @@ createForm.onsubmit = event => {
         createForm.submit.disabled = false;
         console.log(error);
     });
-}
+};
 
 document.getElementById("login").onclick = () => {
     formToggles.style.display = "none";
     loginForm.style.display = "block";
-}
+};
 
 loginForm.onsubmit = event => {
     event.preventDefault();
 
     loginForm.submit.disabled = true;
     login(loginUsername.value, loginPassword.value);
-}
+};
 
 for (const cancel of document.getElementsByClassName("cancel")) {
     cancel.onclick = function() {
         this.parentElement.style.display = "none";
         formToggles.style.display = "inline";
-    }
+    };
 }
 
 for (const logoutButton of document.getElementsByClassName("logout")) {
@@ -448,13 +448,13 @@ for (const logoutButton of document.getElementsByClassName("logout")) {
             logoutEverywhere.disabled = false;
             console.log(error);
         });
-    }
+    };
 }
 
 document.getElementById("change_password").onclick = () => {
     accountButtons.style.display = "none";
     changePasswordForm.style.display = "block";
-}
+};
 
 changePasswordForm.onsubmit = event => {
     event.preventDefault();
@@ -483,13 +483,13 @@ changePasswordForm.onsubmit = event => {
         changePasswordForm.submit.disabled = false;
         console.log(error);
     });
-}
+};
 
 for (const cancel of document.getElementsByClassName("cancel_account")) {
     cancel.onclick = function() {
         this.parentElement.style.display = "none";
         accountButtons.style.display = "inline";
-    }
+    };
 }
 
 rotate.onclick = event => {
@@ -507,7 +507,7 @@ rotate.onclick = event => {
             console.log(error);
         });
     }
-}
+};
 
 configuration.onsubmit = event => {
     event.preventDefault();
@@ -538,6 +538,6 @@ configuration.onsubmit = event => {
         configuration.submit.disabled = false;
         console.log(error);
     });
-}
+};
 
 // @license-end
