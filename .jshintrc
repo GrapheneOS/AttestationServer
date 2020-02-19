@@ -2,5 +2,10 @@
     "browser": true,
     "devel": true,
     "esversion": 6,
-    "strict": "global"
+    "strict": "global",
+
+    // This warning should be more lenient when `let` is used rather than `var`:
+    //
+    // Functions declared within loops referencing an outer scoped variable may lead to confusing semantics.
+    "-W083": "false"
 }
