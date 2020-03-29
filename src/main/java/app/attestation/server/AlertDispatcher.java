@@ -96,6 +96,7 @@ class AlertDispatcher implements Runnable {
                     props.put("mail.smtps.auth", true);
                     props.put("mail.smtps.host", host);
                     props.put("mail.smtps.port", port);
+                    props.put("mail.smtps.ssl.checkserveridentity", true);
                     props.put("mail.smtps.connectiontimeout", Integer.toString(TIMEOUT_MS));
                     props.put("mail.smtps.timeout", Integer.toString(TIMEOUT_MS));
                     props.put("mail.smtps.writetimeout", Integer.toString(TIMEOUT_MS));
