@@ -52,11 +52,11 @@ const qr = document.getElementById("qr");
 const rotate = document.getElementById("rotate");
 const accountContent = document.getElementById("account_content");
 
-const deviceAdminStrings = {
-    0: "no",
-    1: "yes, with non-system apps",
-    2: "yes, but only system apps"
-};
+const deviceAdminStrings = new Map([
+    [0, "no"],
+    [1, "yes, with non-system apps"],
+    [2, "yes, but only system apps"]
+]);
 
 function formatOsVersion(osVersion) {
     const padded = ("000000" + osVersion).slice(-6);
@@ -233,7 +233,7 @@ function fetchDevices() {
             appendLine(info, "User profile secure: " + toYesNoString(device.userProfileSecure));
             appendLine(info, "Enrolled fingerprints: " + toYesNoString(device.enrolledFingerprints));
             appendLine(info, "Accessibility service(s) enabled: " + toYesNoString(device.accessibility));
-            appendLine(info, "Device administrator(s) enabled: " + deviceAdminStrings[device.deviceAdmin]);
+            appendLine(info, "Device administrator(s) enabled: " + deviceAdminStrings.get(device.deviceAdmin));
             appendLine(info, "Android Debug Bridge enabled: " + toYesNoString(device.adbEnabled));
             appendLine(info, "Add users from lock screen: " + toYesNoString(device.addUsersWhenLocked));
             appendLine(info, "Disallow new USB peripherals when locked: " + toYesNoString(device.denyNewUsb));
