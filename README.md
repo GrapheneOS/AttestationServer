@@ -11,7 +11,7 @@ supported because it's less secure. The username must also be the full address f
 
 For example, making an initial configuration:
 
-    sqlite3 attestation.db "INSERT INTO Configuration VALUES ('emailUsername', 'alert@attestation.app'), ('emailPassword', '<password>'), ('emailHost', 'smtp.fastmail.com'), ('emailPort', '465')"
+    sqlite3 attestation.db "INSERT INTO Configuration VALUES ('emailUsername', 'alert@attestation.app'), ('emailPassword', '<password>'), ('emailHost', 'mail.grapheneos.org'), ('emailPort', '465')"
 
 ## API for the Auditor app
 
