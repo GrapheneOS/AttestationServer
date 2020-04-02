@@ -5,13 +5,14 @@ set -o errexit
 rm -rf build
 ./gradlew build
 
-remote=attestation@attestation.app
-active=$(ssh $remote readlink deploy)
+remote=root@attestation.app
+path=/opt/attestation
+active=$(ssh $remote readlink $path/deploy)
 
 if [[ $active = deploy_a ]]; then
-    target=deploy_b
+    target=$path/deploy_b
 else
-    target=deploy_a
+    target=$path/deploy_a
 fi
 
 echo
@@ -21,8 +22,9 @@ echo
 
 rsync -rpcve ssh --chmod=D755,F644 --delete build/libs/ $remote:$target
 ssh $remote sync -f $target
-ssh $remote ln -snf $target deploy
+ssh $remote ln -snf $target $path/deploy
 ssh $remote sync .
+ssh root@attestation.app systemctl daemon-reload
 ssh root@attestation.app systemctl restart attestation
 
 echo

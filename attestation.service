@@ -4,7 +4,7 @@ Description=Attestation server
 [Service]
 User=attestation
 WorkingDirectory=/home/attestation
-ExecStart=/usr/bin/java -cp 'deploy/AttestationServer.jar:deploy/*' app.attestation.server.AttestationServer
+ExecStart=/usr/bin/java -cp '/opt/attestation/deploy/AttestationServer.jar:/opt/attestation/deploy/*' app.attestation.server.AttestationServer
 NoNewPrivileges=true
 PrivateDevices=true
 
