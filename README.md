@@ -7,8 +7,9 @@ an SMTP server. The configuration is stored in the `Configuration` table in the 
 be safely modified while the server is running to have it kick in for the next email alert cycle.
 
 Only SMTPS (SMTP over TLS) with a valid certificate is supported for remote email servers.
-STARTTLS is deliberately not supported because it's less secure. The username must also be the
-full address for sending emails.
+STARTTLS is deliberately not supported because it's less secure unless encrypted is enforced, in
+which case it makes more sense to use SMTPS anyway. The username must also be the full address for
+sending emails.
 
 For example, making an initial configuration:
 
