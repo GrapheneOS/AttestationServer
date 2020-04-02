@@ -713,6 +713,7 @@ public class AttestationServer {
                 conn.dispose();
             }
 
+            exchange.getResponseHeaders().set("Content-Type", "application/json");
             exchange.sendResponseHeaders(200, 0);
             try (final OutputStream output = exchange.getResponseBody();
                     final JsonWriter writer = Json.createWriter(output)) {
@@ -747,6 +748,7 @@ public class AttestationServer {
             if (account == null) {
                 return;
             }
+            exchange.getResponseHeaders().set("Content-Type", "image/png");
             exchange.sendResponseHeaders(200, 0);
             try (final OutputStream output = exchange.getResponseBody()) {
                 final String contents = "attestation.app " +
@@ -988,6 +990,7 @@ public class AttestationServer {
             conn.dispose();
         }
 
+        exchange.getResponseHeaders().set("Content-Type", "application/json");
         exchange.sendResponseHeaders(200, 0);
         try (final OutputStream output = exchange.getResponseBody();
                 final JsonWriter writer = Json.createWriter(output)) {
