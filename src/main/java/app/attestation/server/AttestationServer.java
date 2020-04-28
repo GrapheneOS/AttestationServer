@@ -224,6 +224,7 @@ public class AttestationServer {
         new Thread(new AlertDispatcher()).start();
         new Thread(new Maintenance()).start();
 
+        System.setProperty("sun.net.httpserver.nodelay", "true");
         final HttpServer server = HttpServer.create(new InetSocketAddress("localhost", 8080), 0);
         server.createContext("/api/create_account", new CreateAccountHandler());
         server.createContext("/api/change_password", new ChangePasswordHandler());
