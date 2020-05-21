@@ -16,7 +16,7 @@ repositories {
 dependencies {
     compile 'com.almworks.sqlite4java:sqlite4java:1.0.392'
     compile 'com.almworks.sqlite4java:libsqlite4java-linux-amd64:1.0.392'
-    compile 'com.github.ben-manes.caffeine:caffeine:2.8.3'
+    compile 'com.github.ben-manes.caffeine:caffeine:2.8.4'
     compile 'com.google.guava:guava:29.0-jre'
     compile 'com.google.zxing:core:3.4.0'
     compile 'com.google.zxing:javase:3.4.0'
