@@ -186,6 +186,7 @@ class AttestationProtocol {
     private static final String DEVICE_PIXEL_3A_GENERIC = "Google Pixel 3a / Pixel 3a XL";
     private static final String DEVICE_PIXEL_3A = "Google Pixel 3a";
     private static final String DEVICE_PIXEL_3A_XL = "Google Pixel 3a XL";
+    private static final String DEVICE_PIXEL_4_GENERIC = "Google Pixel 4 / Pixel 4 XL";
     private static final String DEVICE_SM_A705FN = "Samsung Galaxy A70 (SM-A705FN)";
     private static final String DEVICE_SM_G960F = "Samsung Galaxy S9 (SM-G960F)";
     private static final String DEVICE_SM_G960_NA = "Samsung Galaxy S9 USA/Canada (SM-G960U/SM-G960U1/SM-G960W)";
@@ -331,6 +332,8 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_PIXEL_3_GENERIC, 3, 4, false /* uses new API */, true, OS_STOCK))
             .put("E75B86C52C7496255A95FB1E2B1C044BFA9D5FE34DD1E4EEBD752EEF0EA89875",
                     new DeviceInfo(DEVICE_PIXEL_3A_GENERIC, 3, 4, false /* uses new API */, true, OS_STOCK))
+            .put("AE6316B4753C61F5855B95B9B98484AF784F2E83648D0FCC8107FCA752CAEA34",
+                    new DeviceInfo(DEVICE_PIXEL_4_GENERIC, 3, 4, false /* uses new API */, true, OS_STOCK))
             .put("72376CAACF11726D4922585732429FB97D0D1DD69F0D2E0770B9E61D14ADDE65",
                     new DeviceInfo(DEVICE_SM_A705FN, 3, 4, false /* uses new API */, true, OS_STOCK))
             .put("33D9484FD512E610BCF00C502827F3D55A415088F276C6506657215E622FA770",
@@ -442,6 +445,8 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_PIXEL_3_GENERIC, 3, 4, false /* uses new API */, true, OS_STOCK))
             .put("8CA89AF1A6DAA74B00810849356DE929CFC4498EF36AF964757BDE8A113BF46D",
                     new DeviceInfo(DEVICE_PIXEL_3A_GENERIC, 3, 4, false /* uses new API */, true, OS_STOCK))
+            .put("AE6316B4753C61F5855B95B9B98484AF784F2E83648D0FCC8107FCA752CAEA34",
+                    new DeviceInfo(DEVICE_PIXEL_4_GENERIC, 3, 4, false /* uses new API */, true, OS_STOCK))
             .put("3D3DEB132A89551D0A700D230BABAE4E3E80E3C7926ACDD7BAEDF9B57AD316D0",
                     new DeviceInfo(DEVICE_SM_N970U, 3, 4, false /* uses new API */, true, OS_STOCK))
             .put("9AC63842137D92C119A1B1BE2C9270B9EBB6083BBE6350B7823571942B5869F0",
