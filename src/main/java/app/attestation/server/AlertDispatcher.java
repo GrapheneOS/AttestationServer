@@ -155,7 +155,8 @@ class AlertDispatcher implements Runnable {
                                         "Devices failed to provide valid attestations within " +
                                         alertDelay / 60 / 60 + " hours");
                                 message.setText("The following devices have failed to provide valid attestations before the expiry time:\n\n" +
-                                        expired.toString() + "\nLog in to https://attestation.app/ for more information.");
+                                        expired.toString() + "\nLog in to https://attestation.app/ for more information." +
+                                        "\nIf you do not want to receive these alerts and cannot log in to the account,\nemail contact@attestation.app from the address receiving the alerts.");
 
                                 Transport.send(message);
 
@@ -193,7 +194,8 @@ class AlertDispatcher implements Runnable {
                                         InternetAddress.parse(address));
                                 message.setSubject("Devices provided invalid attestations");
                                 message.setText("The following devices have provided invalid attestations:\n\n" +
-                                        failed.toString() + "\nLog in to https://attestation.app/ for more information.");
+                                        failed.toString() + "\nLog in to https://attestation.app/ for more information." +
+                                        "\nIf you do not want to receive these alerts and cannot log in to the account,\nemail contact@attestation.app from the address receiving the alerts");
 
                                 Transport.send(message);
                             } catch (final MessagingException e) {
