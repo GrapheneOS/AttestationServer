@@ -193,7 +193,7 @@ class AlertDispatcher implements Runnable {
                                         InternetAddress.parse(address));
                                 message.setSubject("Devices provided invalid attestations");
                                 message.setText("The following devices have provided invalid attestations:\n\n" +
-                                        failed.toString());
+                                        failed.toString() + "\nLog in to https://attestation.app/ for more information.");
 
                                 Transport.send(message);
                             } catch (final MessagingException e) {
