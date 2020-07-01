@@ -9,7 +9,7 @@ remote=root@attestation.app
 path=/opt/attestation
 active=$(ssh $remote readlink $path/deploy)
 
-if [[ $active = deploy_a ]]; then
+if [[ $active = $path/deploy_a ]]; then
     target=$path/deploy_b
 else
     target=$path/deploy_a
