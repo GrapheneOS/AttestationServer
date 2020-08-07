@@ -122,7 +122,10 @@ public class AttestationServer {
                     ")");
             attestationConn.exec("INSERT OR IGNORE INTO Configuration " +
                     "(key, value) VALUES ('backups', 0)");
-            // older deployments did not use COLLATE NOCASE for the username column
+            // Older deployments did not use COLLATE NOCASE so case variants of usernames were
+            // permitted and they can't necessarily migrate to the new schema using it. If this
+            // table ends up being migrated to a new schema, COLLATE NOCASE will need to be added
+            // conditionally based on whether it's present in the original table.
             attestationConn.exec(
                     "CREATE TABLE IF NOT EXISTS Accounts (\n" +
                     "userId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n" +
