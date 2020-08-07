@@ -125,7 +125,7 @@ public class AttestationServer {
             attestationConn.exec(
                     "CREATE TABLE IF NOT EXISTS Accounts (\n" +
                     "userId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n" +
-                    "username TEXT NOT NULL UNIQUE,\n" +
+                    "username TEXT NOT NULL COLLATE NOCASE UNIQUE,\n" +
                     "passwordHash BLOB NOT NULL,\n" +
                     "passwordSalt BLOB NOT NULL,\n" +
                     "subscribeKey BLOB NOT NULL,\n" +
