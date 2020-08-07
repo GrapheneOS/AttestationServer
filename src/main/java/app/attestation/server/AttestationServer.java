@@ -122,6 +122,7 @@ public class AttestationServer {
                     ")");
             attestationConn.exec("INSERT OR IGNORE INTO Configuration " +
                     "(key, value) VALUES ('backups', 0)");
+            // older deployments did not use COLLATE NOCASE for the username column
             attestationConn.exec(
                     "CREATE TABLE IF NOT EXISTS Accounts (\n" +
                     "userId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n" +
