@@ -44,7 +44,7 @@ class AlertDispatcher implements Runnable {
                     "(SELECT value FROM Configuration WHERE key = 'emailPassword'), " +
                     "(SELECT value FROM Configuration WHERE key = 'emailHost'), " +
                     "(SELECT value FROM Configuration WHERE key = 'emailPort')");
-            selectAccounts = conn.prepare("SELECT userId, alertDelay FROM Accounts");
+            selectAccounts = conn.prepare("SELECT userId, username, alertDelay FROM Accounts");
             selectExpired = conn.prepare("SELECT fingerprint, expiredTimeLast FROM Devices " +
                     "WHERE userId = ? AND verifiedTimeLast < ? AND deletionTime IS NULL");
             updateExpired = conn.prepare("UPDATE Devices SET expiredTimeLast = ? " +
@@ -111,7 +111,8 @@ class AlertDispatcher implements Runnable {
 
                 while (selectAccounts.step()) {
                     final long userId = selectAccounts.columnLong(0);
-                    final int alertDelay = selectAccounts.columnInt(1);
+                    final String username = selectAccounts.columnString(1);
+                    final int alertDelay = selectAccounts.columnInt(2);
 
                     final long now = System.currentTimeMillis();
 
@@ -154,7 +155,8 @@ class AlertDispatcher implements Runnable {
                                 message.setSubject(
                                         "Devices failed to provide valid attestations within " +
                                         alertDelay / 60 / 60 + " hours");
-                                message.setText("The following devices have failed to provide valid attestations before the expiry time:\n\n" +
+                                message.setText("This is an alert for the account '" + username + "'.\n\n" +
+                                        "The following devices have failed to provide valid attestations before the expiry time:\n\n" +
                                         expired.toString() + "\nLog in to https://attestation.app/ for more information." +
                                         "\nIf you do not want to receive these alerts and cannot log in to the account,\nemail contact@attestation.app from the address receiving the alerts.");
 
@@ -193,7 +195,8 @@ class AlertDispatcher implements Runnable {
                                 message.setRecipients(Message.RecipientType.TO,
                                         InternetAddress.parse(address));
                                 message.setSubject("Devices provided invalid attestations");
-                                message.setText("The following devices have provided invalid attestations:\n\n" +
+                                message.setText("This is an alert for the account '" + username + "'.\n\n" +
+                                        "The following devices have provided invalid attestations:\n\n" +
                                         failed.toString() + "\nLog in to https://attestation.app/ for more information." +
                                         "\nIf you do not want to receive these alerts and cannot log in to the account,\nemail contact@attestation.app from the address receiving the alerts");
 
