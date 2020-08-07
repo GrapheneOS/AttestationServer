@@ -69,14 +69,14 @@ class AlertDispatcher implements Runnable {
             try {
                 selectConfiguration.step();
                 final int local = selectConfiguration.columnInt(0);
-                final String username = selectConfiguration.columnString(1);
-                final String password = selectConfiguration.columnString(2);
-                final String host = selectConfiguration.columnString(3);
-                final String port = selectConfiguration.columnString(4);
+                final String emailUsername = selectConfiguration.columnString(1);
+                final String emailPassword = selectConfiguration.columnString(2);
+                final String emailHost = selectConfiguration.columnString(3);
+                final String emailPort = selectConfiguration.columnString(4);
 
                 final Session session;
                 if (local == 1) {
-                    if (username == null) {
+                    if (emailUsername == null) {
                         System.err.println("missing email configuration");
                         continue;
                     }
@@ -86,7 +86,7 @@ class AlertDispatcher implements Runnable {
                     props.put("mail.smtp.writetimeout", Integer.toString(TIMEOUT_MS));
                     session = Session.getInstance(props);
                 } else {
-                    if (username == null || password == null || host == null || port == null) {
+                    if (emailUsername == null || emailPassword == null || emailHost == null || emailPort == null) {
                         System.err.println("missing email configuration");
                         continue;
                     }
@@ -94,8 +94,8 @@ class AlertDispatcher implements Runnable {
                     final Properties props = new Properties();
                     props.put("mail.transport.protocol.rfc822", "smtps");
                     props.put("mail.smtps.auth", true);
-                    props.put("mail.smtps.host", host);
-                    props.put("mail.smtps.port", port);
+                    props.put("mail.smtps.host", emailHost);
+                    props.put("mail.smtps.port", emailPort);
                     props.put("mail.smtps.ssl.checkserveridentity", true);
                     props.put("mail.smtps.connectiontimeout", Integer.toString(TIMEOUT_MS));
                     props.put("mail.smtps.timeout", Integer.toString(TIMEOUT_MS));
@@ -104,7 +104,7 @@ class AlertDispatcher implements Runnable {
                     session = Session.getInstance(props,
                             new javax.mail.Authenticator() {
                                 protected PasswordAuthentication getPasswordAuthentication() {
-                                    return new PasswordAuthentication(username, password);
+                                    return new PasswordAuthentication(emailUsername, emailPassword);
                                 }
                             });
                 }
@@ -148,7 +148,7 @@ class AlertDispatcher implements Runnable {
                             System.err.println("sending email to " + address);
                             try {
                                 final Message message = new MimeMessage(session);
-                                message.setFrom(new InternetAddress(username));
+                                message.setFrom(new InternetAddress(emailUsername));
                                 message.setRecipients(Message.RecipientType.TO,
                                         InternetAddress.parse(address));
                                 message.setSubject(
@@ -189,7 +189,7 @@ class AlertDispatcher implements Runnable {
                             System.err.println("sending email to " + address);
                             try {
                                 final Message message = new MimeMessage(session);
-                                message.setFrom(new InternetAddress(username));
+                                message.setFrom(new InternetAddress(emailUsername));
                                 message.setRecipients(Message.RecipientType.TO,
                                         InternetAddress.parse(address));
                                 message.setSubject("Devices provided invalid attestations");
