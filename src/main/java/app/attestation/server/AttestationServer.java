@@ -115,6 +115,13 @@ public class AttestationServer {
         final SQLiteConnection attestationConn = new SQLiteConnection(AttestationProtocol.ATTESTATION_DATABASE);
         try {
             open(attestationConn, false);
+
+            final SQLiteStatement getUserVersion = attestationConn.prepare("PRAGMA user_version");
+            getUserVersion.step();
+            final int userVersion = getUserVersion.columnInt(0);
+            getUserVersion.dispose();
+            System.err.println("Current user_version: " + userVersion);
+
             attestationConn.exec(
                     "CREATE TABLE IF NOT EXISTS Configuration (\n" +
                     "key TEXT PRIMARY KEY NOT NULL,\n" +
