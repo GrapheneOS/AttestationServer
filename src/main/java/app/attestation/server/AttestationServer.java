@@ -192,22 +192,6 @@ public class AttestationServer {
                     "userId INTEGER NOT NULL REFERENCES Accounts (userId) ON DELETE CASCADE,\n" +
                     "deletionTime INTEGER\n" +
                     ")");
-            try {
-                attestationConn.exec("ALTER TABLE Devices ADD COLUMN pinnedSecurityLevel INTEGER NOT NULL DEFAULT 1");
-            } catch (SQLiteException e) {
-            }
-            try {
-                attestationConn.exec("ALTER TABLE Devices ADD COLUMN verifiedBootHash BLOB");
-            } catch (SQLiteException e) {
-            }
-            try {
-                attestationConn.exec("ALTER TABLE Devices ADD COLUMN expiredTimeLast INTEGER");
-            } catch (SQLiteException e) {
-            }
-            try {
-                attestationConn.exec("ALTER TABLE Devices ADD COLUMN systemUser INTEGER CHECK (systemUser in (0, 1))");
-            } catch (SQLiteException e) {
-            }
             attestationConn.exec("CREATE INDEX IF NOT EXISTS Devices_userId_verifiedTimeFirst " +
                     "ON Devices (userId, verifiedTimeFirst)");
             attestationConn.exec("CREATE INDEX IF NOT EXISTS Devices_userId_verifiedTimeLast " +
