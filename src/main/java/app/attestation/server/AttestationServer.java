@@ -34,6 +34,9 @@ import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -274,9 +277,19 @@ public class AttestationServer {
         public UsernameUnavailableException() {}
     }
 
+    private static void validateUnicode(final String s) throws CharacterCodingException {
+        Charset.forName("UTF-16LE").newEncoder().encode(CharBuffer.wrap(s));
+    }
+
     private static void validatePassword(final String password) throws GeneralSecurityException {
         if (password.length() < 8 || password.length() > 4096) {
             throw new GeneralSecurityException("invalid password");
+        }
+
+        try {
+            validateUnicode(password);
+        } catch (final CharacterCodingException e) {
+            throw new GeneralSecurityException(e);
         }
     }
 
