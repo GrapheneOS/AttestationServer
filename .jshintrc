@@ -1,9 +1,13 @@
 {
     "browser": true,
     "module": true,
+    "curly": true,
     "devel": true,
     "esversion": 6,
+    "freeze": true,
+    "futurehostile": true,
     "strict": "global",
+    "varstmt": true,
 
     // This warning should be more lenient when `let` is used rather than `var`:
     //
