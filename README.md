@@ -15,6 +15,14 @@ For example, making an initial configuration:
 
     sqlite3 attestation.db "INSERT INTO Configuration VALUES ('emailUsername', 'alert@attestation.app'), ('emailPassword', '<password>'), ('emailHost', 'mail.grapheneos.org'), ('emailPort', '465')"
 
+### Handling abuse
+
+The `emailBlacklistPatterns` array in
+`src/main/java/app/attestation/server/AttestationServer.java` can be used to blacklist email
+addresses using regular expressions. We plan to move this to a table in the database so that it
+can be configured dynamically without modifying the sources, rebuilding and redeploying. For now,
+this was added to quickly provide a way to counter abuse.
+
 ## API for the Auditor app
 
 ### QR code

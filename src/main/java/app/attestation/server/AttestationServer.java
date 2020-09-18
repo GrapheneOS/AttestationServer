@@ -86,6 +86,12 @@ public class AttestationServer {
     private static final int QR_CODE_SIZE = 300;
     private static final long SESSION_LENGTH = 48 * 60 * 60 * 1000;
 
+    // This should be moved to a table in the database so that it can be modified dynamically
+    // without modifying the source code.
+    private static final String[] emailBlacklistPatterns = {
+        "webmaster@attestation.app"
+    };
+
     private static final Cache<ByteBuffer, Boolean> pendingChallenges = Caffeine.newBuilder()
             .expireAfterWrite(1, TimeUnit.MINUTES)
             .maximumSize(100000)
@@ -781,7 +787,7 @@ public class AttestationServer {
                 requestToken = object.getString("requestToken");
                 verifyInterval = object.getInt("verifyInterval");
                 alertDelay = object.getInt("alertDelay");
-                email = object.getString("email");
+                email = object.getString("email").trim();
             } catch (final ClassCastException | JsonException | NullPointerException e) {
                 e.printStackTrace();
                 exchange.sendResponseHeaders(400, -1);
@@ -806,6 +812,12 @@ public class AttestationServer {
             if (!email.isEmpty()) {
                 try {
                     new InternetAddress(email).validate();
+                    for (final String emailBlacklistPattern : emailBlacklistPatterns) {
+                        if (email.matches(emailBlacklistPattern)) {
+                            exchange.sendResponseHeaders(400, -1);
+                            return;
+                        }
+                    }
                 } catch (final AddressException e) {
                     exchange.sendResponseHeaders(400, -1);
                     return;
