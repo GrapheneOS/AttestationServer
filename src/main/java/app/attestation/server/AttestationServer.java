@@ -305,6 +305,12 @@ public class AttestationServer {
         public UsernameUnavailableException() {}
     }
 
+    private static void validateUsername(final String username) throws GeneralSecurityException {
+        if (username.length() > 32 || !username.matches("[a-zA-Z0-9]+")) {
+            throw new GeneralSecurityException("invalid username");
+        }
+    }
+
     private static void validateUnicode(final String s) throws CharacterCodingException {
         Charset.forName("UTF-16LE").newEncoder().encode(CharBuffer.wrap(s));
     }
@@ -323,9 +329,7 @@ public class AttestationServer {
 
     private static void createAccount(final String username, final String password)
             throws GeneralSecurityException, SQLiteException {
-        if (username.length() > 32 || !username.matches("[a-zA-Z0-9]+")) {
-            throw new GeneralSecurityException("invalid username");
-        }
+        validateUsername(username);
         validatePassword(password);
 
         final byte[] passwordSalt = generateRandomToken();
