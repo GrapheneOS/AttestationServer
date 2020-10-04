@@ -108,6 +108,21 @@ public class AttestationServer {
         conn.exec("PRAGMA journal_mode=WAL");
     }
 
+    private static void createAccountsTable(final SQLiteConnection conn) throws SQLiteException {
+        conn.exec(
+                "CREATE TABLE IF NOT EXISTS Accounts (\n" +
+                "userId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n" +
+                "username TEXT NOT NULL COLLATE NOCASE UNIQUE,\n" +
+                "passwordHash BLOB NOT NULL,\n" +
+                "passwordSalt BLOB NOT NULL,\n" +
+                "subscribeKey BLOB NOT NULL,\n" +
+                "creationTime INTEGER NOT NULL,\n" +
+                "loginTime INTEGER NOT NULL,\n" +
+                "verifyInterval INTEGER NOT NULL,\n" +
+                "alertDelay INTEGER NOT NULL\n" +
+                ")");
+    }
+
     public static void main(final String[] args) throws Exception {
         final SQLiteConnection samplesConn = new SQLiteConnection(SAMPLES_DATABASE);
         try {
@@ -138,21 +153,7 @@ public class AttestationServer {
                     ")");
             attestationConn.exec("INSERT OR IGNORE INTO Configuration " +
                     "(key, value) VALUES ('backups', 0)");
-            // Older deployments did not use COLLATE NOCASE so case variants of usernames were
-            // permitted and they can't necessarily migrate to the new schema using it. If this
-            // table ends up being migrated to a new schema, COLLATE NOCASE will need to be added
-            // conditionally based on whether it's present in the original table.
-            attestationConn.exec(
-                    "CREATE TABLE IF NOT EXISTS Accounts (\n" +
-                    "userId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n" +
-                    "username TEXT NOT NULL COLLATE NOCASE UNIQUE,\n" +
-                    "passwordHash BLOB NOT NULL,\n" +
-                    "passwordSalt BLOB NOT NULL,\n" +
-                    "subscribeKey BLOB NOT NULL,\n" +
-                    "creationTime INTEGER NOT NULL,\n" +
-                    "verifyInterval INTEGER NOT NULL,\n" +
-                    "alertDelay INTEGER NOT NULL\n" +
-                    ")");
+            createAccountsTable(attestationConn);
             attestationConn.exec(
                     "CREATE TABLE IF NOT EXISTS EmailAddresses (\n" +
                     "userId INTEGER NOT NULL REFERENCES Accounts (userId) ON DELETE CASCADE,\n" +
@@ -217,6 +218,25 @@ public class AttestationServer {
                     ")");
             attestationConn.exec("CREATE INDEX IF NOT EXISTS Attestations_fingerprint_time " +
                     "ON Attestations (fingerprint, time)");
+
+            // add loginTime column to Accounts table
+            if (userVersion == 0) {
+                attestationConn.exec("PRAGMA foreign_keys=OFF");
+                attestationConn.exec("BEGIN TRANSACTION");
+                attestationConn.exec("ALTER TABLE Accounts RENAME TO AccountsOld");
+                createAccountsTable(attestationConn);
+                attestationConn.exec("INSERT INTO Accounts " +
+                        "(userId, username, passwordHash, passwordSalt, subscribeKey, creationTime, loginTime, verifyInterval, alertDelay) " +
+                        "SELECT " +
+                        "userId, username, passwordHash, passwordSalt, subscribeKey, creationTime, creationTime, verifyInterval, alertDelay " +
+                        "FROM AccountsOld");
+                attestationConn.exec("DROP TABLE AccountsOld");
+                attestationConn.exec("PRAGMA user_version = 1");
+                attestationConn.exec("END TRANSACTION");
+                System.err.println("Migrated to user_version 2: " + userVersion);
+                attestationConn.exec("PRAGMA foreign_keys=ON");
+            }
+
             attestationConn.exec("ANALYZE");
             attestationConn.exec("VACUUM");
         } finally {
@@ -314,15 +334,17 @@ public class AttestationServer {
         try {
             open(conn, false);
             final SQLiteStatement insert = conn.prepare("INSERT INTO Accounts " +
-                    "(username, passwordHash, passwordSalt, subscribeKey, creationTime, verifyInterval, alertDelay) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?)");
+                    "(username, passwordHash, passwordSalt, subscribeKey, creationTime, loginTime, verifyInterval, alertDelay) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
             insert.bind(1, username);
             insert.bind(2, passwordHash);
             insert.bind(3, passwordSalt);
             insert.bind(4, subscribeKey);
-            insert.bind(5, System.currentTimeMillis());
-            insert.bind(6, DEFAULT_VERIFY_INTERVAL);
-            insert.bind(7, DEFAULT_ALERT_DELAY);
+            final long now = System.currentTimeMillis();
+            insert.bind(5, now);
+            insert.bind(6, now);
+            insert.bind(7, DEFAULT_VERIFY_INTERVAL);
+            insert.bind(8, DEFAULT_ALERT_DELAY);
             insert.step();
             insert.dispose();
         } catch (final SQLiteException e) {
@@ -424,6 +446,13 @@ public class AttestationServer {
             insert.bind(4, now + SESSION_LENGTH);
             insert.step();
             insert.dispose();
+
+            final SQLiteStatement updateLoginTime = conn.prepare("UPDATE Accounts SET " +
+                    "loginTime = ? WHERE userId = ?");
+            updateLoginTime.bind(1, now);
+            updateLoginTime.bind(2, userId);
+            updateLoginTime.step();
+            updateLoginTime.dispose();
 
             return new Session(conn.getLastInsertId(), cookieToken, requestToken);
         } finally {
