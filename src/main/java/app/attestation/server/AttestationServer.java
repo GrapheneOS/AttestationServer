@@ -415,6 +415,9 @@ public class AttestationServer {
         final SQLiteConnection conn = new SQLiteConnection(AttestationProtocol.ATTESTATION_DATABASE);
         try {
             open(conn, false);
+
+            conn.exec("BEGIN TRANSACTION");
+
             final SQLiteStatement select = conn.prepare("SELECT userId, passwordHash, " +
                     "passwordSalt FROM Accounts WHERE username = ?");
             select.bind(1, username);
@@ -453,6 +456,8 @@ public class AttestationServer {
             updateLoginTime.bind(2, userId);
             updateLoginTime.step();
             updateLoginTime.dispose();
+
+            conn.exec("END TRANSACTION");
 
             return new Session(conn.getLastInsertId(), cookieToken, requestToken);
         } finally {
