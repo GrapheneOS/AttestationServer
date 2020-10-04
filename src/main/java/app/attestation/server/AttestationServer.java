@@ -142,9 +142,9 @@ public class AttestationServer {
 
             final SQLiteStatement getUserVersion = attestationConn.prepare("PRAGMA user_version");
             getUserVersion.step();
-            final int userVersion = getUserVersion.columnInt(0);
+            int userVersion = getUserVersion.columnInt(0);
             getUserVersion.dispose();
-            System.err.println("Current user_version: " + userVersion);
+            System.err.println("Old user_version: " + userVersion);
 
             attestationConn.exec(
                     "CREATE TABLE IF NOT EXISTS Configuration (\n" +
@@ -232,10 +232,12 @@ public class AttestationServer {
                         "FROM AccountsOld");
                 attestationConn.exec("DROP TABLE AccountsOld");
                 attestationConn.exec("PRAGMA user_version = 1");
+                userVersion = 1;
                 attestationConn.exec("END TRANSACTION");
-                System.err.println("Migrated to user_version 2: " + userVersion);
                 attestationConn.exec("PRAGMA foreign_keys=ON");
             }
+
+            System.err.println("New user_version: " + userVersion);
 
             attestationConn.exec("ANALYZE");
             attestationConn.exec("VACUUM");
