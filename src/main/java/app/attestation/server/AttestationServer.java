@@ -1076,7 +1076,7 @@ public class AttestationServer {
                 device.add("verifiedTimeLast", select.columnLong(23));
 
                 final SQLiteStatement history = conn.prepare("SELECT time, strong, teeEnforced, " +
-                        "osEnforced FROM Attestations WHERE fingerprint = ? ORDER BY time");
+                        "osEnforced FROM Attestations WHERE fingerprint = ? ORDER BY time DESC");
                 history.bind(1, select.columnBlob(0));
 
                 final JsonArrayBuilder attestations = Json.createArrayBuilder();
