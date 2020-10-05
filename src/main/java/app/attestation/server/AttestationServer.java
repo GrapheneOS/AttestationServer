@@ -158,6 +158,15 @@ public class AttestationServer {
                 ")");
     }
 
+    private static void createDevicesIndices(final SQLiteConnection conn) throws SQLiteException {
+        conn.exec("CREATE INDEX IF NOT EXISTS Devices_userId_verifiedTimeFirst " +
+                "ON Devices (userId, verifiedTimeFirst)");
+        conn.exec("CREATE INDEX IF NOT EXISTS Devices_userId_verifiedTimeLast " +
+                "ON Devices (userId, verifiedTimeLast)");
+        conn.exec("CREATE INDEX IF NOT EXISTS Devices_deletionTime " +
+                "ON Devices (deletionTime) WHERE deletionTime IS NOT NULL");
+    }
+
     public static void main(final String[] args) throws Exception {
         final SQLiteConnection samplesConn = new SQLiteConnection(SAMPLES_DATABASE);
         try {
@@ -208,12 +217,7 @@ public class AttestationServer {
             attestationConn.exec("CREATE INDEX IF NOT EXISTS Sessions_userId " +
                     "ON Sessions (userId)");
             createDevicesTable(attestationConn);
-            attestationConn.exec("CREATE INDEX IF NOT EXISTS Devices_userId_verifiedTimeFirst " +
-                    "ON Devices (userId, verifiedTimeFirst)");
-            attestationConn.exec("CREATE INDEX IF NOT EXISTS Devices_userId_verifiedTimeLast " +
-                    "ON Devices (userId, verifiedTimeLast)");
-            attestationConn.exec("CREATE INDEX IF NOT EXISTS Devices_deletionTime " +
-                    "ON Devices (deletionTime) WHERE deletionTime IS NOT NULL");
+            createDevicesIndices(attestationConn);
             attestationConn.exec(
                     "CREATE TABLE IF NOT EXISTS Attestations (\n" +
                     "fingerprint BLOB NOT NULL REFERENCES Devices (fingerprint) ON DELETE CASCADE,\n" +
@@ -261,6 +265,7 @@ public class AttestationServer {
                 updatePinnedCertificate3.step();
                 updatePinnedCertificate3.dispose();
                 attestationConn.exec("DROP TABLE DevicesOld");
+                createDevicesIndices(attestationConn);
                 attestationConn.exec("PRAGMA user_version = 2");
                 userVersion = 2;
                 attestationConn.exec("END TRANSACTION");
