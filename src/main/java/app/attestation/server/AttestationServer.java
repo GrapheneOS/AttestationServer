@@ -179,7 +179,7 @@ public class AttestationServer {
             getUserVersion.step();
             int userVersion = getUserVersion.columnInt(0);
             getUserVersion.dispose();
-            System.err.println("Old user_version: " + userVersion);
+            System.err.println("Old schema version: " + userVersion);
 
             attestationConn.exec(
                     "CREATE TABLE IF NOT EXISTS Configuration (\n" +
@@ -267,7 +267,7 @@ public class AttestationServer {
                 attestationConn.exec("PRAGMA foreign_keys=ON");
             }
 
-            System.err.println("New user_version: " + userVersion);
+            System.err.println("New schema version: " + userVersion);
 
             attestationConn.exec("ANALYZE");
             attestationConn.exec("VACUUM");
