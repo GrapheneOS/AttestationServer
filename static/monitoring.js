@@ -252,6 +252,10 @@ function fetchDevices() {
                 }
             };
         }
+
+        const old = location.hash;
+        location.hash = "";
+        location.hash = old;
     }).catch(error => {
         console.log(error);
         devices.innerText = null;
