@@ -130,7 +130,12 @@ function fetchDevices() {
             }
 
             const info = devices.appendChild(document.createElement("div"));
-            info.appendChild(create("h2", fingerprint, "fingerprint"));
+            const header = create("h2", null, "fingerprint");
+            header.id = fingerprint;
+            const link = create("a", fingerprint);
+            link.href = "#" + fingerprint;
+            header.appendChild(link);
+            info.appendChild(header);
 
             const deleteButton = info.appendChild(create("button", "delete device"));
             deleteButton.onclick = event => {
