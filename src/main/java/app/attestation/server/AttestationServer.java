@@ -269,8 +269,12 @@ public class AttestationServer {
 
             System.err.println("New schema version: " + userVersion);
 
+            System.err.println("Analyze database");
             attestationConn.exec("ANALYZE");
+            System.err.println("Vacuum database");
             attestationConn.exec("VACUUM");
+
+            System.err.println("Finished database setup");
         } finally {
             attestationConn.dispose();
         }
