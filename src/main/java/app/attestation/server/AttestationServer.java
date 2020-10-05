@@ -244,7 +244,7 @@ public class AttestationServer {
                 attestationConn.exec("PRAGMA foreign_keys=ON");
             }
 
-            // pinnedCertificate3 column to Devices table and set it to the original attestation root certificate
+            // add pinnedCertificate3 column to Devices table and set it to the original attestation root certificate
             if (userVersion == 1) {
                 attestationConn.exec("PRAGMA foreign_keys=OFF");
                 attestationConn.exec("BEGIN TRANSACTION");
