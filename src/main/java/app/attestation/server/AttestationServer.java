@@ -124,6 +124,11 @@ public class AttestationServer {
                 ")");
     }
 
+    private static void createAccountsIndices(final SQLiteConnection conn) throws SQLiteException {
+        conn.exec("CREATE INDEX IF NOT EXISTS Accounts_loginTime " +
+                "ON Accounts (loginTime)");
+    }
+
     private static void createDevicesTable(final SQLiteConnection conn) throws SQLiteException {
         conn.exec(
                 "CREATE TABLE IF NOT EXISTS Devices (\n" +
@@ -198,6 +203,7 @@ public class AttestationServer {
             attestationConn.exec("INSERT OR IGNORE INTO Configuration " +
                     "(key, value) VALUES ('backups', 0)");
             createAccountsTable(attestationConn);
+            createAccountsIndices(attestationConn);
             attestationConn.exec(
                     "CREATE TABLE IF NOT EXISTS EmailAddresses (\n" +
                     "userId INTEGER NOT NULL REFERENCES Accounts (userId) ON DELETE CASCADE,\n" +
@@ -241,8 +247,8 @@ public class AttestationServer {
                         "userId, username, passwordHash, passwordSalt, subscribeKey, creationTime, creationTime, verifyInterval, alertDelay " +
                         "FROM AccountsOld");
                 attestationConn.exec("DROP TABLE AccountsOld");
+                createAccountsIndices(attestationConn);
                 attestationConn.exec("PRAGMA user_version = 1");
-
                 userVersion = 1;
                 attestationConn.exec("END TRANSACTION");
                 attestationConn.exec("PRAGMA foreign_keys=ON");
