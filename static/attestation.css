@@ -73,7 +73,7 @@ nav ul li.active a {
     color: #64b5f6; /* blue300 */
 }
 
-#content {
+main {
     margin: auto;
     padding: 1em;
     max-width: 800px;
