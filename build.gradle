@@ -22,9 +22,9 @@ dependencies {
     compile 'com.google.zxing:javase:3.4.1'
     compile 'com.sun.mail:jakarta.mail:2.0.0'
     compile 'javax.activation:activation:1.1.1'
-    compile 'javax.json:javax.json-api:1.1.4'
+    compile 'jakarta.json:jakarta.json-api:2.0.0'
     compile 'org.bouncycastle:bcpkix-jdk15on:1.65'
-    compile 'org.glassfish:javax.json:1.1.4'
+    compile 'org.glassfish:jakarta.json:2.0.0'
 }
 
 task copyJavaDeps(type: Copy) {
