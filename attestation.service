@@ -8,6 +8,7 @@ ExecStart=/usr/bin/java -cp '/opt/attestation/deploy/AttestationServer.jar:/opt/
 NoNewPrivileges=true
 PrivateDevices=true
 PrivateTmp=true
+ProtectSystem=full
 
 [Install]
 WantedBy=multi-user.target
