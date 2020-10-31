@@ -50,6 +50,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.Map;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.SynchronousQueue;
@@ -86,6 +87,8 @@ public class AttestationServer {
     private static final int BUSY_TIMEOUT = 10 * 1000;
     private static final int QR_CODE_SIZE = 300;
     private static final long SESSION_LENGTH = 48 * 60 * 60 * 1000;
+
+    private static final Logger logger = Logger.getLogger(AttestationServer.class.getName());
 
     // This should be moved to a table in the database so that it can be modified dynamically
     // without modifying the source code.
@@ -193,7 +196,7 @@ public class AttestationServer {
             getUserVersion.step();
             int userVersion = getUserVersion.columnInt(0);
             getUserVersion.dispose();
-            System.err.println("Old schema version: " + userVersion);
+            logger.info("Old schema version: " + userVersion);
 
             attestationConn.exec(
                     "CREATE TABLE IF NOT EXISTS Configuration (\n" +
@@ -278,14 +281,14 @@ public class AttestationServer {
                 attestationConn.exec("PRAGMA foreign_keys=ON");
             }
 
-            System.err.println("New schema version: " + userVersion);
+            logger.info("New schema version: " + userVersion);
 
-            System.err.println("Analyze database");
+            logger.info("Analyze database");
             attestationConn.exec("ANALYZE");
-            System.err.println("Vacuum database");
+            logger.info("Vacuum database");
             attestationConn.exec("VACUUM");
 
-            System.err.println("Finished database setup");
+            logger.info("Finished database setup");
         } finally {
             attestationConn.dispose();
         }
