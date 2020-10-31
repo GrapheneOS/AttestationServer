@@ -22,7 +22,7 @@ dependencies {
     compile 'com.google.zxing:javase:3.4.1'
     compile 'com.sun.mail:jakarta.mail:2.0.0'
     compile 'jakarta.json:jakarta.json-api:2.0.0'
-    compile 'org.bouncycastle:bcpkix-jdk15on:1.65'
+    compile 'org.bouncycastle:bcpkix-jdk15on:1.66'
     compile 'org.glassfish:jakarta.json:2.0.0'
 }
 
