@@ -170,7 +170,7 @@ public class AttestationServer {
         conn.exec(
                 "CREATE TABLE IF NOT EXISTS Attestations (\n" +
                 "fingerprint BLOB NOT NULL REFERENCES Devices (fingerprint) ON DELETE CASCADE,\n" +
-                "time BLOB NOT NULL,\n" +
+                "time INTEGER NOT NULL,\n" +
                 "strong INTEGER NOT NULL CHECK (strong in (0, 1)),\n" +
                 "teeEnforced TEXT NOT NULL,\n" +
                 "osEnforced TEXT NOT NULL\n" +
