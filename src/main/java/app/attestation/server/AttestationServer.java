@@ -166,6 +166,22 @@ public class AttestationServer {
                 ")");
     }
 
+    private static void createAttestationsTable(final SQLiteConnection conn) throws SQLiteException {
+        conn.exec(
+                "CREATE TABLE IF NOT EXISTS Attestations (\n" +
+                "fingerprint BLOB NOT NULL REFERENCES Devices (fingerprint) ON DELETE CASCADE,\n" +
+                "time BLOB NOT NULL,\n" +
+                "strong INTEGER NOT NULL CHECK (strong in (0, 1)),\n" +
+                "teeEnforced TEXT NOT NULL,\n" +
+                "osEnforced TEXT NOT NULL\n" +
+                ")");
+    }
+
+    private static void createAttestationsIndices(final SQLiteConnection conn) throws SQLiteException {
+        conn.exec("CREATE INDEX IF NOT EXISTS Attestations_fingerprint_time " +
+                "ON Attestations (fingerprint, time)");
+    }
+
     private static void createDevicesIndices(final SQLiteConnection conn) throws SQLiteException {
         conn.exec("CREATE INDEX IF NOT EXISTS Devices_userId_verifiedTimeFirst " +
                 "ON Devices (userId, verifiedTimeFirst)");
@@ -227,16 +243,8 @@ public class AttestationServer {
                     "ON Sessions (userId)");
             createDevicesTable(attestationConn);
             createDevicesIndices(attestationConn);
-            attestationConn.exec(
-                    "CREATE TABLE IF NOT EXISTS Attestations (\n" +
-                    "fingerprint BLOB NOT NULL REFERENCES Devices (fingerprint) ON DELETE CASCADE,\n" +
-                    "time BLOB NOT NULL,\n" +
-                    "strong INTEGER NOT NULL CHECK (strong in (0, 1)),\n" +
-                    "teeEnforced TEXT NOT NULL,\n" +
-                    "osEnforced TEXT NOT NULL\n" +
-                    ")");
-            attestationConn.exec("CREATE INDEX IF NOT EXISTS Attestations_fingerprint_time " +
-                    "ON Attestations (fingerprint, time)");
+            createAttestationsTable(attestationConn);
+            createAttestationsIndices(attestationConn);
 
             // add loginTime column to Accounts table
             if (userVersion == 0) {
