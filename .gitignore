@@ -1,3 +1,4 @@
+node_modules
 static_tmp
 build
 .gradle
