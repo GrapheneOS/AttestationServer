@@ -214,7 +214,7 @@ public class AttestationServer {
             getUserVersion.step();
             int userVersion = getUserVersion.columnInt(0);
             getUserVersion.dispose();
-            logger.info("Old schema version: " + userVersion);
+            logger.info("Existing schema version: " + userVersion);
 
             attestationConn.exec(
                     "CREATE TABLE IF NOT EXISTS Configuration (\n" +
