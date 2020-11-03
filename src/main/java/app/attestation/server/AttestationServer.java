@@ -85,7 +85,7 @@ public class AttestationServer {
     private static final int MIN_ALERT_DELAY = 32 * 60 * 60;
     private static final int MAX_ALERT_DELAY = 2 * 7 * 24 * 60 * 60;
     private static final int BUSY_TIMEOUT = 10 * 1000;
-    private static final int QR_CODE_SIZE = 300;
+    private static final int QR_CODE_PIXEL_SIZE = 300;
     private static final long SESSION_LENGTH = 48 * 60 * 60 * 1000;
 
     private static final Logger logger = Logger.getLogger(AttestationServer.class.getName());
@@ -861,7 +861,7 @@ public class AttestationServer {
             hints.put(EncodeHintType.CHARACTER_SET, "ISO-8859-1");
             try {
                 result = writer.encode(new String(contents, "ISO-8859-1"), BarcodeFormat.QR_CODE,
-                        QR_CODE_SIZE, QR_CODE_SIZE, hints);
+                        QR_CODE_PIXEL_SIZE, QR_CODE_PIXEL_SIZE, hints);
             } catch (UnsupportedEncodingException e) {
                 throw new RuntimeException("ISO-8859-1 not supported", e);
             }
