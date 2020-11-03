@@ -166,6 +166,15 @@ public class AttestationServer {
                 ")");
     }
 
+    private static void createDevicesIndices(final SQLiteConnection conn) throws SQLiteException {
+        conn.exec("CREATE INDEX IF NOT EXISTS Devices_userId_verifiedTimeFirst " +
+                "ON Devices (userId, verifiedTimeFirst)");
+        conn.exec("CREATE INDEX IF NOT EXISTS Devices_userId_verifiedTimeLast " +
+                "ON Devices (userId, verifiedTimeLast)");
+        conn.exec("CREATE INDEX IF NOT EXISTS Devices_deletionTime " +
+                "ON Devices (deletionTime) WHERE deletionTime IS NOT NULL");
+    }
+
     private static void createAttestationsTable(final SQLiteConnection conn) throws SQLiteException {
         conn.exec(
                 "CREATE TABLE IF NOT EXISTS Attestations (\n" +
@@ -182,15 +191,6 @@ public class AttestationServer {
         conn.exec("CREATE INDEX IF NOT EXISTS Attestations_fingerprint_id " +
                 "ON Attestations (fingerprint, id)");
         conn.exec("DROP INDEX IF EXISTS Attestations_fingerprint_time");
-    }
-
-    private static void createDevicesIndices(final SQLiteConnection conn) throws SQLiteException {
-        conn.exec("CREATE INDEX IF NOT EXISTS Devices_userId_verifiedTimeFirst " +
-                "ON Devices (userId, verifiedTimeFirst)");
-        conn.exec("CREATE INDEX IF NOT EXISTS Devices_userId_verifiedTimeLast " +
-                "ON Devices (userId, verifiedTimeLast)");
-        conn.exec("CREATE INDEX IF NOT EXISTS Devices_deletionTime " +
-                "ON Devices (deletionTime) WHERE deletionTime IS NOT NULL");
     }
 
     public static void main(final String[] args) throws Exception {
