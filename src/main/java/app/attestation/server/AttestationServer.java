@@ -108,8 +108,8 @@ public class AttestationServer {
             conn.open();
         }
         conn.setBusyTimeout(BUSY_TIMEOUT);
-        conn.exec("PRAGMA foreign_keys=ON");
-        conn.exec("PRAGMA journal_mode=WAL");
+        conn.exec("PRAGMA foreign_keys = ON");
+        conn.exec("PRAGMA journal_mode = WAL");
     }
 
     private static void createAccountsTable(final SQLiteConnection conn) throws SQLiteException {
@@ -249,7 +249,7 @@ public class AttestationServer {
 
             // add loginTime column to Accounts table
             if (userVersion == 0) {
-                attestationConn.exec("PRAGMA foreign_keys=OFF");
+                attestationConn.exec("PRAGMA foreign_keys = OFF");
                 attestationConn.exec("BEGIN TRANSACTION");
                 attestationConn.exec("ALTER TABLE Accounts RENAME TO AccountsOld");
                 createAccountsTable(attestationConn);
@@ -263,12 +263,12 @@ public class AttestationServer {
                 attestationConn.exec("PRAGMA user_version = 1");
                 userVersion = 1;
                 attestationConn.exec("END TRANSACTION");
-                attestationConn.exec("PRAGMA foreign_keys=ON");
+                attestationConn.exec("PRAGMA foreign_keys = ON");
             }
 
             // add pinnedCertificate3 column to Devices table and set it to the original attestation root certificate
             if (userVersion == 1) {
-                attestationConn.exec("PRAGMA foreign_keys=OFF");
+                attestationConn.exec("PRAGMA foreign_keys = OFF");
                 attestationConn.exec("BEGIN TRANSACTION");
                 attestationConn.exec("ALTER TABLE Devices RENAME TO DevicesOld");
                 createDevicesTable(attestationConn);
@@ -287,11 +287,11 @@ public class AttestationServer {
                 attestationConn.exec("PRAGMA user_version = 2");
                 userVersion = 2;
                 attestationConn.exec("END TRANSACTION");
-                attestationConn.exec("PRAGMA foreign_keys=ON");
+                attestationConn.exec("PRAGMA foreign_keys = ON");
             }
 
             if (userVersion == 2) {
-                attestationConn.exec("PRAGMA foreign_keys=OFF");
+                attestationConn.exec("PRAGMA foreign_keys = OFF");
                 attestationConn.exec("BEGIN TRANSACTION");
                 attestationConn.exec("ALTER TABLE Attestations RENAME TO AttestationsOld");
                 createAttestationsTable(attestationConn);
@@ -305,7 +305,7 @@ public class AttestationServer {
                 attestationConn.exec("PRAGMA user_version = 3");
                 userVersion = 3;
                 attestationConn.exec("END TRANSACTION");
-                attestationConn.exec("PRAGMA foreign_keys=ON");
+                attestationConn.exec("PRAGMA foreign_keys = ON");
             }
 
             logger.info("New schema version: " + userVersion);
