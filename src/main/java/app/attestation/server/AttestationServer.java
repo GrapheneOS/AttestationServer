@@ -179,8 +179,9 @@ public class AttestationServer {
     }
 
     private static void createAttestationsIndices(final SQLiteConnection conn) throws SQLiteException {
-        conn.exec("CREATE INDEX IF NOT EXISTS Attestations_fingerprint_time " +
-                "ON Attestations (fingerprint, time)");
+        conn.exec("CREATE INDEX IF NOT EXISTS Attestations_fingerprint_id " +
+                "ON Attestations (fingerprint, id)");
+        conn.exec("DROP INDEX IF EXISTS Attestations_fingerprint_time");
     }
 
     private static void createDevicesIndices(final SQLiteConnection conn) throws SQLiteException {
@@ -1106,7 +1107,7 @@ public class AttestationServer {
                 device.add("verifiedTimeLast", select.columnLong(23));
 
                 final SQLiteStatement history = conn.prepare("SELECT time, strong, teeEnforced, " +
-                        "osEnforced FROM Attestations WHERE fingerprint = ? ORDER BY time DESC");
+                        "osEnforced FROM Attestations WHERE fingerprint = ? ORDER BY id DESC");
                 history.bind(1, select.columnBlob(0));
 
                 final JsonArrayBuilder attestations = Json.createArrayBuilder();
