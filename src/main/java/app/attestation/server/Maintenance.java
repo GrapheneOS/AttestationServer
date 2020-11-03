@@ -38,6 +38,8 @@ class Maintenance implements Runnable {
             System.err.println("maintenance");
 
             try {
+                conn.exec("ANALYZE");
+
                 deleteDeletedDevices.bind(1, System.currentTimeMillis() - DELETE_EXPIRY_MS);
                 deleteDeletedDevices.step();
 
