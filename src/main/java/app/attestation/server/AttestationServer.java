@@ -169,6 +169,7 @@ public class AttestationServer {
     private static void createAttestationsTable(final SQLiteConnection conn) throws SQLiteException {
         conn.exec(
                 "CREATE TABLE IF NOT EXISTS Attestations (\n" +
+                "id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n" +
                 "fingerprint BLOB NOT NULL REFERENCES Devices (fingerprint) ON DELETE CASCADE,\n" +
                 "time INTEGER NOT NULL,\n" +
                 "strong INTEGER NOT NULL CHECK (strong in (0, 1)),\n" +
@@ -285,6 +286,24 @@ public class AttestationServer {
                 createDevicesIndices(attestationConn);
                 attestationConn.exec("PRAGMA user_version = 2");
                 userVersion = 2;
+                attestationConn.exec("END TRANSACTION");
+                attestationConn.exec("PRAGMA foreign_keys=ON");
+            }
+
+            if (userVersion == 2) {
+                attestationConn.exec("PRAGMA foreign_keys=OFF");
+                attestationConn.exec("BEGIN TRANSACTION");
+                attestationConn.exec("ALTER TABLE Attestations RENAME TO AttestationsOld");
+                createAttestationsTable(attestationConn);
+                attestationConn.exec("INSERT INTO Attestations " +
+                        "(fingerprint, time, strong, teeEnforced, osEnforced) " +
+                        "SELECT " +
+                        "fingerprint, time, strong, teeEnforced, osEnforced " +
+                        "FROM AttestationsOld");
+                attestationConn.exec("DROP TABLE AttestationsOld");
+                createAttestationsIndices(attestationConn);
+                attestationConn.exec("PRAGMA user_version = 3");
+                userVersion = 3;
                 attestationConn.exec("END TRANSACTION");
                 attestationConn.exec("PRAGMA foreign_keys=ON");
             }
