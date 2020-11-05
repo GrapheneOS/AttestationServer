@@ -190,7 +190,6 @@ public class AttestationServer {
     private static void createAttestationsIndices(final SQLiteConnection conn) throws SQLiteException {
         conn.exec("CREATE INDEX IF NOT EXISTS Attestations_fingerprint_id " +
                 "ON Attestations (fingerprint, id)");
-        conn.exec("DROP INDEX IF EXISTS Attestations_fingerprint_time");
     }
 
     public static void main(final String[] args) throws Exception {
@@ -247,6 +246,9 @@ public class AttestationServer {
             createDevicesIndices(attestationConn);
             createAttestationsTable(attestationConn);
             createAttestationsIndices(attestationConn);
+
+            // drop old indices
+            attestationConn.exec("DROP INDEX IF EXISTS Attestations_fingerprint_time");
 
             // add loginTime column to Accounts table
             if (userVersion == 0) {
