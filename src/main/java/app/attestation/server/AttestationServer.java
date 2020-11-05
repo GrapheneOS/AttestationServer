@@ -293,6 +293,7 @@ public class AttestationServer {
                 attestationConn.exec("PRAGMA foreign_keys = ON");
             }
 
+            // add id column to track insertion order rather than relying on ordering by time
             if (userVersion == 2) {
                 attestationConn.exec("PRAGMA foreign_keys = OFF");
                 attestationConn.exec("BEGIN TRANSACTION");
