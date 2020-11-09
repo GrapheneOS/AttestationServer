@@ -24,8 +24,8 @@ rsync -rpcve ssh --chmod=D755,F644 --delete build/libs/ $remote:$target
 ssh $remote sync -f $target
 ssh $remote ln -snf $target $path/deploy
 ssh $remote sync .
-ssh root@attestation.app systemctl daemon-reload
-ssh root@attestation.app systemctl restart attestation
+ssh $remote systemctl daemon-reload
+ssh $remote systemctl restart attestation
 
 echo
 echo active is now $target
