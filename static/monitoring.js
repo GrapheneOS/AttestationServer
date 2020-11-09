@@ -467,7 +467,7 @@ for (const cancel of document.getElementsByClassName("cancel_account")) {
     };
 }
 
-rotate.onclick = event => {
+rotate.onclick = () => {
     if (confirm("Are you sure you want to rotate the device subscription key?")) {
         rotate.disabled = true;
         const requestToken = localStorage.getItem("requestToken");
