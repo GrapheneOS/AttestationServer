@@ -98,7 +98,7 @@ public class AttestationServer {
 
     private static final Cache<ByteBuffer, Boolean> pendingChallenges = Caffeine.newBuilder()
             .expireAfterWrite(1, TimeUnit.MINUTES)
-            .maximumSize(100000)
+            .maximumSize(1000000)
             .build();
 
     static void open(final SQLiteConnection conn, final boolean readOnly) throws SQLiteException {
