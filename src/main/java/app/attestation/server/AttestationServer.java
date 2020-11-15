@@ -329,6 +329,9 @@ public class AttestationServer {
         new Thread(new AlertDispatcher()).start();
         new Thread(new Maintenance()).start();
 
+        final ThreadPoolExecutor executor = new ThreadPoolExecutor(32, 32, 0, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
+        executor.prestartAllCoreThreads();
+
         System.setProperty("sun.net.httpserver.nodelay", "true");
         final HttpServer server = HttpServer.create(new InetSocketAddress("localhost", 8080), 0);
         server.createContext("/api/create_account", new CreateAccountHandler());
@@ -345,7 +348,7 @@ public class AttestationServer {
         server.createContext("/challenge", new ChallengeHandler());
         server.createContext("/verify", new VerifyHandler());
         server.createContext("/submit", new SubmitHandler());
-        server.setExecutor(new ThreadPoolExecutor(32, 32, 0, TimeUnit.SECONDS, new SynchronousQueue<Runnable>()));
+        server.setExecutor(executor);
         server.start();
     }
 
