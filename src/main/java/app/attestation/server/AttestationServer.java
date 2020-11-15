@@ -52,8 +52,8 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.Map;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.DataFormatException;
 
@@ -329,7 +329,7 @@ public class AttestationServer {
         new Thread(new AlertDispatcher()).start();
         new Thread(new Maintenance()).start();
 
-        final ThreadPoolExecutor executor = new ThreadPoolExecutor(32, 32, 0, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
+        final ThreadPoolExecutor executor = new ThreadPoolExecutor(32, 32, 0, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(1024));
         executor.prestartAllCoreThreads();
 
         System.setProperty("sun.net.httpserver.nodelay", "true");
