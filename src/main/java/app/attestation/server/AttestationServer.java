@@ -345,7 +345,7 @@ public class AttestationServer {
         server.createContext("/challenge", new ChallengeHandler());
         server.createContext("/verify", new VerifyHandler());
         server.createContext("/submit", new SubmitHandler());
-        server.setExecutor(new ThreadPoolExecutor(10, 100, 60, TimeUnit.SECONDS, new SynchronousQueue<Runnable>()));
+        server.setExecutor(new ThreadPoolExecutor(32, 32, 0, TimeUnit.SECONDS, new SynchronousQueue<Runnable>()));
         server.start();
     }
 
