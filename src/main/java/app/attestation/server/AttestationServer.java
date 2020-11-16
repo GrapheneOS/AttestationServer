@@ -367,6 +367,8 @@ public class AttestationServer {
             } catch (final Exception e) {
                 e.printStackTrace();
                 exchange.sendResponseHeaders(500, -1);
+            } finally {
+                exchange.close();
             }
         }
     }
