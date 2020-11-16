@@ -9,6 +9,10 @@ in this repository. You'll need to adjust it based on your domain name. The
 sample configuration relies on certbot and certbot-ocsp-fetcher. Setting up the
 web server is out-of-scope for this guide.
 
+Install a headless Java runtime environment. The package name on Debian-based
+distributions is `default-jre-headless`. Install `sqlite3` in order to set up
+the email configuration for the database.
+
 As root, on the server:
 
     useradd -m -s /bin/bash -b /var/lib attestation
