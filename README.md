@@ -1,5 +1,36 @@
 See the overview of the project at https://attestation.app/about.
 
+## Installation guide
+
+This is an generic, incomplete guide on setting up the attestation server.
+
+As root, on the server:
+
+    useradd -m -s /bin/bash -b /var/lib attestation
+
+    mkdir -p /opt/attestation/deploy_{a,b}
+    cd /opt/attestation
+    ln -s deploy_a deploy
+
+    mkdir -p /var/www/html_{a,b}
+    cd /var/www
+    ln -s html_a html
+    chown -R www-data:www-data /var/www
+
+Set up ssh `authorized_keys` for the www-data and attestation users.
+
+Copy attestation.service to /etc/systemd/system/attestation.service.
+
+On your development machine, deploy the code:
+
+    ./deploy_server
+    ./deploy_static
+
+As root, on the server:
+
+    systemctl enable attestation
+    systemctl start attestation
+
 ## Email alert configuration
 
 In order to send email alerts, AttestationServer needs to be configured with valid credentials for
