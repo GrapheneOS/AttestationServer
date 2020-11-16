@@ -2,7 +2,12 @@ See the overview of the project at https://attestation.app/about.
 
 ## Installation guide
 
-This is an generic, incomplete guide on setting up the attestation server.
+This is an generic guide on setting up the attestation server.
+
+You need to set up nginx using the nginx configuration in the nginx directory
+in this repository. You'll need to adjust it based on your domain name. The
+sample configuration relies on certbot and certbot-ocsp-fetcher. Setting up the
+web server is out-of-scope for this guide.
 
 As root, on the server:
 
