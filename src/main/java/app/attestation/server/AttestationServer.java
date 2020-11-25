@@ -78,6 +78,8 @@ import static app.attestation.server.AttestationProtocol.fingerprintsStrongBoxSt
 
 public class AttestationServer {
     private static final File SAMPLES_DATABASE = new File("samples.db");
+    private static final int MAX_SAMPLE_SIZE = 64 * 1024;
+
     private static final int DEFAULT_VERIFY_INTERVAL = 4 * 60 * 60;
     private static final int MIN_VERIFY_INTERVAL = 60 * 60;
     private static final int MAX_VERIFY_INTERVAL = 7 * 24 * 70 * 60;
@@ -87,7 +89,6 @@ public class AttestationServer {
     private static final int BUSY_TIMEOUT = 10 * 1000;
     private static final int QR_CODE_PIXEL_SIZE = 300;
     private static final long SESSION_LENGTH = 48 * 60 * 60 * 1000;
-    private static final int MAX_SAMPLE_SIZE = 64 * 1024;
 
     private static final Logger logger = Logger.getLogger(AttestationServer.class.getName());
 
