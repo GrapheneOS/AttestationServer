@@ -87,6 +87,7 @@ public class AttestationServer {
     private static final int BUSY_TIMEOUT = 10 * 1000;
     private static final int QR_CODE_PIXEL_SIZE = 300;
     private static final long SESSION_LENGTH = 48 * 60 * 60 * 1000;
+    private static final int MAX_SAMPLE_SIZE = 64 * 1024;
 
     private static final Logger logger = Logger.getLogger(AttestationServer.class.getName());
 
@@ -1264,7 +1265,7 @@ public class AttestationServer {
             for (int read = input.read(buffer); read != -1; read = input.read(buffer)) {
                 sample.write(buffer, 0, read);
 
-                if (sample.size() > 64 * 1024) {
+                if (sample.size() > MAX_SAMPLE_SIZE) {
                     exchange.sendResponseHeaders(413, -1);
                     return;
                 }
