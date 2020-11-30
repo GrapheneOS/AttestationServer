@@ -53,8 +53,8 @@
             <form id="create_form" class="hidden">
                 <h3>Create account:</h3>
                 <label>Username: <input id="create_username" type="text" autocomplete="username" maxlength="32" pattern="[a-zA-Z0-9]+" required="required"/></label><br/>
-                <label>Password: <input id="create_password" type="password" autocomplete="new-password" maxlength="4096" minlength="8" required="required"/></label><br/>
-                <label>Confirm password: <input id="create_password_confirm" type="password" autocomplete="new-password" maxlength="4096" minlength="8" required="required"/></label><br/>
+                <label>Password: <input id="create_password" type="password" autocomplete="new-password" maxlength="256" minlength="8" required="required"/></label><br/>
+                <label>Confirm password: <input id="create_password_confirm" type="password" autocomplete="new-password" maxlength="256" minlength="8" required="required"/></label><br/>
                 <p>There's currently no form of account recovery. If you forget your password, you'll need to make a new account and move your devices over to it.</p>
                 <p>Accounts will eventually expire if they have no paired devices.</p>
                 <button name="submit">Create account</button>
@@ -63,15 +63,15 @@
             <form id="login_form" class="hidden">
                 <h3>Login:</h3>
                 <label>Username: <input id="login_username" type="text" autocomplete="username" maxlength="32" pattern="[a-zA-Z0-9]+" required="required"/></label><br/>
-                <label>Password: <input id="login_password" type="password" autocomplete="current-password" maxlength="4096" minlength="8" required="required"/></label><br/>
+                <label>Password: <input id="login_password" type="password" autocomplete="current-password" maxlength="256" minlength="8" required="required"/></label><br/>
                 <button name="submit">Login</button>
                 <button type="button" class="cancel">Cancel</button>
             </form>
             <form id="change_password_form" class="hidden">
                 <h3>Change password:</h3>
-                <label>Current password: <input id="current_password" type="password" autocomplete="current-password" maxlength="4096" minlength="8" required="required"/></label><br/>
-                <label>New Password: <input id="new_password" type="password" autocomplete="new-password" maxlength="4096" minlength="8" required="required"/></label><br/>
-                <label>Confirm new password: <input id="new_password_confirm" type="password" autocomplete="new-password" maxlength="4096" minlength="8" required="required"/></label><br/>
+                <label>Current password: <input id="current_password" type="password" autocomplete="current-password" maxlength="256" minlength="8" required="required"/></label><br/>
+                <label>New Password: <input id="new_password" type="password" autocomplete="new-password" maxlength="256" minlength="8" required="required"/></label><br/>
+                <label>Confirm new password: <input id="new_password_confirm" type="password" autocomplete="new-password" maxlength="256" minlength="8" required="required"/></label><br/>
                 <button name="submit">Change password</button>
                 <button type="button" class="cancel_account">Cancel</button>
             </form>

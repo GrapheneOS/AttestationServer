@@ -402,7 +402,7 @@ public class AttestationServer {
     }
 
     private static void validatePassword(final String password) throws GeneralSecurityException {
-        if (password.length() < 8 || password.length() > 4096) {
+        if (password.length() < 8 || password.length() > 256) {
             throw new GeneralSecurityException("invalid password");
         }
 
