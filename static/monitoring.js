@@ -129,7 +129,7 @@ function fetchDevices() {
                 }
             }
 
-            const info = devices.appendChild(document.createElement("div"));
+            const info = devices.appendChild(document.createElement("article"));
             const header = create("h2", null, "fingerprint");
             header.id = fingerprint;
             const link = create("a", fingerprint);
