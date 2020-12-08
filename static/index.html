@@ -25,7 +25,7 @@
         <link rel="manifest" href="/manifest.webmanifest"/>
         <link rel="canonical" href="https://attestation.app/"/>
         <link rel="license" href="/LICENSE.txt"/>
-        <script type="module" src="/monitoring.js?12"></script>
+        <script type="module" src="/monitoring.js?13"></script>
     </head>
     <body>
         <header>
@@ -43,17 +43,17 @@
         </header>
         <main>
             <noscript><p><strong>JavaScript is required to use the device integrity monitoring application.</strong></p></noscript>
-            <span id="login_status" class="hidden">Logged in as <strong id="username"></strong>.</span>
-            <span id="form_toggles" class="hidden">
+            <span id="login_status" hidden="">Logged in as <strong id="username"></strong>.</span>
+            <span id="form_toggles" hidden="">
                 <button id="create">Create account</button>
                 <button id="login">Login</button>
             </span>
-            <span id="account_buttons" class="hidden">
+            <span id="account_buttons" hidden="">
                 <button id="logout" class="logout">Logout</button>
                 <button id="logout_everywhere" class="logout">Logout everywhere</button>
                 <button id="change_password">Change password</button>
             </span>
-            <form id="create_form" class="hidden">
+            <form id="create_form" hidden="">
                 <h3>Create account:</h3>
                 <label>Username: <input id="create_username" type="text" autocomplete="username" maxlength="32" pattern="[a-zA-Z0-9]+" required="required"/></label><br/>
                 <label>Password: <input id="create_password" type="password" autocomplete="new-password" maxlength="256" minlength="8" required="required"/></label><br/>
@@ -63,14 +63,14 @@
                 <button name="submit">Create account</button>
                 <button type="button" class="cancel">Cancel</button>
             </form>
-            <form id="login_form" class="hidden">
+            <form id="login_form" hidden="">
                 <h3>Login:</h3>
                 <label>Username: <input id="login_username" type="text" autocomplete="username" maxlength="32" pattern="[a-zA-Z0-9]+" required="required"/></label><br/>
                 <label>Password: <input id="login_password" type="password" autocomplete="current-password" maxlength="256" minlength="8" required="required"/></label><br/>
                 <button name="submit">Login</button>
                 <button type="button" class="cancel">Cancel</button>
             </form>
-            <form id="change_password_form" class="hidden">
+            <form id="change_password_form" hidden="">
                 <h3>Change password:</h3>
                 <label>Current password: <input id="current_password" type="password" autocomplete="current-password" maxlength="256" minlength="8" required="required"/></label><br/>
                 <label>New Password: <input id="new_password" type="password" autocomplete="new-password" maxlength="256" minlength="8" required="required"/></label><br/>
@@ -83,7 +83,7 @@
                 <a href="#device-integrity-monitoring">Device integrity monitoring</a>
             </h1>
             <p>Hardware-based remote attestation service for monitoring the security of Android devices using <a href="https://play.google.com/store/apps/details?id=app.attestation.auditor">the Auditor app</a>. For more details, see the <a href="/about">detailed description of the app and service</a> and the <a href="/tutorial">usage instructions</a>.</p>
-            <div id="account_content" class="hidden">
+            <div id="account_content" hidden="">
                 <p>Subscribe a device to regularly submitting attestations to this account by pressing 'Enable remote verification' in the Auditor app menu and scanning the QR code for this account:</p>
                 <img id="qr" height="300" width="300" alt="" src="/placeholder.png"/>
                 <button id="rotate">Rotate device subscription key</button>

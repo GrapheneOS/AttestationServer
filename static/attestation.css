@@ -85,10 +85,6 @@ main {
     margin: auto;
 }
 
-.hidden {
-    display: none;
-}
-
 button {
     background-color: #d6d7d7;
     border: none;

@@ -57,7 +57,7 @@ function toSecurityLevelString(value) {
 }
 
 function showLoggedOut() {
-    formToggles.style.display = "inline";
+    formToggles.hidden = false;
 }
 
 function reloadQrCode() {
@@ -77,14 +77,14 @@ function reloadQrCode() {
 }
 
 function displayLogin(account) {
-    formToggles.style.display = "none";
-    createForm.style.display = "none";
-    loginForm.style.display = "none";
+    formToggles.hidden = true;
+    createForm.hidden = true;
+    loginForm.hidden = true;
     loginForm.submit.disabled = false;
-    accountButtons.style.display = "inline";
-    loginStatus.style.display = "inline";
+    accountButtons.hidden = false;
+    loginStatus.hidden = false;
     username.innerText = account.username;
-    accountContent.style.display = "block";
+    accountContent.hidden = false;
     configuration.verify_interval.value = account.verifyInterval / 60 / 60;
     configuration.alert_delay.value = account.alertDelay / 60 / 60;
     if (account.email !== undefined) {
@@ -94,9 +94,10 @@ function displayLogin(account) {
     fetchDevices();
 }
 
-function create(tagName, text, className) {
+function create(tagName, text, className, hidden = false) {
     const element = document.createElement(tagName);
     element.innerText = text;
+    element.hidden = hidden;
     if (className !== undefined) {
         element.className = className;
     }
@@ -180,23 +181,23 @@ function fetchDevices() {
             appendLine(info, "Security level: " + toSecurityLevelString(device.pinnedSecurityLevel));
 
             info.appendChild(create("button", "show advanced information", "toggle"));
-            const advanced = info.appendChild(document.createElement("span"));
-            advanced.className = "hidden";
+            const advanced = info.appendChild(document.createElement("section"));
+            advanced.hidden = true;
             advanced.appendChild(document.createTextNode("Certificate 0 (persistent Auditor key): "));
             advanced.appendChild(create("button", "show", "toggle"));
-            advanced.appendChild(create("pre", device.pinnedCertificate0, "hidden"));
+            advanced.appendChild(create("pre", device.pinnedCertificate0, undefined, true));
             advanced.appendChild(document.createElement("br"));
             advanced.appendChild(document.createTextNode("Certificate 1 (batch): "));
             advanced.appendChild(create("button", "show", "toggle"));
-            advanced.appendChild(create("pre", device.pinnedCertificate1, "hidden"));
+            advanced.appendChild(create("pre", device.pinnedCertificate1, undefined, true));
             advanced.appendChild(document.createElement("br"));
             advanced.appendChild(document.createTextNode("Certificate 2 (intermediate): "));
             advanced.appendChild(create("button", "show", "toggle"));
-            advanced.appendChild(create("pre", device.pinnedCertificate2, "hidden"));
+            advanced.appendChild(create("pre", device.pinnedCertificate2, undefined, true));
             advanced.appendChild(document.createElement("br"));
             advanced.appendChild(document.createTextNode("Certificate 3 (root): "));
             advanced.appendChild(create("button", "show", "toggle"));
-            advanced.appendChild(create("pre", device.pinnedCertificate3, "hidden"));
+            advanced.appendChild(create("pre", device.pinnedCertificate3, undefined, true));
             advanced.appendChild(document.createElement("br"));
             advanced.appendChild(document.createTextNode("Verified boot key fingerprint: "));
             advanced.appendChild(create("span", device.verifiedBootKey, "fingerprint"));
@@ -220,7 +221,7 @@ function fetchDevices() {
             appendLine(info, "Last verified time: " + new Date(device.verifiedTimeLast));
             info.appendChild(create("button", "show detailed history", "toggle"));
             const history = info.appendChild(document.createElement("div"));
-            history.className = "hidden";
+            history.hidden = true;
 
             for (const attestation of device.attestations) {
                 history.appendChild(create("h4", new Date(attestation.time)));
@@ -242,12 +243,12 @@ function fetchDevices() {
             toggle.onclick = event => {
                 const target = event.target;
                 const cert = target.nextSibling;
-                if (cert.style.display === "block") {
+                if (!cert.hidden) {
                     target.innerText = target.innerText.replace("hide", "show");
-                    cert.style.display = "none";
+                    cert.hidden = true;
                 } else {
                     target.innerText = target.innerText.replace("show", "hide");
-                    cert.style.display = "block";
+                    cert.hidden = false;
                 }
             };
         }
@@ -283,8 +284,8 @@ if (token === null) {
 }
 
 document.getElementById("create").onclick = () => {
-    formToggles.style.display = "none";
-    createForm.style.display = "block";
+    formToggles.hidden = true;
+    createForm.hidden = false;
 };
 
 createPasswordConfirm.oninput = () => {
@@ -369,7 +370,7 @@ createForm.onsubmit = event => {
             return Promise.reject();
         }
         createForm.submit.disabled = false;
-        createForm.style.display = "none";
+        createForm.hidden = true;
         login(username, password);
     }).catch(error => {
         createForm.submit.disabled = false;
@@ -378,8 +379,8 @@ createForm.onsubmit = event => {
 };
 
 document.getElementById("login").onclick = () => {
-    formToggles.style.display = "none";
-    loginForm.style.display = "block";
+    formToggles.hidden = true;
+    loginForm.hidden = false;
 };
 
 loginForm.onsubmit = event => {
@@ -391,8 +392,8 @@ loginForm.onsubmit = event => {
 
 for (const cancel of document.getElementsByClassName("cancel")) {
     cancel.onclick = function() {
-        this.parentElement.style.display = "none";
-        formToggles.style.display = "inline";
+        this.parentElement.hidden = true;
+        formToggles.hidden = false;
     };
 }
 
@@ -408,12 +409,12 @@ for (const logoutButton of document.getElementsByClassName("logout")) {
             }
 
             localStorage.removeItem("requestToken");
-            loginStatus.style.display = "none";
+            loginStatus.hidden = true;
             devices.innerText = null;
-            accountContent.style.display = "none";
+            accountContent.hidden = true;
             qr.src = "/placeholder.png";
             qr.alt = "";
-            accountButtons.style.display = "none";
+            accountButtons.hidden = true;
             logout.disabled = false;
             logoutEverywhere.disabled = false;
             showLoggedOut();
@@ -426,8 +427,8 @@ for (const logoutButton of document.getElementsByClassName("logout")) {
 }
 
 document.getElementById("change_password").onclick = () => {
-    accountButtons.style.display = "none";
-    changePasswordForm.style.display = "block";
+    accountButtons.hidden = true;
+    changePasswordForm.hidden = false;
 };
 
 changePasswordForm.onsubmit = event => {
@@ -451,8 +452,8 @@ changePasswordForm.onsubmit = event => {
             return Promise.reject();
         }
         changePasswordForm.submit.disabled = false;
-        accountButtons.style.display = "inline";
-        changePasswordForm.style.display = "none";
+        accountButtons.hidden = false;
+        changePasswordForm.hidden = true;
     }).catch(error => {
         changePasswordForm.submit.disabled = false;
         console.log(error);
@@ -461,8 +462,8 @@ changePasswordForm.onsubmit = event => {
 
 for (const cancel of document.getElementsByClassName("cancel_account")) {
     cancel.onclick = function() {
-        this.parentElement.style.display = "none";
-        accountButtons.style.display = "inline";
+        this.parentElement.hidden = true;
+        accountButtons.hidden = false;
     };
 }
 
