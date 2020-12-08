@@ -179,7 +179,6 @@ class AttestationProtocol {
     private static final String DEVICE_NOKIA_7_1 = "Nokia 7.1";
     private static final String DEVICE_PIXEL_2 = "Google Pixel 2";
     private static final String DEVICE_PIXEL_2_XL = "Google Pixel 2 XL";
-    private static final String DEVICE_PIXEL_2_GENERIC = "Google Pixel 2 / Pixel 2 XL";
     private static final String DEVICE_PIXEL_3_GENERIC = "Google Pixel 3 / Pixel 3 XL";
     private static final String DEVICE_PIXEL_3 = "Google Pixel 3";
     private static final String DEVICE_PIXEL_3_XL = "Google Pixel 3 XL";
@@ -240,7 +239,6 @@ class AttestationProtocol {
 
     private static final String OS_STOCK = "Stock";
     private static final String OS_GRAPHENE = "GrapheneOS";
-    private static final String OS_CALYX = "CalyxOS";
 
     static class DeviceInfo {
         final String name;
@@ -307,11 +305,6 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_PIXEL_4_XL, 3, 4, false /* uses new API */, true, OS_GRAPHENE))
             .put("9F2454A1657B1B5AD7F2336B39A2611F7A40B2E0DDFD0D6553A359605928DF29",
                     new DeviceInfo(DEVICE_PIXEL_4a, 3, 4, false /* uses new API */, true, OS_GRAPHENE))
-            // CalyxOS
-            .put("BCEBF6844F6B0FA2ABE8E62A9D0D57A324D0C02CEFDFA019FD49832F9ED39105",
-                    new DeviceInfo(DEVICE_PIXEL_2_GENERIC, 2, 3, true, true, OS_CALYX))
-            .put("B4DE537A5F4B8FDAB6789EB2C06EC6E065E48A79EDD493A91F635004DD89F3E2",
-                    new DeviceInfo(DEVICE_PIXEL_3_GENERIC, 3, 4, false /* uses new API */, true, OS_CALYX))
             .build();
     static final ImmutableMap<String, DeviceInfo> fingerprintsStock = ImmutableMap
             .<String, DeviceInfo>builder()
@@ -452,9 +445,6 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_PIXEL_4_XL, 3, 4, false /* uses new API */, true, OS_GRAPHENE))
             .put("9F2454A1657B1B5AD7F2336B39A2611F7A40B2E0DDFD0D6553A359605928DF29",
                     new DeviceInfo(DEVICE_PIXEL_4a, 3, 4, false /* uses new API */, true, OS_GRAPHENE))
-            // CalyxOS
-            .put("B4DE537A5F4B8FDAB6789EB2C06EC6E065E48A79EDD493A91F635004DD89F3E2",
-                    new DeviceInfo(DEVICE_PIXEL_3_GENERIC, 3, 4, false /* uses new API */, true, OS_CALYX))
             .build();
     static final ImmutableMap<String, DeviceInfo> fingerprintsStrongBoxStock = ImmutableMap
             .<String, DeviceInfo>builder()
