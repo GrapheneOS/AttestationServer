@@ -71,7 +71,6 @@ function reloadQrCode() {
     }).then(imageBlob => {
         qr.src = URL.createObjectURL(imageBlob);
         qr.alt = "account QR code";
-        rotate.style.display = "block";
     }).catch(error => {
         console.log(error);
     });
