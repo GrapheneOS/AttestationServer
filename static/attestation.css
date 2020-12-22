@@ -110,7 +110,10 @@ input {
 }
 
 .coin-address {
-    display: inline-block;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
 }
 
 .coin-address > * {
