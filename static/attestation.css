@@ -116,7 +116,7 @@ input {
     text-align: center;
 }
 
-.coin-address > * {
+.coin-address > img {
     display: block;
     margin-left: auto;
     margin-right: auto;
