@@ -1,0 +1,4 @@
+Auditor and AttestationServer are collaboratively developed open source projects.
+
+See the repositories at https://github.com/GrapheneOS/Auditor and
+https://github.com/GrapheneOS/AttestationServer for more details.
