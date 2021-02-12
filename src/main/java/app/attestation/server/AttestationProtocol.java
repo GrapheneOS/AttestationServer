@@ -189,7 +189,7 @@ class AttestationProtocol {
     private static final String DEVICE_PIXEL_4 = "Google Pixel 4";
     private static final String DEVICE_PIXEL_4_XL = "Google Pixel 4 XL";
     private static final String DEVICE_PIXEL_4a = "Google Pixel 4a";
-    private static final String DEVICE_PIXEL_4a_5G = "Google Pixel 4a 5G";
+    private static final String DEVICE_PIXEL_4a_5G = "Google Pixel 4a (5G)";
     private static final String DEVICE_SM_A705FN = "Samsung Galaxy A70 (SM-A705FN)";
     private static final String DEVICE_SM_G960F = "Samsung Galaxy S9 (SM-G960F)";
     private static final String DEVICE_SM_G960_NA = "Samsung Galaxy S9 USA/Canada (SM-G960U/SM-G960U1/SM-G960W)";
