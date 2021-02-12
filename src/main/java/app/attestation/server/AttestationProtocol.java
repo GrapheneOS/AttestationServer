@@ -190,6 +190,7 @@ class AttestationProtocol {
     private static final String DEVICE_PIXEL_4_XL = "Google Pixel 4 XL";
     private static final String DEVICE_PIXEL_4a = "Google Pixel 4a";
     private static final String DEVICE_PIXEL_4a_5G = "Google Pixel 4a (5G)";
+    private static final String DEVICE_PIXEL_5 = "Google Pixel 5";
     private static final String DEVICE_PIXEL_5_GENERIC = "Google Pixel 4a (5G) / Pixel 5";
     private static final String DEVICE_SM_A705FN = "Samsung Galaxy A70 (SM-A705FN)";
     private static final String DEVICE_SM_G960F = "Samsung Galaxy S9 (SM-G960F)";
@@ -309,6 +310,8 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_PIXEL_4a, 3, 4, false /* uses new API */, true, OS_GRAPHENE))
             .put("DCEC2D053D3EC4F1C9BE414AA07E4D7D7CBD12040AD2F8831C994A83A0536866",
                     new DeviceInfo(DEVICE_PIXEL_4a_5G, 3, 4, false /* uses new API */, true, OS_GRAPHENE))
+            .put("36A99EAB7907E4FB12A70E3C41C456BCBE46C13413FBFE2436ADEE2B2B61120F",
+                    new DeviceInfo(DEVICE_PIXEL_5, 3, 4, false /* uses new API */, true, OS_GRAPHENE))
             .build();
     static final ImmutableMap<String, DeviceInfo> fingerprintsStock = ImmutableMap
             .<String, DeviceInfo>builder()
@@ -453,6 +456,8 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_PIXEL_4a, 3, 4, false /* uses new API */, true, OS_GRAPHENE))
             .put("DCEC2D053D3EC4F1C9BE414AA07E4D7D7CBD12040AD2F8831C994A83A0536866",
                     new DeviceInfo(DEVICE_PIXEL_4a_5G, 4, 41, false /* uses new API */, true, OS_GRAPHENE))
+            .put("36A99EAB7907E4FB12A70E3C41C456BCBE46C13413FBFE2436ADEE2B2B61120F",
+                    new DeviceInfo(DEVICE_PIXEL_5, 4, 41, false /* uses new API */, true, OS_GRAPHENE))
             .build();
     static final ImmutableMap<String, DeviceInfo> fingerprintsStrongBoxStock = ImmutableMap
             .<String, DeviceInfo>builder()
