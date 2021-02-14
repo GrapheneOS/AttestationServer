@@ -34,9 +34,10 @@ function formatOsVersion(osVersion) {
         parseInt(padded.substring(4, 6));
 }
 
-function formatOsPatchLevel(osPatchLevel) {
-    const string = osPatchLevel.toString();
-    return string.substring(0, 4) + "-" + string.substring(4, 6);
+function formatPatchLevel(patchLevel) {
+    const s = patchLevel.toString();
+    return s.substring(0, 4) + "-" + s.substring(4, 6) +
+        (s.length >= 8 ? "-" + s.substring(6, 8) : "");
 }
 
 function toYesNoString(value) {
@@ -166,12 +167,12 @@ function fetchDevices() {
             appendLine(info, "Device: " + device.name);
             appendLine(info, "OS: " + device.osName);
             appendLine(info, "OS version: " + formatOsVersion(device.pinnedOsVersion));
-            appendLine(info, "OS patch level: " + formatOsPatchLevel(device.pinnedOsPatchLevel));
+            appendLine(info, "OS patch level: " + formatPatchLevel(device.pinnedOsPatchLevel));
             if (device.pinnedVendorPatchLevel !== undefined) {
-                appendLine(info, "Vendor patch level: " + formatOsPatchLevel(device.pinnedVendorPatchLevel));
+                appendLine(info, "Vendor patch level: " + formatPatchLevel(device.pinnedVendorPatchLevel));
             }
             if (device.pinnedBootPatchLevel !== undefined) {
-                appendLine(info, "Boot patch level: " + formatOsPatchLevel(device.pinnedBootPatchLevel));
+                appendLine(info, "Boot patch level: " + formatPatchLevel(device.pinnedBootPatchLevel));
             }
             if (device.verifiedBootHash !== undefined) {
                 info.appendChild(document.createTextNode("Verified boot hash: "));
