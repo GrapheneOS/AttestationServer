@@ -12,6 +12,7 @@ ProtectProc=invisible
 ProtectSystem=strict
 ReadWritePaths=/var/lib/attestation
 ProtectHome=true
+RestrictNamespaces=true
 
 [Install]
 WantedBy=multi-user.target
