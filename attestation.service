@@ -12,6 +12,7 @@ ProtectProc=invisible
 ProtectSystem=strict
 ReadWritePaths=/var/lib/attestation
 ProtectHome=true
+RestrictAddressFamilies=AF_INET AF_INET6
 RestrictNamespaces=true
 RestrictRealtime=true
 SystemCallArchitectures=native
