@@ -2,28 +2,28 @@
 Description=Attestation server
 
 [Service]
-User=attestation
-WorkingDirectory=/var/lib/attestation
-ExecStart=/usr/bin/java -cp '/opt/attestation/deploy/AttestationServer.jar:/opt/attestation/deploy/*' app.attestation.server.AttestationServer
 CapabilityBoundingSet=
+ExecStart=/usr/bin/java -cp '/opt/attestation/deploy/AttestationServer.jar:/opt/attestation/deploy/*' app.attestation.server.AttestationServer
 LockPersonality=true
 NoNewPrivileges=true
-ProtectControlGroups=true
 PrivateDevices=true
 PrivateTmp=true
+ProtectControlGroups=true
+ProtectHome=true
 ProtectKernelLogs=true
 ProtectKernelModules=true
 ProtectKernelTunables=true
 ProtectProc=invisible
 ProtectSystem=strict
 ReadWritePaths=/var/lib/attestation
-ProtectHome=true
 RestrictAddressFamilies=AF_INET AF_INET6
 RestrictNamespaces=true
 RestrictRealtime=true
 SystemCallArchitectures=native
 SystemCallFilter=@system-service
 UMask=0077
+User=attestation
+WorkingDirectory=/var/lib/attestation
 
 [Install]
 WantedBy=multi-user.target
