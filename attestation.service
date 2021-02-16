@@ -9,7 +9,8 @@ NoNewPrivileges=true
 PrivateDevices=true
 PrivateTmp=true
 ProtectProc=invisible
-ProtectSystem=full
+ProtectSystem=strict
+ReadWritePaths=/var/lib/attestation
 ProtectHome=true
 
 [Install]
