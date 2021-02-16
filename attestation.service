@@ -13,6 +13,7 @@ ProtectSystem=strict
 ReadWritePaths=/var/lib/attestation
 ProtectHome=true
 RestrictNamespaces=true
+RestrictRealtime=true
 SystemCallArchitectures=native
 
 [Install]
