@@ -28,6 +28,7 @@ RestrictRealtime=true
 RestrictSUIDSGID=true
 SystemCallArchitectures=native
 SystemCallFilter=@system-service
+SystemCallFilter=~@privileged @resources
 UMask=0077
 User=attestation
 WorkingDirectory=/var/lib/attestation
