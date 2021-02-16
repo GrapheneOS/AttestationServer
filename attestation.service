@@ -5,6 +5,7 @@ Description=Attestation server
 User=attestation
 WorkingDirectory=/var/lib/attestation
 ExecStart=/usr/bin/java -cp '/opt/attestation/deploy/AttestationServer.jar:/opt/attestation/deploy/*' app.attestation.server.AttestationServer
+CapabilityBoundingSet=
 NoNewPrivileges=true
 PrivateDevices=true
 PrivateTmp=true
