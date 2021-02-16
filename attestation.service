@@ -13,6 +13,7 @@ ProtectSystem=strict
 ReadWritePaths=/var/lib/attestation
 ProtectHome=true
 RestrictNamespaces=true
+SystemCallArchitectures=native
 
 [Install]
 WantedBy=multi-user.target
