@@ -24,9 +24,8 @@ As root, on the server:
     mkdir -p /var/www/html_{a,b}
     cd /var/www
     ln -s html_a html
-    chown -R www-data:www-data /var/www
 
-Set up ssh `authorized_keys` for the www-data and attestation users.
+Set up ssh `authorized_keys` for the attestation user.
 
 Copy attestation.service to /etc/systemd/system/attestation.service.
 
