@@ -52,6 +52,7 @@
             system by chaining verification to the app to perform software-based sanity checks and
             gather additional information about device state and configuration beyond what the
             hardware can attest to directly.</p>
+
             <p>The foundation of the Auditor app is generating a persistent key in the <a
             href="https://source.android.com/security/keystore/">hardware-backed keystore</a>
             for verifying the identity of the device and providing assurance that the operating
@@ -64,10 +65,12 @@
             alerts. See <a href="/tutorial">the tutorial</a> for usage instructions. The protocol
             used for both local and remote attestation is
             <a href="https://github.com/GrapheneOS/Auditor/blob/17/app/src/main/java/app/attestation/auditor/AttestationProtocol.java#L119-L192">documented in the source code</a>.</p>
+
             <p><a href="https://source.android.com/security/verifiedboot/">Verified boot</a>
             validates the integrity and authenticity of firmware and the entire operating system
             (both the kernel and userspace) from an immutable hardware root of trust. The results
             are passed along to the hardware-backed keystore and used to protect the keys.</p>
+
             <p>The <a href="https://source.android.com/security/keystore/attestation">key attestation</a>
             feature provided by the hardware-backed keystore provides direct support for attesting
             to device properties and bootstrapping the Trust On First Use model of the Auditor app
@@ -77,6 +80,7 @@
             the operating system partitions among other properties. It also has support for
             chaining trust to the application performing the attestation checks, which is used by
             the Auditor app for bootstrapping checks at the software layer.</p>
+
             <p>Devices shipping with Android 9 or later <em>may</em> ship a
             <a href="https://developer.android.com/training/articles/keystore#HardwareSecurityModule">
             StrongBox Keymaster</a> implementation, allowing the Auditor app to keep the keys used
@@ -84,6 +88,7 @@
             the <a href="https://android-developers.googleblog.com/2018/10/building-titan-better-security-through.html">
             Titan M</a> in Pixel phones) rather than using the Trusted Execution Environment (TEE)
             on the main processor. This can provide substantial attack surface reduction.</p>
+
             <p>Security enhancements offered by future generations of hardware and future Android
             releases will be closely tracked by these projects. The core workflow and feature set
             is already implemented but the foundation will be regularly improved along with major
@@ -95,11 +100,13 @@
                 <h2>
                     <a href="#device-support">Device support</a>
                 </h2>
+
                 <p>Any device with Android 8.0 or later can run the Auditor app and use it to verify
                 other devices. However, only devices <em>launched</em> with Android 8.0 or later have
                 the necessary hardware support for being verified. Each device model also needs to be
                 explicitly integrated into the app. The following devices are currently supported by
                 the most recent stable release:</p>
+
                 <ul>
                     <li>BlackBerry Key2 (BBF100-1 and BBF100-6 models)</li>
                     <li>BQ Aquaris X2 Pro</li>
@@ -171,7 +178,9 @@
                     <li>Xiaomi Mi 9</li>
                     <li>Xiaomi POCOPHONE F1</li>
                 </ul>
+
                 <p>The following devices provide an HSM with StrongBox support used by Auditor:</p>
+
                 <ul>
                     <li>Google Pixel 3</li>
                     <li>Google Pixel 3 XL</li>
@@ -185,9 +194,11 @@
                     <li>Samsung Galaxy Note 10 (SM-N970U model)</li>
                     <li>Samsung Galaxy Note 10+ (SM-N975U model)</li>
                 </ul>
+
                 <p>The Auditor app also has support for verifying alternative operating systems on
                 devices supporting it. It can verify <a href="https://grapheneos.org/">GrapheneOS</a>
                 running on the following devices:</p>
+
                 <ul>
                     <li>Google Pixel 2</li>
                     <li>Google Pixel 2 XL</li>
@@ -201,6 +212,7 @@
                     <li>Google Pixel 4a (5G)</li>
                     <li>Google Pixel 5</li>
                 </ul>
+
                 <p>Alternative operating systems need their verified boot key included in the Auditor
                 app and Attestation Server. The app and service display the name of the operating
                 system being verified on the device. Unfortunately, most alternative operating systems
