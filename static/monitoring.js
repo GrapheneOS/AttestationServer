@@ -103,6 +103,45 @@ function appendLine(element, text) {
     element.appendChild(document.createElement("br"));
 }
 
+function fetchHistory(parent, nextOffset) {
+    const parentdata = parent.dataset;
+    parentdata.offsetId = Number(nextOffset);
+    fetch("/api/attestation_history.json", {method: "POST", body: JSON.stringify({
+        token: parentdata.token,
+        fingerprint: parentdata.deviceFingerprint,
+        offsetId: Number(parentdata.offsetId)
+    }),
+    credentials: "same-origin"}).then(response => {
+        if (!response.ok) {
+            return Promise.reject();
+        }
+        return response.json();
+    }).then(attestations => {
+        for (const attestation of attestations) {
+            parent.appendChild(create("h4", new Date(attestation.time)));
+
+            const p = parent.appendChild(document.createElement("p"));
+            const result = attestation.strong ?
+                "Successfully performed strong paired verification and identity confirmation." :
+                "Successfully performed basic initial verification and pairing.";
+            p.appendChild(create("strong", result));
+
+            parent.appendChild(create("h5", "Verified device information (constants omitted):"));
+            parent.appendChild(create("p", attestation.teeEnforced));
+            parent.appendChild(create("h5", "Information provided by the verified OS:"));
+            parent.appendChild(create("p", attestation.osEnforced));
+        }
+        const earliestCurrentId = attestations.slice(-1)[0].id;
+        function fetchHistoryNextPage() {
+            parent.removeChild(parent.lastChild);
+            return fetchHistory(parent, earliestCurrentId);
+        }
+        if (earliestCurrentId !== parentdata.minId) {
+            parent.appendChild(create("button", "Load More", "page_history_next")).onclick = fetchHistoryNextPage;
+        }
+    });
+}
+
 function fetchDevices() {
     devices.appendChild(create("p", "Loading device data..."));
 
@@ -213,24 +252,15 @@ function fetchDevices() {
             info.appendChild(create("h3", "Attestation history"));
             appendLine(info, "First verified time: " + new Date(device.verifiedTimeFirst));
             appendLine(info, "Last verified time: " + new Date(device.verifiedTimeLast));
-            info.appendChild(create("button", "show detailed history", "toggle"));
+            const historyButton = info.appendChild(create("button", "show detailed history", "toggle"));
             const history = info.appendChild(document.createElement("div"));
+            history.dataset.deviceFingerprint = device.fingerprint;
+            history.dataset.minId = Number(device.minId);
+            history.dataset.maxId = Number(device.maxId);
+            history.dataset.token = token;
             history.hidden = true;
-
-            for (const attestation of device.attestations) {
-                history.appendChild(create("h4", new Date(attestation.time)));
-
-                const p = history.appendChild(document.createElement("p"));
-                const result = attestation.strong ?
-                    "Successfully performed strong paired verification and identity confirmation." :
-                    "Successfully performed basic initial verification and pairing.";
-                p.appendChild(create("strong", result));
-
-                history.appendChild(create("h5", "Verified device information (constants omitted):"));
-                history.appendChild(create("p", attestation.teeEnforced));
-                history.appendChild(create("h5", "Information provided by the verified OS:"));
-                history.appendChild(create("p", attestation.osEnforced));
-            }
+            // always starts with latest attestation history entry
+            historyButton.onclick = fetchHistory(history, device.maxId);
         }
 
         for (const toggle of document.getElementsByClassName("toggle")) {
