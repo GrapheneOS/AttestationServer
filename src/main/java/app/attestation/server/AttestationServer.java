@@ -89,6 +89,8 @@ public class AttestationServer {
     private static final long SESSION_LENGTH = 48 * 60 * 60 * 1000;
     private static final int HISTORY_PER_PAGE = 20;
 
+    private static final String BASEURL = "staging.attestation.app";
+
     private static final int ATTESTATION_HISTORY_PAGINATE_BACK = 0;
     private static final int ATTESTATION_HISTORY_PAGINATE_NEXT = 1;
 
@@ -887,7 +889,7 @@ public class AttestationServer {
             exchange.getResponseHeaders().set("Content-Type", "image/png");
             exchange.sendResponseHeaders(200, 0);
             try (final OutputStream output = exchange.getResponseBody()) {
-                final String contents = "attestation.app " +
+                final String contents =  BASEURL + " " +
                     account.userId + " " +
                     BaseEncoding.base64().encode(account.subscribeKey) + " " +
                     account.verifyInterval;
@@ -1054,7 +1056,8 @@ public class AttestationServer {
             }
             while (select.step()) {
                 final JsonObjectBuilder device = Json.createObjectBuilder();
-                device.add("fingerprint", BaseEncoding.base16().encode(select.columnBlob(0)));
+                final String hexFingerprint = BaseEncoding.base16().encode(select.columnBlob(0));
+                device.add("fingerprint", hexFingerprint);
                 device.add("pinnedCertificate0", convertToPem(select.columnBlob(1)));
                 device.add("pinnedCertificate1", convertToPem(select.columnBlob(2)));
                 device.add("pinnedCertificate2", convertToPem(select.columnBlob(3)));
@@ -1111,10 +1114,10 @@ public class AttestationServer {
                 device.add("verifiedTimeFirst", select.columnLong(22));
                 device.add("verifiedTimeLast", select.columnLong(23));
                 final SQLiteStatement devicesAttestationsLatestSelect = conn.prepare(
-                        "SELECT id FROM Attestations WHERE fingerprint = ? ORDER BY id DESC LIMIT 1");
-                devicesAttestationsLatestSelect.bind(1, select.columnBlob(0));
+                        "SELECT id FROM Attestations WHERE hex(fingerprint) = ? ORDER BY id DESC LIMIT 1");
+                devicesAttestationsLatestSelect.bind(1, hexFingerprint);
                 if(devicesAttestationsLatestSelect.step()) {
-                    device.add("offsetId", devicesAttestationsLatestSelect.columnLong(1));
+                    device.add("offsetId", devicesAttestationsLatestSelect.columnLong(0));
                 }
                 devicesAttestationsLatestSelect.dispose();
                 devices.add(device);
@@ -1147,30 +1150,25 @@ public class AttestationServer {
         @Override
         public void handlePost(final HttpExchange exchange) throws IOException, SQLiteException {
             String fingerprint;
-            int directive;
-            // 0 for backwards, 1 for forward
-            long offsetId;
-            final Account account = verifySession(exchange, false, null);
-            if (account == null) {
-                return;
-            }
             try (final JsonReader reader = Json.createReader(exchange.getRequestBody())) {
                 final JsonObject object = reader.readObject();
                 fingerprint = object.getString("fingerprint");
-                directive = object.getInt("directive");
-                offsetId = Long.valueOf(object.getString("offsetId"));
-                if (directive < 0 || directive > 1) {
-                    throw new NumberFormatException("Invalid pagination directive provided");
+                long offsetId = object.getJsonNumber("offsetId").longValue();
+                String requestTokenEncoded = object.getString("token");
+                final Account account = verifySession(exchange, false, requestTokenEncoded.getBytes());
+                if (account == null) {
+                    return;
                 }
                 if (!verifyDeviceFingerprint(account.userId, fingerprint)) {
                     throw new NullPointerException("Invalid device fingerprint provided");
                 }
-            } catch (final ClassCastException | JsonException | NullPointerException | NumberFormatException e) {
+                writeAttestationHistoryJson(exchange, fingerprint, offsetId);
+            } catch (final ClassCastException | JsonException | NullPointerException | NumberFormatException |
+                    DataFormatException e) {
                 e.printStackTrace();
                 exchange.sendResponseHeaders(400, -1);
                 return;
             }
-            writeAttestationHistoryJson(exchange, fingerprint, offsetId, directive);
         }
     }
 
@@ -1179,7 +1177,9 @@ public class AttestationServer {
         boolean isFingerprintAuthenticated = false;
         final SQLiteConnection conn = new SQLiteConnection(AttestationProtocol.ATTESTATION_DATABASE);
         try {
+            open(conn, true);
             final SQLiteStatement select = conn.prepare("SELECT fingerprint FROM Devices WHERE userId is ?");
+
             select.bind(1, userId);
 
             while (select.step()) {
@@ -1200,26 +1200,19 @@ public class AttestationServer {
     }
 
     private static void writeAttestationHistoryJson(final HttpExchange exchange, final String deviceFingerprint,
-            final long offsetId, final int directive) throws IOException, SQLiteException {
+            final long offsetId) throws IOException, SQLiteException, DataFormatException {
         final SQLiteConnection conn = new SQLiteConnection(AttestationProtocol.ATTESTATION_DATABASE);
         final JsonArrayBuilder attestations = Json.createArrayBuilder();
-        final SQLiteStatement history;
+
+        logger.info("HIII offsetId: " + offsetId);
+        SQLiteStatement history;
         try {
             open(conn, true);
-            switch(directive) {
-                case ATTESTATION_HISTORY_PAGINATE_BACK:
-                    history = conn.prepare("SELECT time, strong, teeEnforced, " +
-                        "osEnforced, id FROM Attestations WHERE fingerprint = hex(?) AND id >= ? ORDER BY id DESC LIMIT" +
-                        String.valueOf(HISTORY_PER_PAGE));
-                    break;
-                case ATTESTATION_HISTORY_PAGINATE_NEXT:
-                    history = conn.prepare("SELECT time, strong, teeEnforced, " +
-                        "osEnforced, id FROM Attestations WHERE fingerprint = hex(?) AND id <= ? ORDER BY id DESC LIMIT" +
-                        String.valueOf(HISTORY_PER_PAGE));
-                    break;
-            }
+            history = conn.prepare("SELECT time, strong, teeEnforced, " +
+                "osEnforced, id FROM Attestations WHERE hex(fingerprint) = ? " +
+                "AND id <= ? ORDER BY id DESC LIMIT " + String.valueOf(HISTORY_PER_PAGE));
             history.bind(1, deviceFingerprint);
-            history.bind(2, offsetId);
+            history.bind(2, offsetId < 0 ? 0 : offsetId);
 
             while (history.step()) {
                 attestations.add(Json.createObjectBuilder()

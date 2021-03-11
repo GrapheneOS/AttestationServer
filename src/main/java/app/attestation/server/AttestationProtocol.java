@@ -161,10 +161,13 @@ class AttestationProtocol {
             OS_ENFORCED_FLAGS_OEM_UNLOCK_ALLOWED |
             OS_ENFORCED_FLAGS_SYSTEM_USER;
 
-    private static final String ATTESTATION_APP_PACKAGE_NAME = "app.attestation.auditor";
+    private static final String ATTESTATION_APP_PACKAGE_NAME = BuildConfig.DEBUG ? 
+        "app.attestation.staging.auditor" : "app.attestation.auditor";
     private static final int ATTESTATION_APP_MINIMUM_VERSION = 5;
+    //private static final String ATTESTATION_APP_SIGNATURE_DIGEST_DEBUG =
+    //        "17727D8B61D55A864936B1A7B4A2554A15151F32EBCF44CDAA6E6C3258231890";
     private static final String ATTESTATION_APP_SIGNATURE_DIGEST_DEBUG =
-            "17727D8B61D55A864936B1A7B4A2554A15151F32EBCF44CDAA6E6C3258231890";
+            "A440450F3CAFE242EC0145198B5C71E98840D8A5497C76F9C7F62EE9C9604AC2";
     private static final String ATTESTATION_APP_SIGNATURE_DIGEST_RELEASE =
             "990E04F0864B19F14F84E0E432F7A393F297AB105A22C1E1B10B442A4A62C42C";
     private static final int OS_VERSION_MINIMUM = 80000;
@@ -811,7 +814,7 @@ class AttestationProtocol {
             throw new GeneralSecurityException("wrong number of attestation packages");
         }
         final AttestationPackageInfo info = infos.get(0);
-        if (!ATTESTATION_APP_PACKAGE_NAME.equals(info.getPackageName())) {
+        if (!BuildConfig.DEBUG || !ATTESTATION_APP_PACKAGE_NAME.equals(info.getPackageName())) {
             throw new GeneralSecurityException("wrong attestation app package name");
         }
         final int appVersion = Math.toIntExact(info.getVersion()); // int for compatibility

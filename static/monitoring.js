@@ -21,8 +21,7 @@ const qr = document.getElementById("qr");
 const rotate = document.getElementById("rotate");
 const accountContent = document.getElementById("account_content");
 
-const ATTESTATION_HISTORY_PAGINATE_BACK = 0;
-const ATTESTATION_HISTORY_PAGINATE_NEXT = 1;
+const ATTESTATION_HISTORY_ENTRIES_PER_PAGE = 20;
 
 const deviceAdminStrings = new Map([
     [0, "no"],
@@ -113,52 +112,55 @@ function appendLine(element, text) {
 }
 
 
-function fetchHistory(parent, directive, page=0) {
-    parent.childNodes.forEach(child => {
-        child.remove();
-    });
+function fetchHistory(parent, nextOffset) {
     const parentdata = parent.dataset;
-    if (page > 0) {
-        parent.appendChild(create("button", "Last 20", "page_history_prev"));
+    parentdata.offsetId = Number(nextOffset);
+    while (parent.firstChild) { 
+        parent.removeChild(parent.firstChild);
     }
-    fetch("/api/attestation_history.json", {method: "POST", body: {
+    fetch("/api/attestation_history.json", {method: "POST", body: JSON.stringify({
         token: parentdata.token,
-        fingerprint: parentdata.fingerprint,
-        offsetId: parentdata.offsetId,
-        directive
-    },
+        fingerprint: parentdata.deviceFingerprint,
+        offsetId: Number(parentdata.offsetId)
+    }),
         credentials: "same-origin"}).then(response => {
         if (!response.ok) {
             return Promise.reject();
         }
         return response.json();
     }).then(attestations => {
+        const offsetId = Number(parentdata.offsetId);
+        const maxOffsetId = Number(parentdata.maxOffsetId);
         for (const attestation of attestations) {
-            history.appendChild(create("h4", new Date(attestation.time)));
+            parent.appendChild(create("h4", new Date(attestation.time)));
 
-            const p = history.appendChild(document.createElement("p"));
+            const p = parent.appendChild(document.createElement("p"));
             const result = attestation.strong ?
                 "Successfully performed strong paired verification and identity confirmation." :
                 "Successfully performed basic initial verification and pairing.";
             p.appendChild(create("strong", result));
 
-            history.appendChild(create("h5", "Verified device information (constants omitted):"));
-            history.appendChild(create("p", attestation.teeEnforced));
-            history.appendChild(create("h5", "Information provided by the verified OS:"));
-            history.appendChild(create("p", attestation.osEnforced));
+            parent.appendChild(create("h5", "Verified device information (constants omitted):"));
+            parent.appendChild(create("p", attestation.teeEnforced));
+            parent.appendChild(create("h5", "Information provided by the verified OS:"));
+            parent.appendChild(create("p", attestation.osEnforced));
         }
-        function fetchHistoryNextPage() {
-            return fetchHistory(parent, ATTESTATION_HISTORY_PAGINATE_NEXT, parentdata.page + 1);
+        function fetchHistoryPrevPage() {
+            const nextOffset = (offsetId + ATTESTATION_HISTORY_ENTRIES_PER_PAGE) >
+               maxOffsetId ? offsetId : offsetId + ATTESTATION_HISTORY_ENTRIES_PER_PAGE;
+            return fetchHistory(parent, nextOffset);
         }
 
-        function fetchHistoryPrevPage() {
-            return fetchHistory(parent, ATTESTATION_HISTORY_PAGINATE_BACK, parentdata.page - 1);
+        function fetchHistoryNextPage() {
+            const nextOffset = offsetId >= 20 ? offsetId - ATTESTATION_HISTORY_ENTRIES_PER_PAGE : offsetId;
+            return fetchHistory(parent, nextOffset);
         }
-        if (attestations.length === 20) {
+        if (offsetId > 20) {
             parent.appendChild(create("button", "Next 20", "page_history_next"));
-            parentdata.offsetId = attestations[attestations.length - 1].offsetId;
         }
-        parentdata.offsetId = attestations[attestations.length - 1].offsetId;
+        if (maxOffsetId > offsetId) {
+            parent.appendChild(create("button", "Last 20", "page_history_prev"));
+        }
         const next_page = document.getElementsByClassName("page_history_next")[0];
         if (next_page) {
             next_page.onclick = fetchHistoryNextPage;
@@ -286,11 +288,13 @@ function fetchDevices() {
 
             const history = info.appendChild(document.createElement("div"));
             history.dataset.deviceFingerprint = device.fingerprint;
+            history.dataset.maxOffsetId = device.offsetId;
             history.dataset.offsetId = device.offsetId;
             history.dataset.token = token;
             history.dataset.page = 0;
             history.className = "hidden";
-            fetchHistory(history, ATTESTATION_HISTORY_PAGINATE_NEXT);
+            // always starts with latest attestation history entry
+            fetchHistory(history, device.offsetId);
         }
 
         for (const toggle of document.getElementsByClassName("toggle")) {
