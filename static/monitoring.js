@@ -21,6 +21,8 @@ const qr = document.getElementById("qr");
 const rotate = document.getElementById("rotate");
 const accountContent = document.getElementById("account_content");
 
+const ATTESTATION_HISTORY_ENTRIES_PER_PAGE = 20;
+
 const deviceAdminStrings = new Map([
     [0, "no"],
     [1, "yes, with non-system apps"],
@@ -108,6 +110,66 @@ function create(tagName, text, className, hidden = false) {
 function appendLine(element, text) {
     element.appendChild(document.createTextNode(text));
     element.appendChild(document.createElement("br"));
+}
+
+function fetchHistory(parent, nextOffset) {
+    const parentdata = parent.dataset;
+    parentdata.offsetId = Number(nextOffset);
+    while (parent.firstChild) { 
+        parent.removeChild(parent.firstChild);
+    }
+    fetch("/api/attestation_history.json", {method: "POST", body: JSON.stringify({
+        token: parentdata.token,
+        fingerprint: parentdata.deviceFingerprint,
+        offsetId: Number(parentdata.offsetId)
+    }),
+    credentials: "same-origin"}).then(response => {
+        if (!response.ok) {
+            return Promise.reject();
+        }
+        return response.json();
+    }).then(attestations => {
+        const offsetId = Number(parentdata.offsetId);
+        const maxOffsetId = Number(parentdata.maxOffsetId);
+        for (const attestation of attestations) {
+            parent.appendChild(create("h4", new Date(attestation.time)));
+
+            const p = parent.appendChild(document.createElement("p"));
+            const result = attestation.strong ?
+                "Successfully performed strong paired verification and identity confirmation." :
+                "Successfully performed basic initial verification and pairing.";
+            p.appendChild(create("strong", result));
+
+            parent.appendChild(create("h5", "Verified device information (constants omitted):"));
+            parent.appendChild(create("p", attestation.teeEnforced));
+            parent.appendChild(create("h5", "Information provided by the verified OS:"));
+            parent.appendChild(create("p", attestation.osEnforced));
+        }
+        function fetchHistoryPrevPage() {
+            const nextOffset = (offsetId + ATTESTATION_HISTORY_ENTRIES_PER_PAGE) >
+               maxOffsetId ? offsetId : offsetId + ATTESTATION_HISTORY_ENTRIES_PER_PAGE;
+            return fetchHistory(parent, nextOffset);
+        }
+
+        function fetchHistoryNextPage() {
+            const nextOffset = offsetId >= 20 ? offsetId - ATTESTATION_HISTORY_ENTRIES_PER_PAGE : offsetId;
+            return fetchHistory(parent, nextOffset);
+        }
+        if (offsetId > 20) {
+            parent.appendChild(create("button", "Next 20", "page_history_next"));
+        }
+        if (maxOffsetId > offsetId) {
+            parent.appendChild(create("button", "Last 20", "page_history_prev"));
+        }
+        const next_page = document.getElementsByClassName("page_history_next")[0];
+        if (next_page) {
+            next_page.onclick = fetchHistoryNextPage;
+        }
+        const prev_page = document.getElementsByClassName("page_history_prev")[0];
+        if (prev_page) {
+            prev_page.onclick = fetchHistoryPrevPage;
+        }
+    });
 }
 
 function fetchDevices() {
@@ -220,24 +282,17 @@ function fetchDevices() {
             info.appendChild(create("h3", "Attestation history"));
             appendLine(info, "First verified time: " + new Date(device.verifiedTimeFirst));
             appendLine(info, "Last verified time: " + new Date(device.verifiedTimeLast));
+
             info.appendChild(create("button", "show detailed history", "toggle"));
+
             const history = info.appendChild(document.createElement("div"));
-            history.hidden = true;
-
-            for (const attestation of device.attestations) {
-                history.appendChild(create("h4", new Date(attestation.time)));
-
-                const p = history.appendChild(document.createElement("p"));
-                const result = attestation.strong ?
-                    "Successfully performed strong paired verification and identity confirmation." :
-                    "Successfully performed basic initial verification and pairing.";
-                p.appendChild(create("strong", result));
-
-                history.appendChild(create("h5", "Verified device information (constants omitted):"));
-                history.appendChild(create("p", attestation.teeEnforced));
-                history.appendChild(create("h5", "Information provided by the verified OS:"));
-                history.appendChild(create("p", attestation.osEnforced));
-            }
+            history.dataset.deviceFingerprint = device.fingerprint;
+            history.dataset.maxOffsetId = device.offsetId;
+            history.dataset.offsetId = device.offsetId;
+            history.dataset.token = token;
+            history.className = "hidden";
+            // always starts with latest attestation history entry
+            fetchHistory(history, device.offsetId);
         }
 
         for (const toggle of document.getElementsByClassName("toggle")) {

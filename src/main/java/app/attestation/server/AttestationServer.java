@@ -89,6 +89,7 @@ public class AttestationServer {
     private static final int BUSY_TIMEOUT = 10 * 1000;
     private static final int QR_CODE_PIXEL_SIZE = 300;
     private static final long SESSION_LENGTH = 48 * 60 * 60 * 1000;
+    private static final int HISTORY_PER_PAGE = 20;
 
     private static final Logger logger = Logger.getLogger(AttestationServer.class.getName());
 
@@ -347,6 +348,7 @@ public class AttestationServer {
         server.createContext("/api/configuration", new ConfigurationHandler());
         server.createContext("/api/delete_device", new DeleteDeviceHandler());
         server.createContext("/api/devices.json", new DevicesHandler());
+        server.createContext("/api/attestation_history.json", new AttestationHistoryHandler());
         server.createContext("/challenge", new ChallengeHandler());
         server.createContext("/verify", new VerifyHandler());
         server.createContext("/submit", new SubmitHandler());
@@ -1059,7 +1061,9 @@ public class AttestationServer {
             }
             while (select.step()) {
                 final JsonObjectBuilder device = Json.createObjectBuilder();
-                device.add("fingerprint", BaseEncoding.base16().encode(select.columnBlob(0)));
+                final byte[] fingerprint = select.columnBlob(0);
+                final String hexFingerprint = BaseEncoding.base16().encode(fingerprint);
+                device.add("fingerprint", hexFingerprint);
                 device.add("pinnedCertificate0", convertToPem(select.columnBlob(1)));
                 device.add("pinnedCertificate1", convertToPem(select.columnBlob(2)));
                 device.add("pinnedCertificate2", convertToPem(select.columnBlob(3)));
@@ -1115,22 +1119,13 @@ public class AttestationServer {
                 }
                 device.add("verifiedTimeFirst", select.columnLong(22));
                 device.add("verifiedTimeLast", select.columnLong(23));
-
-                final SQLiteStatement history = conn.prepare("SELECT time, strong, teeEnforced, " +
-                        "osEnforced FROM Attestations WHERE fingerprint = ? ORDER BY id DESC");
-                history.bind(1, select.columnBlob(0));
-
-                final JsonArrayBuilder attestations = Json.createArrayBuilder();
-                while (history.step()) {
-                    attestations.add(Json.createObjectBuilder()
-                            .add("time", history.columnLong(0))
-                            .add("strong", history.columnInt(1) != 0)
-                            .add("teeEnforced", history.columnString(2))
-                            .add("osEnforced", history.columnString(3)));
+                final SQLiteStatement devicesAttestationsLatestSelect = conn.prepare(
+                        "SELECT id FROM Attestations WHERE fingerprint = ? ORDER BY id DESC LIMIT 1");
+                devicesAttestationsLatestSelect.bind(1, fingerprint);
+                if (devicesAttestationsLatestSelect.step()) {
+                    device.add("offsetId", devicesAttestationsLatestSelect.columnLong(0));
                 }
-                history.dispose();
-                device.add("attestations", attestations);
-
+                devicesAttestationsLatestSelect.dispose();
                 devices.add(device);
             }
             select.dispose();
@@ -1154,6 +1149,73 @@ public class AttestationServer {
                 return;
             }
             writeDevicesJson(exchange, account.userId);
+        }
+    }
+
+    private static class AttestationHistoryHandler extends PostHandler {
+        @Override
+        public void handlePost(final HttpExchange exchange) throws IOException, SQLiteException {
+            String fingerprint;
+            try (final JsonReader reader = Json.createReader(exchange.getRequestBody())) {
+                final JsonObject object = reader.readObject();
+                fingerprint = object.getString("fingerprint");
+                long offsetId = object.getJsonNumber("offsetId").longValue();
+                String requestTokenEncoded = object.getString("token");
+                final Account account = verifySession(exchange, false, requestTokenEncoded.getBytes());
+                if (account == null) {
+                    return;
+                }
+                writeAttestationHistoryJson(exchange, fingerprint, account, offsetId);
+            } catch (final ClassCastException | JsonException | NullPointerException | NumberFormatException |
+                    DataFormatException | GeneralSecurityException e) {
+                e.printStackTrace();
+                exchange.sendResponseHeaders(400, -1);
+                return;
+            }
+        }
+    }
+
+    private static void writeAttestationHistoryJson(final HttpExchange exchange, final String deviceFingerprint,
+            final Account userAccount, final long offsetId) 
+            throws IOException, SQLiteException, DataFormatException, GeneralSecurityException {
+        final SQLiteConnection conn = new SQLiteConnection(AttestationProtocol.ATTESTATION_DATABASE);
+        final JsonArrayBuilder attestations = Json.createArrayBuilder();
+
+        final byte[] fingerprint = BaseEncoding.base16().decode(deviceFingerprint);
+        SQLiteStatement history;
+        try {
+            open(conn, true);
+            history = conn.prepare("SELECT time, strong, teeEnforced, " +
+                "osEnforced, id FROM Attestations INNER JOIN Devices ON " +
+                "Attestations.fingerprint = Devices.fingerprint " +
+                "WHERE Devices.fingerprint = ? AND userid = ? " +
+                "AND Attestations.id <= ? ORDER BY id DESC LIMIT " + String.valueOf(HISTORY_PER_PAGE));
+            history.bind(1, fingerprint);
+            history.bind(2, userAccount.userId);
+            history.bind(3, offsetId < 0 ? 0 : offsetId);
+            int rowCount = 0;
+            while (history.step()) {
+                attestations.add(Json.createObjectBuilder()
+                    .add("time", history.columnLong(0))
+                    .add("strong", history.columnInt(1) != 0)
+                    .add("teeEnforced", history.columnString(2))
+                    .add("osEnforced", history.columnString(3))
+                    .add("id", history.columnInt(4)));
+                rowCount += 1;
+            }
+            history.dispose();
+            if (rowCount == 0) {
+                throw new GeneralSecurityException("found no attestation history for userId: " + userAccount.userId + 
+                        ", fingerprint: " + deviceFingerprint);
+            }
+        } finally {
+            conn.dispose();
+        }
+        exchange.getResponseHeaders().set("Content-Type", "application/json");
+        exchange.sendResponseHeaders(200, 0);
+        try (final OutputStream output = exchange.getResponseBody();
+                final JsonWriter writer = Json.createWriter(output)) {
+            writer.write(attestations.build());
         }
     }
 
