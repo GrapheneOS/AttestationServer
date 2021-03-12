@@ -15,6 +15,7 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 
 import java.util.ArrayList;
+import java.util.logging.Logger;
 import java.util.Properties;
 
 import com.google.common.io.BaseEncoding;
@@ -26,6 +27,8 @@ class AlertDispatcher implements Runnable {
 
     // Split displayed fingerprint into groups of 4 characters
     private static final int FINGERPRINT_SPLIT_INTERVAL = 4;
+
+    private static final Logger logger = Logger.getLogger(AlertDispatcher.class.getName());
 
     @Override
     public void run() {
@@ -64,7 +67,7 @@ class AlertDispatcher implements Runnable {
                 return;
             }
 
-            System.err.println("dispatching alerts");
+            logger.info("dispatching alerts");
 
             try {
                 selectConfiguration.step();
@@ -77,7 +80,7 @@ class AlertDispatcher implements Runnable {
                 final Session session;
                 if (local == 1) {
                     if (emailUsername == null) {
-                        System.err.println("missing email configuration");
+                        logger.warning("missing email configuration");
                         continue;
                     }
                     final Properties props = new Properties();
@@ -87,7 +90,7 @@ class AlertDispatcher implements Runnable {
                     session = Session.getInstance(props);
                 } else {
                     if (emailUsername == null || emailPassword == null || emailHost == null || emailPort == null) {
-                        System.err.println("missing email configuration");
+                        logger.warning("missing email configuration");
                         continue;
                     }
 
@@ -146,7 +149,7 @@ class AlertDispatcher implements Runnable {
                         selectEmails.bind(1, userId);
                         while (selectEmails.step()) {
                             final String address = selectEmails.columnString(0);
-                            System.err.println("sending email to " + address);
+                            logger.info("sending email to " + address);
                             try {
                                 final Message message = new MimeMessage(session);
                                 message.setFrom(new InternetAddress(emailUsername));
@@ -188,7 +191,7 @@ class AlertDispatcher implements Runnable {
                         selectEmails.bind(1, userId);
                         while (selectEmails.step()) {
                             final String address = selectEmails.columnString(0);
-                            System.err.println("sending email to " + address);
+                            logger.info("sending email to " + address);
                             try {
                                 final Message message = new MimeMessage(session);
                                 message.setFrom(new InternetAddress(emailUsername));
