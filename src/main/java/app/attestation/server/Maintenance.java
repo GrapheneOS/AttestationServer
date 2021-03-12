@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 class Maintenance implements Runnable {
     private static final long WAIT_MS = 24 * 60 * 60 * 1000;
     private static final int DELETE_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000;
+    private static final int KEEP_BACKUPS = 28;
 
     private static final Logger logger = Logger.getLogger(Maintenance.class.getName());
 
@@ -55,6 +56,23 @@ class Maintenance implements Runnable {
                     backup.backupStep(-1);
                 } finally {
                     backup.dispose();
+                }
+
+                final File[] backupFiles = new File("backup/").listFiles();
+                for (final File backupFile : backupFiles) {
+                    final String name = backupFile.getName();
+                    try {
+                        long backupIndex = Long.parseLong(name.split("\\.")[0]);
+                        if (backupIndex <= backups - KEEP_BACKUPS) {
+                            if (backupFile.delete()) {
+                                logger.info("deleted old database backup: " + backupFile);
+                            } else {
+                                logger.warning("failed to delete database backup: " + name);
+                            }
+                        }
+                    } catch (final NumberFormatException e) {
+                        logger.warning("invalid database backup filename: " + name);
+                    }
                 }
             } catch (final SQLiteException e) {
                 e.printStackTrace();
