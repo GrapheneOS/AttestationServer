@@ -6,10 +6,13 @@ import com.almworks.sqlite4java.SQLiteException;
 import com.almworks.sqlite4java.SQLiteStatement;
 
 import java.io.File;
+import java.util.logging.Logger;
 
 class Maintenance implements Runnable {
     private static final long WAIT_MS = 24 * 60 * 60 * 1000;
     private static final int DELETE_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000;
+
+    private static final Logger logger = Logger.getLogger(Maintenance.class.getName());
 
     @Override
     public void run() {
@@ -35,7 +38,7 @@ class Maintenance implements Runnable {
                 return;
             }
 
-            System.err.println("maintenance");
+            logger.info("maintenance");
 
             try {
                 conn.exec("ANALYZE");
