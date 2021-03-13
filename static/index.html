@@ -26,7 +26,7 @@
         <link rel="manifest" href="/manifest.webmanifest"/>
         <link rel="canonical" href="https://attestation.app/"/>
         <link rel="license" href="/LICENSE.txt"/>
-        <script type="module" src="/monitoring.js?14"></script>
+        <script type="module" src="/monitoring.js?15"></script>
     </head>
     <body>
         <header>
@@ -73,6 +73,8 @@
             </form>
             <form id="change_password_form" hidden="">
                 <h3>Change password:</h3>
+                <!-- hint for password managers per https://www.chromium.org/developers/design-documents/create-amazing-password-forms -->
+                <input hidden="" id="current_username" type="text" autocomplete="username"/>
                 <label>Current password: <input id="current_password" type="password" autocomplete="current-password" maxlength="256" minlength="8" required="required"/></label><br/>
                 <label>New Password: <input id="new_password" type="password" autocomplete="new-password" maxlength="256" minlength="8" required="required"/></label><br/>
                 <label>Confirm new password: <input id="new_password_confirm" type="password" autocomplete="new-password" maxlength="256" minlength="8" required="required"/></label><br/>

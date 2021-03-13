@@ -85,6 +85,7 @@ function displayLogin(account) {
     accountButtons.hidden = false;
     loginStatus.hidden = false;
     username.innerText = account.username;
+    changePasswordForm.current_username.value = account.username;
     accountContent.hidden = false;
     configuration.verify_interval.value = account.verifyInterval / 60 / 60;
     configuration.alert_delay.value = account.alertDelay / 60 / 60;
