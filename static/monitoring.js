@@ -371,6 +371,7 @@ createForm.onsubmit = event => {
         }
         createForm.submit.disabled = false;
         createForm.hidden = true;
+        createForm.reset();
         loggedOutButtons.hidden = false;
         login(username, password);
     }).catch(error => {
