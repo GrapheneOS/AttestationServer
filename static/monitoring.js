@@ -414,6 +414,8 @@ for (const logoutButton of document.getElementsByClassName("logout")) {
             loginStatus.hidden = true;
             devices.innerText = null;
             accountContent.hidden = true;
+            username.innerText = null;
+            changePasswordForm.current_username.value = null;
             qr.src = "/placeholder.png";
             qr.alt = "";
             accountButtons.hidden = true;
