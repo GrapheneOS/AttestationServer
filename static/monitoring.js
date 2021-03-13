@@ -82,9 +82,9 @@ function displayLogin(account) {
     loggedInButtons.hidden = false;
     loginStatus.hidden = false;
     username.innerText = account.username;
-    accountContent.hidden = false;
     configuration.verify_interval.value = account.verifyInterval / 60 / 60;
     configuration.alert_delay.value = account.alertDelay / 60 / 60;
+    accountContent.hidden = false;
     if (account.email !== undefined) {
         configuration.email.value = account.email;
     }
@@ -417,6 +417,7 @@ for (const logoutButton of document.getElementsByClassName("logout")) {
             devices.innerText = null;
             accountContent.hidden = true;
             username.innerText = null;
+            configuration.reset();
             qr.src = "/placeholder.png";
             qr.alt = "";
             loggedInButtons.hidden = true;
