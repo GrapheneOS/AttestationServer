@@ -1012,10 +1012,10 @@ public class AttestationServer {
                 open(conn, false);
 
                 final SQLiteStatement update = conn.prepare("UPDATE Devices SET " +
-                        "deletionTime = ? WHERE userId = ? AND hex(fingerprint) = ?");
+                        "deletionTime = ? WHERE userId = ? AND fingerprint = ?");
                 update.bind(1, System.currentTimeMillis());
                 update.bind(2, account.userId);
-                update.bind(3, fingerprint);
+                update.bind(3, BaseEncoding.base16().decode(fingerprint));
                 update.step();
                 update.dispose();
 
