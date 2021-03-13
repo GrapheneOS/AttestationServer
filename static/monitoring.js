@@ -79,7 +79,6 @@ function reloadQrCode() {
 
 function displayLogin(account) {
     loggedOutButtons.hidden = true;
-    createForm.hidden = true;
     loginForm.hidden = true;
     loginForm.submit.disabled = false;
     loggedInButtons.hidden = false;
