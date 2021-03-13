@@ -394,6 +394,7 @@ loginForm.onsubmit = event => {
 for (const cancel of document.getElementsByClassName("cancel")) {
     cancel.onclick = function() {
         this.parentElement.hidden = true;
+        this.parentElement.reset();
         loggedOutButtons.hidden = false;
     };
 }
