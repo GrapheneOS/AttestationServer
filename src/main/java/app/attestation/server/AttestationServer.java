@@ -1189,7 +1189,7 @@ public class AttestationServer {
                 "osEnforced, id FROM Attestations INNER JOIN Devices ON " +
                 "Attestations.fingerprint = Devices.fingerprint " +
                 "WHERE Devices.fingerprint = ? AND userid = ? " +
-                "AND Attestations.id <= ? ORDER BY id DESC LIMIT " + String.valueOf(HISTORY_PER_PAGE));
+                "AND Attestations.id <= ? ORDER BY id DESC LIMIT " + HISTORY_PER_PAGE);
             history.bind(1, fingerprint);
             history.bind(2, userAccount.userId);
             history.bind(3, offsetId);
