@@ -370,9 +370,9 @@ createForm.onsubmit = event => {
             }
             return Promise.reject();
         }
-        createForm.submit.disabled = false;
         createForm.hidden = true;
         createForm.reset();
+        createForm.submit.disabled = false;
         loggedOutButtons.hidden = false;
         login(username, password);
     }).catch(error => {
@@ -457,10 +457,10 @@ changePasswordForm.onsubmit = event => {
         if (!response.ok) {
             return Promise.reject();
         }
-        changePasswordForm.submit.disabled = false;
-        loggedInButtons.hidden = false;
         changePasswordForm.hidden = true;
         changePasswordForm.reset();
+        changePasswordForm.submit.disabled = false;
+        loggedInButtons.hidden = false;
     }).catch(error => {
         changePasswordForm.submit.disabled = false;
         console.log(error);
