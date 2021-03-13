@@ -54,7 +54,7 @@ function toSecurityLevelString(value) {
     if (value == 2) {
         return "High (StrongBox) - Hardware Security Module (HSM)";
     }
-    throw new Error("invalid security level");
+    throw new Error("Invalid security level");
 }
 
 function reloadQrCode() {
