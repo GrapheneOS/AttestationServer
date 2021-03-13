@@ -288,6 +288,12 @@ createPasswordConfirm.oninput = () => {
     }
 };
 
+changePasswordForm.new_password.oninput = () => {
+    if (changePasswordForm.new_password.value !== changePasswordForm.current_password.value) {
+        changePasswordForm.new_password.setCustomValidity("");
+    }
+};
+
 changePasswordForm.new_password_confirm.oninput = () => {
     if (changePasswordForm.new_password.value === changePasswordForm.new_password_confirm.value) {
         changePasswordForm.new_password_confirm.setCustomValidity("");
@@ -443,11 +449,17 @@ changePasswordForm.onsubmit = event => {
         changePasswordForm.new_password_confirm.reportValidity();
         return;
     }
+    const currentPassword = changePasswordForm.current_password.value;
+    if (newPassword === currentPassword) {
+        changePasswordForm.new_password.setCustomValidity("New password should be different");
+        changePasswordForm.new_password.reportValidity();
+        return;
+    }
 
     changePasswordForm.submit.disabled = true;
     const data = JSON.stringify({
         "requestToken": localStorage.getItem("requestToken"),
-        "currentPassword": changePasswordForm.current_password.value,
+        "currentPassword": currentPassword,
         "newPassword": newPassword
     });
     fetch("/api/change_password", {method: "POST", body: data, credentials: "same-origin"}).then(response => {
