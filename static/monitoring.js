@@ -79,8 +79,6 @@ function reloadQrCode() {
 
 function displayLogin(account) {
     loggedOutButtons.hidden = true;
-    loginForm.hidden = true;
-    loginForm.submit.disabled = false;
     loggedInButtons.hidden = false;
     loginStatus.hidden = false;
     username.innerText = account.username;
@@ -339,6 +337,9 @@ function login(username, password) {
             }
             return response.json();
         }).then(account => {
+            loginForm.hidden = true;
+            loginForm.reset();
+            loginForm.submit.disabled = false;
             displayLogin(account);
         }).catch(error => {
             console.log(error);
