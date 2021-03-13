@@ -10,10 +10,10 @@ const loginUsername = document.getElementById("login_username");
 const loginPassword = document.getElementById("login_password");
 const loginStatus = document.getElementById("login_status");
 const username = document.getElementById("username");
-const formToggles = document.getElementById("form_toggles");
+const loggedOutButtons = document.getElementById("logged_out_buttons");
+const loggedInButtons = document.getElementById("logged_in_buttons");
 const logout = document.getElementById("logout");
 const logoutEverywhere = document.getElementById("logout_everywhere");
-const accountButtons = document.getElementById("account_buttons");
 const changePasswordForm = document.getElementById("change_password_form");
 const configuration = document.getElementById("configuration");
 const devices = document.getElementById("devices");
@@ -58,7 +58,7 @@ function toSecurityLevelString(value) {
 }
 
 function showLoggedOut() {
-    formToggles.hidden = false;
+    loggedOutButtons.hidden = false;
 }
 
 function reloadQrCode() {
@@ -78,11 +78,11 @@ function reloadQrCode() {
 }
 
 function displayLogin(account) {
-    formToggles.hidden = true;
+    loggedOutButtons.hidden = true;
     createForm.hidden = true;
     loginForm.hidden = true;
     loginForm.submit.disabled = false;
-    accountButtons.hidden = false;
+    loggedInButtons.hidden = false;
     loginStatus.hidden = false;
     username.innerText = account.username;
     changePasswordForm.current_username.value = account.username;
@@ -286,7 +286,7 @@ if (token === null) {
 }
 
 document.getElementById("create").onclick = () => {
-    formToggles.hidden = true;
+    loggedOutButtons.hidden = true;
     createForm.hidden = false;
 };
 
@@ -381,7 +381,7 @@ createForm.onsubmit = event => {
 };
 
 document.getElementById("login").onclick = () => {
-    formToggles.hidden = true;
+    loggedOutButtons.hidden = true;
     loginForm.hidden = false;
 };
 
@@ -395,7 +395,7 @@ loginForm.onsubmit = event => {
 for (const cancel of document.getElementsByClassName("cancel")) {
     cancel.onclick = function() {
         this.parentElement.hidden = true;
-        formToggles.hidden = false;
+        loggedOutButtons.hidden = false;
     };
 }
 
@@ -418,7 +418,7 @@ for (const logoutButton of document.getElementsByClassName("logout")) {
             changePasswordForm.current_username.value = null;
             qr.src = "/placeholder.png";
             qr.alt = "";
-            accountButtons.hidden = true;
+            loggedInButtons.hidden = true;
             logout.disabled = false;
             logoutEverywhere.disabled = false;
             showLoggedOut();
@@ -431,7 +431,7 @@ for (const logoutButton of document.getElementsByClassName("logout")) {
 }
 
 document.getElementById("change_password").onclick = () => {
-    accountButtons.hidden = true;
+    loggedInButtons.hidden = true;
     changePasswordForm.hidden = false;
 };
 
@@ -456,7 +456,7 @@ changePasswordForm.onsubmit = event => {
             return Promise.reject();
         }
         changePasswordForm.submit.disabled = false;
-        accountButtons.hidden = false;
+        loggedInButtons.hidden = false;
         changePasswordForm.hidden = true;
     }).catch(error => {
         changePasswordForm.submit.disabled = false;
@@ -467,7 +467,7 @@ changePasswordForm.onsubmit = event => {
 for (const cancel of document.getElementsByClassName("cancel_account")) {
     cancel.onclick = function() {
         this.parentElement.hidden = true;
-        accountButtons.hidden = false;
+        loggedInButtons.hidden = false;
     };
 }
 
