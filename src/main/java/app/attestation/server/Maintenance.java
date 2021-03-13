@@ -6,6 +6,7 @@ import com.almworks.sqlite4java.SQLiteException;
 import com.almworks.sqlite4java.SQLiteStatement;
 
 import java.io.File;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 class Maintenance implements Runnable {
@@ -75,14 +76,14 @@ class Maintenance implements Runnable {
                     }
                 }
             } catch (final SQLiteException e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING, "database error", e);
             } finally {
                 try {
                     deleteDeletedDevices.reset();
                     selectBackups.reset();
                     updateBackups.reset();
                 } catch (final SQLiteException e) {
-                    e.printStackTrace();
+                    logger.log(Level.WARNING, "database error", e);
                 }
             }
         }

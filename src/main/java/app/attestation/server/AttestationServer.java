@@ -50,6 +50,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -369,7 +370,7 @@ public class AttestationServer {
                 }
                 handlePost(exchange);
             } catch (final Exception e) {
-                e.printStackTrace();
+                logger.log(Level.SEVERE, "unhandled error handling request", e);
                 exchange.sendResponseHeaders(500, -1);
             } finally {
                 exchange.close();
@@ -569,7 +570,7 @@ public class AttestationServer {
                 username = object.getString("username");
                 password = object.getString("password");
             } catch (final ClassCastException | JsonException | NullPointerException e) {
-                e.printStackTrace();
+                logger.log(Level.INFO, "invalid request", e);
                 exchange.sendResponseHeaders(400, -1);
                 return;
             }
@@ -580,7 +581,7 @@ public class AttestationServer {
                 exchange.sendResponseHeaders(409, -1);
                 return;
             } catch (final GeneralSecurityException e) {
-                e.printStackTrace();
+                logger.log(Level.INFO, "invalid request", e);
                 exchange.sendResponseHeaders(400, -1);
                 return;
             }
@@ -600,7 +601,7 @@ public class AttestationServer {
                 currentPassword = object.getString("currentPassword");
                 newPassword = object.getString("newPassword");
             } catch (final ClassCastException | JsonException | NullPointerException e) {
-                e.printStackTrace();
+                logger.log(Level.INFO, "invalid request", e);
                 exchange.sendResponseHeaders(400, -1);
                 return;
             }
@@ -613,7 +614,7 @@ public class AttestationServer {
             try {
                 changePassword(account.userId, currentPassword, newPassword);
             } catch (final GeneralSecurityException e) {
-                e.printStackTrace();
+                logger.log(Level.INFO, "invalid request", e);
                 exchange.sendResponseHeaders(400, -1);
                 return;
             }
@@ -631,7 +632,7 @@ public class AttestationServer {
                 username = object.getString("username");
                 password = object.getString("password");
             } catch (final ClassCastException | JsonException | NullPointerException e) {
-                e.printStackTrace();
+                logger.log(Level.INFO, "invalid request", e);
                 exchange.sendResponseHeaders(400, -1);
                 return;
             }
@@ -643,7 +644,7 @@ public class AttestationServer {
                 exchange.sendResponseHeaders(400, -1);
                 return;
             } catch (final GeneralSecurityException e) {
-                e.printStackTrace();
+                logger.log(Level.INFO, "invalid login information", e);
                 exchange.sendResponseHeaders(403, -1);
                 return;
             }
@@ -917,7 +918,7 @@ public class AttestationServer {
                 alertDelay = object.getInt("alertDelay");
                 email = object.getString("email").trim();
             } catch (final ClassCastException | JsonException | NullPointerException e) {
-                e.printStackTrace();
+                logger.log(Level.INFO, "invalid request", e);
                 exchange.sendResponseHeaders(400, -1);
                 return;
             }
@@ -999,7 +1000,7 @@ public class AttestationServer {
                 requestToken = object.getString("requestToken");
                 fingerprint = object.getString("fingerprint");
             } catch (final ClassCastException | JsonException | NullPointerException e) {
-                e.printStackTrace();
+                logger.log(Level.INFO, "invalid request", e);
                 exchange.sendResponseHeaders(400, -1);
                 return;
             }
@@ -1168,7 +1169,7 @@ public class AttestationServer {
                 writeAttestationHistoryJson(exchange, fingerprint, account, offsetId);
             } catch (final ClassCastException | JsonException | NullPointerException | NumberFormatException |
                     DataFormatException | GeneralSecurityException e) {
-                e.printStackTrace();
+                logger.log(Level.INFO, "invalid request", e);
                 exchange.sendResponseHeaders(400, -1);
                 return;
             }
@@ -1300,7 +1301,7 @@ public class AttestationServer {
             try {
                 AttestationProtocol.verifySerialized(attestationResult, pendingChallenges, userId, subscribeKey == null);
             } catch (final BufferUnderflowException | NegativeArraySizeException | DataFormatException | GeneralSecurityException | IOException e) {
-                e.printStackTrace();
+                logger.log(Level.INFO, "invalid request", e);
                 final byte[] response = "Error\n".getBytes();
                 exchange.sendResponseHeaders(400, response.length);
                 try (final OutputStream output = exchange.getResponseBody()) {

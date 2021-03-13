@@ -15,6 +15,7 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Properties;
 
@@ -172,7 +173,7 @@ class AlertDispatcher implements Runnable {
                                     updateExpired.reset();
                                 }
                             } catch (final MessagingException e) {
-                                e.printStackTrace();
+                                logger.log(Level.WARNING, "email error", e);
                             }
                         }
                         selectEmails.reset();
@@ -205,14 +206,14 @@ class AlertDispatcher implements Runnable {
 
                                 Transport.send(message);
                             } catch (final MessagingException e) {
-                                e.printStackTrace();
+                                logger.log(Level.WARNING, "email error", e);
                             }
                         }
                         selectEmails.reset();
                     }
                 }
             } catch (final SQLiteException e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING, "database error", e);
             } finally {
                 try {
                     selectConfiguration.reset();
@@ -222,7 +223,7 @@ class AlertDispatcher implements Runnable {
                     selectFailed.reset();
                     selectEmails.reset();
                 } catch (final SQLiteException e) {
-                    e.printStackTrace();
+                    logger.log(Level.WARNING, "database error", e);
                 }
             }
         }
