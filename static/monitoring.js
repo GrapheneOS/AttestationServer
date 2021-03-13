@@ -85,7 +85,6 @@ function displayLogin(account) {
     loggedInButtons.hidden = false;
     loginStatus.hidden = false;
     username.innerText = account.username;
-    changePasswordForm.current_username.value = account.username;
     accountContent.hidden = false;
     configuration.verify_interval.value = account.verifyInterval / 60 / 60;
     configuration.alert_delay.value = account.alertDelay / 60 / 60;
@@ -415,7 +414,6 @@ for (const logoutButton of document.getElementsByClassName("logout")) {
             devices.innerText = null;
             accountContent.hidden = true;
             username.innerText = null;
-            changePasswordForm.current_username.value = null;
             qr.src = "/placeholder.png";
             qr.alt = "";
             loggedInButtons.hidden = true;
@@ -432,6 +430,7 @@ for (const logoutButton of document.getElementsByClassName("logout")) {
 
 document.getElementById("change_password").onclick = () => {
     loggedInButtons.hidden = true;
+    changePasswordForm.current_username.value = username.innerText;
     changePasswordForm.hidden = false;
 };
 
@@ -458,6 +457,7 @@ changePasswordForm.onsubmit = event => {
         changePasswordForm.submit.disabled = false;
         loggedInButtons.hidden = false;
         changePasswordForm.hidden = true;
+        changePasswordForm.reset();
     }).catch(error => {
         changePasswordForm.submit.disabled = false;
         console.log(error);
@@ -467,6 +467,7 @@ changePasswordForm.onsubmit = event => {
 for (const cancel of document.getElementsByClassName("cancel_account")) {
     cancel.onclick = function() {
         this.parentElement.hidden = true;
+        this.parentElement.reset();
         loggedInButtons.hidden = false;
     };
 }
