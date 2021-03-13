@@ -57,10 +57,6 @@ function toSecurityLevelString(value) {
     throw new Error("invalid security level");
 }
 
-function showLoggedOut() {
-    loggedOutButtons.hidden = false;
-}
-
 function reloadQrCode() {
     qr.src = "/placeholder.png";
     qr.alt = "";
@@ -263,7 +259,7 @@ function fetchDevices() {
 
 const token = localStorage.getItem("requestToken");
 if (token === null) {
-    showLoggedOut();
+    loggedOutButtons.hidden = false;
 } else {
     fetch("/api/account", {method: "POST", body: token, credentials: "same-origin"}).then(response => {
         if (response.status === 403) {
@@ -277,7 +273,7 @@ if (token === null) {
         displayLogin(account);
     }).catch(error => {
         console.log(error);
-        showLoggedOut();
+        loggedOutButtons.hidden = false;
     });
 }
 
@@ -423,7 +419,7 @@ for (const logoutButton of document.getElementsByClassName("logout")) {
             loggedInButtons.hidden = true;
             logout.disabled = false;
             logoutEverywhere.disabled = false;
-            showLoggedOut();
+            loggedOutButtons.hidden = false;
         }).catch(error => {
             logout.disabled = false;
             logoutEverywhere.disabled = false;
