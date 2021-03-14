@@ -169,8 +169,13 @@ function fetchDevices() {
             link.href = "#" + fingerprint;
             header.appendChild(link);
             info.appendChild(header);
-
-            const deleteButton = info.appendChild(create("button", "delete device"));
+            const infoBody = create("div", null, `infobody-${fingerprint}`);
+            info.appendChild(infoBody);
+            infoBody.hidden = true;
+            header.onclick = function toggleInfoBody() {
+                infoBody.hidden = !infoBody.hidden;
+            };
+            const deleteButton = infoBody.appendChild(create("button", "delete device"));
             deleteButton.onclick = event => {
                 if (confirm("Are you sure you want to delete the device " + fingerprint + "?")) {
                     event.target.disabled = true;
@@ -194,27 +199,26 @@ function fetchDevices() {
                     });
                 }
             };
-
-            info.appendChild(create("h3", "Verified device information:"));
-            appendLine(info, "Device: " + device.name);
-            appendLine(info, "OS: " + device.osName);
-            appendLine(info, "OS version: " + formatOsVersion(device.pinnedOsVersion));
-            appendLine(info, "OS patch level: " + formatPatchLevel(device.pinnedOsPatchLevel));
+            infoBody.appendChild(create("h3", "Verified device infoBodyrmation:"));
+            appendLine(infoBody, "Device: " + device.name);
+            appendLine(infoBody, "OS: " + device.osName);
+            appendLine(infoBody, "OS version: " + formatOsVersion(device.pinnedOsVersion));
+            appendLine(infoBody, "OS patch level: " + formatPatchLevel(device.pinnedOsPatchLevel));
             if (device.pinnedVendorPatchLevel !== undefined) {
-                appendLine(info, "Vendor patch level: " + formatPatchLevel(device.pinnedVendorPatchLevel));
+                appendLine(infoBody, "Vendor patch level: " + formatPatchLevel(device.pinnedVendorPatchLevel));
             }
             if (device.pinnedBootPatchLevel !== undefined) {
-                appendLine(info, "Boot patch level: " + formatPatchLevel(device.pinnedBootPatchLevel));
+                appendLine(infoBody, "Boot patch level: " + formatPatchLevel(device.pinnedBootPatchLevel));
             }
             if (device.verifiedBootHash !== undefined) {
-                info.appendChild(document.createTextNode("Verified boot hash: "));
-                info.appendChild(create("span", device.verifiedBootHash, "fingerprint"));
-                info.appendChild(document.createElement("br"));
+                infoBody.appendChild(document.createTextNode("Verified boot hash: "));
+                infoBody.appendChild(create("span", device.verifiedBootHash, "fingerprint"));
+                infoBody.appendChild(document.createElement("br"));
             }
-            appendLine(info, "Security level: " + toSecurityLevelString(device.pinnedSecurityLevel));
+            appendLine(infoBody, "Security level: " + toSecurityLevelString(device.pinnedSecurityLevel));
 
-            info.appendChild(create("button", "show advanced information", "toggle"));
-            const advanced = info.appendChild(document.createElement("section"));
+            infoBody.appendChild(create("button", "show advanced information", "toggle"));
+            const advanced = infoBody.appendChild(document.createElement("section"));
             advanced.hidden = true;
             advanced.appendChild(document.createTextNode("Certificate 0 (persistent Auditor key): "));
             advanced.appendChild(create("button", "show", "toggle"));
@@ -235,29 +239,29 @@ function fetchDevices() {
             advanced.appendChild(document.createTextNode("Verified boot key fingerprint: "));
             advanced.appendChild(create("span", device.verifiedBootKey, "fingerprint"));
 
-            info.appendChild(create("h3", "Information provided by the verified OS:"));
-            appendLine(info, "Auditor app version: " + device.pinnedAppVersion);
-            appendLine(info, "User profile secure: " + toYesNoString(device.userProfileSecure));
+            infoBody.appendChild(create("h3", "Information provided by the verified OS:"));
+            appendLine(infoBody, "Auditor app version: " + device.pinnedAppVersion);
+            appendLine(infoBody, "User profile secure: " + toYesNoString(device.userProfileSecure));
             if (device.pinnedAppVersion < 26) {
-                appendLine(info, "Enrolled fingerprints: " + toYesNoString(device.enrolledBiometrics));
+                appendLine(infoBody, "Enrolled fingerprints: " + toYesNoString(device.enrolledBiometrics));
             } else {
-                appendLine(info, "Enrolled biometrics: " + toYesNoString(device.enrolledBiometrics));
+                appendLine(infoBody, "Enrolled biometrics: " + toYesNoString(device.enrolledBiometrics));
             }
-            appendLine(info, "Accessibility service(s) enabled: " + toYesNoString(device.accessibility));
-            appendLine(info, "Device administrator(s) enabled: " + deviceAdminStrings.get(device.deviceAdmin));
-            appendLine(info, "Android Debug Bridge enabled: " + toYesNoString(device.adbEnabled));
-            appendLine(info, "Add users from lock screen: " + toYesNoString(device.addUsersWhenLocked));
-            appendLine(info, "Disallow new USB peripherals when locked: " + toYesNoString(device.denyNewUsb));
-            appendLine(info, "OEM unlocking allowed: " + toYesNoString(device.oemUnlockAllowed));
+            appendLine(infoBody, "Accessibility service(s) enabled: " + toYesNoString(device.accessibility));
+            appendLine(infoBody, "Device administrator(s) enabled: " + deviceAdminStrings.get(device.deviceAdmin));
+            appendLine(infoBody, "Android Debug Bridge enabled: " + toYesNoString(device.adbEnabled));
+            appendLine(infoBody, "Add users from lock screen: " + toYesNoString(device.addUsersWhenLocked));
+            appendLine(infoBody, "Disallow new USB peripherals when locked: " + toYesNoString(device.denyNewUsb));
+            appendLine(infoBody, "OEM unlocking allowed: " + toYesNoString(device.oemUnlockAllowed));
             if (device.systemUser !== undefined) {
-                appendLine(info, "Main user account: " + toYesNoString(device.systemUser));
+                appendLine(infoBody, "Main user account: " + toYesNoString(device.systemUser));
             }
 
-            info.appendChild(create("h3", "Attestation history"));
-            appendLine(info, "First verified time: " + new Date(device.verifiedTimeFirst));
-            appendLine(info, "Last verified time: " + new Date(device.verifiedTimeLast));
-            const historyButton = info.appendChild(create("button", "show detailed history", "toggle"));
-            const history = info.appendChild(document.createElement("div"));
+            infoBody.appendChild(create("h3", "Attestation history"));
+            appendLine(infoBody, "First verified time: " + new Date(device.verifiedTimeFirst));
+            appendLine(infoBody, "Last verified time: " + new Date(device.verifiedTimeLast));
+            const historyButton = infoBody.appendChild(create("button", "show detailed history", "toggle"));
+            const history = infoBody.appendChild(document.createElement("div"));
             history.dataset.deviceFingerprint = device.fingerprint;
             history.dataset.minId = Number(device.minId);
             history.dataset.maxId = Number(device.maxId);
