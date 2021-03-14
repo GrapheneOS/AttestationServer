@@ -92,6 +92,8 @@ public class AttestationServer {
     private static final long SESSION_LENGTH = 48 * 60 * 60 * 1000;
     private static final int HISTORY_PER_PAGE = 20;
 
+    private static final String BASE_URL = BuildConfig.STAGING ? "staging.attestation.app" : "attestation.app";
+
     private static final Logger logger = Logger.getLogger(AttestationServer.class.getName());
 
     // This should be moved to a table in the database so that it can be modified dynamically
@@ -895,7 +897,7 @@ public class AttestationServer {
             exchange.getResponseHeaders().set("Content-Type", "image/png");
             exchange.sendResponseHeaders(200, 0);
             try (final OutputStream output = exchange.getResponseBody()) {
-                final String contents = "attestation.app " +
+                final String contents = BASE_URL + " " +
                     account.userId + " " +
                     BaseEncoding.base64().encode(account.subscribeKey) + " " +
                     account.verifyInterval;
