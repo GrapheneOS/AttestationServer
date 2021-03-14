@@ -80,9 +80,10 @@ main {
     overflow-wrap: break-word;
 }
 
-#qr {
+#pairing > img, #pairing > button {
     display: block;
     margin: auto;
+    text-align: center;
 }
 
 button {

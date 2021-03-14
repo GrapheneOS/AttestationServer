@@ -22,7 +22,7 @@
         <link rel="icon" sizes="any" type="image/svg+xml" href="/mask-icon.svg"/>
         <link rel="mask-icon" href="/mask-icon.svg" color="#000000"/>
         <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
-        <link rel="stylesheet" href="/attestation.css?17"/>
+        <link rel="stylesheet" href="/attestation.css?18"/>
         <link rel="manifest" href="/manifest.webmanifest"/>
         <link rel="canonical" href="https://attestation.app/"/>
         <link rel="license" href="/LICENSE.txt"/>
@@ -88,8 +88,11 @@
             <p>Hardware-based remote attestation service for monitoring the security of Android devices using <a href="https://play.google.com/store/apps/details?id=app.attestation.auditor">the Auditor app</a>. For more details, see the <a href="/about">detailed description of the app and service</a> and the <a href="/tutorial">usage instructions</a>.</p>
             <div id="account_content" hidden="">
                 <p>Subscribe a device to regularly submitting attestations to this account by pressing 'Enable remote verification' in the Auditor app menu and scanning the QR code for this account:</p>
-                <img id="qr" height="300" width="300" alt="" src="/placeholder.png"/>
-                <button id="rotate">Rotate device subscription key</button>
+                <section id="pairing">
+                    <h2>Pair devices:</h2>
+                    <img id="qr" height="300" width="300" alt="" src="/placeholder.png"/>
+                    <button id="rotate">Rotate device subscription key</button>
+                </section>
                 <form id="configuration">
                     <h2>Configuration:</h2>
                     <label>Verify interval (hours): <input name="verify_interval" type="number" min="1" max="168" required="required"/></label><br/>
