@@ -742,6 +742,11 @@ public class AttestationServer {
         return null;
     }
 
+    private static void clearCookie(final HttpExchange exchange) {
+        exchange.getResponseHeaders().set("Set-Cookie",
+                "__Host-session=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0");
+    }
+
     private static class Account {
         final long userId;
         final String username;
@@ -757,11 +762,6 @@ public class AttestationServer {
             this.verifyInterval = verifyInterval;
             this.alertDelay = alertDelay;
         }
-    }
-
-    private static void clearCookie(final HttpExchange exchange) {
-        exchange.getResponseHeaders().set("Set-Cookie",
-                "__Host-session=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0");
     }
 
     private static Account verifySession(final HttpExchange exchange, final boolean end, byte[] requestTokenEncoded)
