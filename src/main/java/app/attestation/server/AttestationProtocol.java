@@ -132,7 +132,7 @@ class AttestationProtocol {
     // downgrade protection for the OS version/patch (bootloader/TEE enforced) and app version (OS
     // enforced) by keeping them updated.
     static final byte PROTOCOL_VERSION = 2;
-    private static final byte PROTOCOL_VERSION_MINIMUM = 1;
+    private static final byte PROTOCOL_VERSION_MINIMUM = 2;
     // can become longer in the future, but this is the minimum length
     private static final byte CHALLENGE_MESSAGE_LENGTH = 1 + CHALLENGE_LENGTH * 2;
     private static final int MAX_ENCODED_CHAIN_LENGTH = 5000;
@@ -162,7 +162,7 @@ class AttestationProtocol {
             OS_ENFORCED_FLAGS_SYSTEM_USER;
 
     private static final String ATTESTATION_APP_PACKAGE_NAME = "app.attestation.auditor";
-    private static final int ATTESTATION_APP_MINIMUM_VERSION = 5;
+    private static final int ATTESTATION_APP_MINIMUM_VERSION = 22;
     private static final String ATTESTATION_APP_SIGNATURE_DIGEST_DEBUG =
             "17727D8B61D55A864936B1A7B4A2554A15151F32EBCF44CDAA6E6C3258231890";
     private static final String ATTESTATION_APP_SIGNATURE_DIGEST_RELEASE =
@@ -541,45 +541,6 @@ class AttestationProtocol {
             "ZutL8VuFkERQGt6vQ2OCw0sV47VMkuYbacK/xyZFiRcrPJPb41zgbQj9XAEyLKCH" +
             "ex0SdDrx+tWUDqG8At2JHA==\n" +
             "-----END CERTIFICATE-----";
-
-    private static final byte[] DEFLATE_DICTIONARY_1 = BaseEncoding.base64().decode(
-            "MIICOzCCAeKgAwIBAgIBATAKBggqhkjOPQQDAjAbMRkwFwYDVQQFExBkNzc1MjM0ODY2ZjM3ZjUz" +
-            "MCAXDTcwMDEwMTAwMDAwMFoYDzIxMDYwMjA3MDYyODE1WjAfMR0wGwYDVQQDDBRBbmRyb2lkIEtl" +
-            "eXN0b3JlIEtleTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABL//uGYRGvZkKMBn+OD141iz+Roo" +
-            "KosorGyVa0lqW/BK40odihF55g1elhnVqjclcGE/H4b4jIKuC5vq+r+vF16jggEPMIIBCzAOBgNV" +
-            "HQ8BAf8EBAMCB4AwgfgGCisGAQQB1nkCAREEgekwgeYCAQIKAQECAQMKAQEEBnNhbXBsZQQAMFi/" +
-            "hT0IAgYBZwC3xBC/hUVIBEYwRDEeMBwEF2FwcC5hdHRlc3RhdGlvbi5hdWRpdG9yAgEEMSIEIJkO" +
-            "BPCGSxnxT4Tg5DL3o5Pyl6sQWiLB4bELRCpKYsQsMHShCDEGAgECAgEDogMCAQOjBAICAQClBTED" +
-            "AgEEqgMCAQG/g3cCBQC/hT4DAgEAv4U/AgUAv4VAKjAoBCAXFhbq7yYAn8RtxtifPSQhfpJsgaZ8" +
-            "5l0uOp3CcEDHqwEB/woBAL+FQQUCAwFfkL+FQgUCAwMUUzAKBggqhkjOPQQDAgNHADBEAiBXQsil" +
-            "fWfag1ubiMjD4AQrawdvNmQj5Qi62uAIfv+ZzgIgfZTibp2AVtBWSAezlalyOaZIMo+z7wS8ZFq3" +
-            "eHicabgwggIpMIIBr6ADAgECAgloORJGdChHOWEwCgYIKoZIzj0EAwIwGzEZMBcGA1UEBRMQODdm" +
-            "NDUxNDQ3NWJhMGEyYjAeFw0xNjA1MjYxNzA3MzNaFw0yNjA1MjQxNzA3MzNaMBsxGTAXBgNVBAUT" +
-            "EGQ3NzUyMzQ4NjZmMzdmNTMwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASqtc7KxE2tv4aOkx2u" +
-            "axeuqr6PItpqGRyAKjqsBE7JhY4poRG9oWjC0azGRJ8xJuqimPeqn/8kE5bmJGsdFyngo4HbMIHY" +
-            "MB0GA1UdDgQWBBQvvxzSWU7SsNOWC3CeF0TcGhBQSzAfBgNVHSMEGDAWgBQwRCPlovYG4VCrd18W" +
-            "FruRzGPGWTAMBgNVHRMBAf8EAjAAMA4GA1UdDwEB/wQEAwIHgDAkBgNVHR4EHTAboBkwF4IVaW52" +
-            "YWxpZDtlbWFpbDppbnZhbGlkMFIGA1UdHwRLMEkwR6BFoEOGQWh0dHBzOi8vYW5kcm9pZC5nb29n" +
-            "bGVhcGlzLmNvbS9hdHRlc3RhdGlvbi9jcmwvNjgzOTEyNDY3NDI4NDczOTYxMAoGCCqGSM49BAMC" +
-            "A2gAMGUCMD2sDgFbg20egPedfKwfOIqUugCEK6nxXh02Za7qG0i3jcjcA2ZWbsLN602qASM08AIx" +
-            "AIG4MorAs4cED1r90dv3LwCkZn4BTpK13Ef+sc9hEWrzj/lY6ZRXu894W5Ggw97TzTCCA8MwggGr" +
-            "oAMCAQICCgOIJmdgZYmWhXUwDQYJKoZIhvcNAQELBQAwGzEZMBcGA1UEBRMQZjkyMDA5ZTg1M2I2" +
-            "YjA0NTAeFw0xNjA1MjYxNzAxNTFaFw0yNjA1MjQxNzAxNTFaMBsxGTAXBgNVBAUTEDg3ZjQ1MTQ0" +
-            "NzViYTBhMmIwdjAQBgcqhkjOPQIBBgUrgQQAIgNiAARkO1ZoHSf6xILPbCBN687wKVw1DAGqjDJ/" +
-            "PtX0Sa70KWZCXzk9hHY7Xa1WsQ0EWcYsak+TJVaokpPD0U6i8d/vDjy6InKjIjnhsrR9rFULq7xc" +
-            "p1XiqkhiitY8dv9n3HKjgbYwgbMwHQYDVR0OBBYEFDBEI+Wi9gbhUKt3XxYWu5HMY8ZZMB8GA1Ud" +
-            "IwQYMBaAFDZh4QB8iAUJUYtEbEf/GkzJ6k8SMA8GA1UdEwEB/wQFMAMBAf8wDgYDVR0PAQH/BAQD" +
-            "AgGGMFAGA1UdHwRJMEcwRaBDoEGGP2h0dHBzOi8vYW5kcm9pZC5nb29nbGVhcGlzLmNvbS9hdHRl" +
-            "c3RhdGlvbi9jcmwvRThGQTE5NjMxNEQyRkExODANBgkqhkiG9w0BAQsFAAOCAgEAQDmKiza8k5mz" +
-            "pZ645yLw6F8c2izoAl7tvZeyqWxR2nFS8YGLhkYiBEKs2QalGErfT4Mfj9ir6B7c/fbBGa9sU3tA" +
-            "8Ogkx0wJsVl1BXa5bxDJthskn7yUXzDQrl9aCEvzOT30RGNmGR8i6v7J9bCa9xY2yjHVDAaOQHGp" +
-            "nA9x/MJfTv+qn4V/ue4l86CusjMyURvzJZJufP7BZNKY2slAXIZlCS9BUOiISmIMvEShNlA8lyjh" +
-            "O/mTEjFFJAHc8p9jxb+070LQ5NIHtppFaza3z0oJTMwTb60gxzwZk5LV88LHlWoCEU+ViPdTq1Dm" +
-            "DxYKLLbHx+NobOcCbQBRj8A4P9ZjWvFMh/ZNWzK0at0q3s9VxtCbu0hjf7jV+XZHML3wJmnbZjOz" +
-            "6fpdlR0WEUetNIwHDNvu25fHoKnzPwO78gy2ajyMQ8JC149njffZyWSVWhnwfXR8hTqgagTOkncl" +
-            "ejEiK9wB6KOrvgViF/fqvJ9aoOSOiVnhHviufEm0Q1aDUILCj/f4j67lzFOa5tssD8SAlRsrJdRo" +
-            "AD/hSd1+qD9LVxVkJWKFnUpaElRzWUKo9nr/+vbDJxrE3icNVeyNIEfnmTRH8Xvr2Q+Cj/PCsboj" +
-            "wnveK6fgKrOf2MLgqOq0PhxouTmTQbEF2CLnwpUgY3vjqY0G+xyYIoSXc6NvyAc=");
 
     private static final byte[] DEFLATE_DICTIONARY_2 = BaseEncoding.base64().decode(
             "MIIFHDCCAwSgAwIBAgIJANUP8luj8tazMA0GCSqGSIb3DQEBCwUAMBsxGTAXBgNVBAUTEGY5MjAw" +
@@ -1288,7 +1249,7 @@ class AttestationProtocol {
         final byte[] chain = new byte[MAX_ENCODED_CHAIN_LENGTH];
         final Inflater inflater = new Inflater(true);
         inflater.setInput(compressedChain);
-        inflater.setDictionary(version >= 2 ? DEFLATE_DICTIONARY_2 : DEFLATE_DICTIONARY_1);
+        inflater.setDictionary(DEFLATE_DICTIONARY_2);
         final int chainLength = inflater.inflate(chain);
         if (!inflater.finished()) {
             throw new GeneralSecurityException("certificate chain is too large");
@@ -1304,8 +1265,7 @@ class AttestationProtocol {
             chainDeserializer.get(encoded);
             certs.add(generateCertificate(new ByteArrayInputStream(encoded)));
         }
-        final int certificateCount = version >= 2 ? certs.size() : certs.size() + 1;
-        final Certificate[] certificates = certs.toArray(new Certificate[certificateCount]);
+        final Certificate[] certificates = certs.toArray(new Certificate[certs.size()]);
 
         final byte[] fingerprint = new byte[FINGERPRINT_LENGTH];
         deserializer.get(fingerprint);
@@ -1332,11 +1292,6 @@ class AttestationProtocol {
         final int signatureLength = deserializer.remaining();
         final byte[] signature = new byte[signatureLength];
         deserializer.get(signature);
-
-        if (version < 2) {
-            certificates[certificates.length - 1] =
-                    generateCertificate(new ByteArrayInputStream(GOOGLE_ROOT_CERTIFICATE.getBytes()));
-        }
 
         deserializer.rewind();
         deserializer.limit(deserializer.capacity() - signature.length);
