@@ -54,6 +54,10 @@ For example, making an initial configuration:
 
     sqlite3 attestation.db "INSERT INTO Configuration VALUES ('emailUsername', 'alert@attestation.app'), ('emailPassword', '<password>'), ('emailHost', 'mail.grapheneos.org'), ('emailPort', '465')"
 
+The `attestation.service` unit only allows the service to communicate over `localhost` by default
+so the `IPAddressDeny`/`IPAddressAllow` configuration either needs to be removed or extended to
+include your DNS server and mail server IP addresses when using a remote mail server.
+
 ### Handling abuse
 
 The `emailBlacklistPatterns` array in
