@@ -213,6 +213,12 @@ public class AttestationServer {
         try {
             open(attestationConn, false);
 
+            final SQLiteStatement selectCreated = attestationConn.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='Configuration'");
+            if (!selectCreated.step()) {
+                attestationConn.exec("PRAGMA user_version = 3");
+            }
+            selectCreated.dispose();
+
             final SQLiteStatement getUserVersion = attestationConn.prepare("PRAGMA user_version");
             getUserVersion.step();
             int userVersion = getUserVersion.columnInt(0);
