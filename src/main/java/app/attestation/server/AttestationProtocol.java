@@ -1098,7 +1098,7 @@ class AttestationProtocol {
                         "pinnedVerifiedBootKey = ?, verifiedBootHash = ?, " +
                         "pinnedOsVersion = ?, pinnedOsPatchLevel = ?, " +
                         "pinnedVendorPatchLevel = ?, pinnedBootPatchLevel = ?, " +
-                        "pinnedAppVersion = ?, pinnedSecurityLevel = ?, userProfileSecure = ?, enrolledFingerprints = ?, " +
+                        "pinnedAppVersion = ?, pinnedSecurityLevel = ?, userProfileSecure = ?, enrolledBiometrics = ?, " +
                         "accessibility = ?, deviceAdmin = ?, adbEnabled = ?, " +
                         "addUsersWhenLocked = ?, denyNewUsb = ?, oemUnlockAllowed = ?, " +
                         "systemUser = ?, verifiedTimeLast = ? " +
@@ -1138,7 +1138,7 @@ class AttestationProtocol {
                         "(fingerprint, pinnedCertificate0, pinnedCertificate1, pinnedCertificate2, pinnedCertificate3, " +
                         "pinnedVerifiedBootKey, verifiedBootHash, pinnedOsVersion, pinnedOsPatchLevel, " +
                         "pinnedVendorPatchLevel, pinnedBootPatchLevel, pinnedAppVersion, pinnedSecurityLevel, " +
-                        "userProfileSecure, enrolledFingerprints, accessibility, deviceAdmin, " +
+                        "userProfileSecure, enrolledBiometrics, accessibility, deviceAdmin, " +
                         "adbEnabled, addUsersWhenLocked, denyNewUsb, oemUnlockAllowed, systemUser, " +
                         "verifiedTimeFirst, verifiedTimeLast, userId) " +
                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");

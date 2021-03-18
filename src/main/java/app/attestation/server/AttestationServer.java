@@ -153,7 +153,7 @@ public class AttestationServer {
                 "pinnedAppVersion INTEGER NOT NULL,\n" +
                 "pinnedSecurityLevel INTEGER NOT NULL,\n" +
                 "userProfileSecure INTEGER NOT NULL CHECK (userProfileSecure in (0, 1)),\n" +
-                "enrolledFingerprints INTEGER NOT NULL CHECK (enrolledFingerprints in (0, 1)),\n" +
+                "enrolledBiometrics INTEGER NOT NULL CHECK (enrolledBiometrics in (0, 1)),\n" +
                 "accessibility INTEGER NOT NULL CHECK (accessibility in (0, 1)),\n" +
                 "deviceAdmin INTEGER NOT NULL CHECK (deviceAdmin in (0, 1, 2)),\n" +
                 "adbEnabled INTEGER NOT NULL CHECK (adbEnabled in (0, 1)),\n" +
@@ -215,7 +215,7 @@ public class AttestationServer {
 
             final SQLiteStatement selectCreated = attestationConn.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='Configuration'");
             if (!selectCreated.step()) {
-                attestationConn.exec("PRAGMA user_version = 3");
+                attestationConn.exec("PRAGMA user_version = 4");
             }
             selectCreated.dispose();
 
@@ -318,6 +318,25 @@ public class AttestationServer {
                 createAttestationsIndices(attestationConn);
                 attestationConn.exec("PRAGMA user_version = 3");
                 userVersion = 3;
+                attestationConn.exec("END TRANSACTION");
+                attestationConn.exec("PRAGMA foreign_keys = ON");
+            }
+
+            // rename enrolledFingerprints to enrolledBiometrics
+            if (userVersion == 3) {
+                attestationConn.exec("PRAGMA foreign_keys = OFF");
+                attestationConn.exec("BEGIN TRANSACTION");
+                attestationConn.exec("ALTER TABLE Devices RENAME TO DevicesOld");
+                createDevicesTable(attestationConn);
+                attestationConn.exec("INSERT INTO Devices " +
+                        "(fingerprint, pinnedCertificate0, pinnedCertificate1, pinnedCertificate2, pinnedCertificate3, pinnedVerifiedBootKey, verifiedBootHash, pinnedOsVersion, pinnedOsPatchLevel, pinnedVendorPatchLevel, pinnedBootPatchLevel, pinnedAppVersion, pinnedSecurityLevel, userProfileSecure, enrolledBiometrics, accessibility, deviceAdmin, adbEnabled, addUsersWhenLocked, denyNewUsb, oemUnlockAllowed, systemUser, verifiedTimeFirst, verifiedTimeLast, expiredTimeLast, failureTimeLast, userId, deletionTime) " +
+                        "SELECT " +
+                        "fingerprint, pinnedCertificate0, pinnedCertificate1, pinnedCertificate2, pinnedCertificate3, pinnedVerifiedBootKey, verifiedBootHash, pinnedOsVersion, pinnedOsPatchLevel, pinnedVendorPatchLevel, pinnedBootPatchLevel, pinnedAppVersion, pinnedSecurityLevel, userProfileSecure, enrolledFingerprints, accessibility, deviceAdmin, adbEnabled, addUsersWhenLocked, denyNewUsb, oemUnlockAllowed, systemUser, verifiedTimeFirst, verifiedTimeLast, expiredTimeLast, failureTimeLast, userId, deletionTime " +
+                        "FROM DevicesOld");
+                attestationConn.exec("DROP TABLE DevicesOld");
+                createDevicesIndices(attestationConn);
+                attestationConn.exec("PRAGMA user_version = 4");
+                userVersion = 4;
                 attestationConn.exec("END TRANSACTION");
                 attestationConn.exec("PRAGMA foreign_keys = ON");
             }
@@ -1058,7 +1077,7 @@ public class AttestationServer {
                     "(SELECT hex(verifiedBootHash) where verifiedBootHash IS NOT NULL), " +
                     "pinnedOsVersion, pinnedOsPatchLevel, pinnedVendorPatchLevel, " +
                     "pinnedBootPatchLevel, pinnedAppVersion, pinnedSecurityLevel, " +
-                    "userProfileSecure, enrolledFingerprints, accessibility, deviceAdmin, " +
+                    "userProfileSecure, enrolledBiometrics, accessibility, deviceAdmin, " +
                     "adbEnabled, addUsersWhenLocked, denyNewUsb, oemUnlockAllowed, " +
                     "systemUser, verifiedTimeFirst, verifiedTimeLast " +
                     "FROM Devices WHERE userId is ? AND deletionTime IS NULL " +
