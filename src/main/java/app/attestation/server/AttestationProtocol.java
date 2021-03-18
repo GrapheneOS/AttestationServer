@@ -144,7 +144,7 @@ class AttestationProtocol {
     private static final int OS_ENFORCED_FLAGS_DEVICE_ADMIN = 1 << 2;
     private static final int OS_ENFORCED_FLAGS_ADB_ENABLED = 1 << 3;
     private static final int OS_ENFORCED_FLAGS_ADD_USERS_WHEN_LOCKED = 1 << 4;
-    private static final int OS_ENFORCED_FLAGS_ENROLLED_FINGERPRINTS = 1 << 5;
+    private static final int OS_ENFORCED_FLAGS_ENROLLED_BIOMETRICS = 1 << 5;
     private static final int OS_ENFORCED_FLAGS_DENY_NEW_USB = 1 << 6;
     private static final int OS_ENFORCED_FLAGS_DEVICE_ADMIN_NON_SYSTEM = 1 << 7;
     private static final int OS_ENFORCED_FLAGS_OEM_UNLOCK_ALLOWED = 1 << 8;
@@ -155,7 +155,7 @@ class AttestationProtocol {
             OS_ENFORCED_FLAGS_DEVICE_ADMIN |
             OS_ENFORCED_FLAGS_ADB_ENABLED |
             OS_ENFORCED_FLAGS_ADD_USERS_WHEN_LOCKED |
-            OS_ENFORCED_FLAGS_ENROLLED_FINGERPRINTS |
+            OS_ENFORCED_FLAGS_ENROLLED_BIOMETRICS |
             OS_ENFORCED_FLAGS_DENY_NEW_USB |
             OS_ENFORCED_FLAGS_DEVICE_ADMIN_NON_SYSTEM |
             OS_ENFORCED_FLAGS_OEM_UNLOCK_ALLOWED |
@@ -985,7 +985,7 @@ class AttestationProtocol {
             final Certificate[] attestationCertificates, final boolean userProfileSecure,
             final boolean accessibility, final boolean deviceAdmin,
             final boolean deviceAdminNonSystem, final boolean adbEnabled,
-            final boolean addUsersWhenLocked, final boolean enrolledFingerprints,
+            final boolean addUsersWhenLocked, final boolean enrolledBiometrics,
             final boolean denyNewUsb, final boolean oemUnlockAllowed, final boolean systemUser)
             throws GeneralSecurityException, IOException {
         final String fingerprintHex = BaseEncoding.base16().encode(fingerprint);
@@ -1117,7 +1117,7 @@ class AttestationProtocol {
                 update.bind(7, verified.appVersion);
                 update.bind(8, verified.securityLevel); // new field
                 update.bind(9, userProfileSecure ? 1 : 0);
-                update.bind(10, enrolledFingerprints ? 1 : 0);
+                update.bind(10, enrolledBiometrics ? 1 : 0);
                 update.bind(11, accessibility ? 1 : 0);
                 update.bind(12, deviceAdmin ? (deviceAdminNonSystem ? 2 : 1) : 0);
                 update.bind(13, adbEnabled ? 1 : 0);
@@ -1160,7 +1160,7 @@ class AttestationProtocol {
                 insert.bind(12, verified.appVersion);
                 insert.bind(13, verified.securityLevel);
                 insert.bind(14, userProfileSecure ? 1 : 0);
-                insert.bind(15, enrolledFingerprints ? 1 : 0);
+                insert.bind(15, enrolledBiometrics ? 1 : 0);
                 insert.bind(16, accessibility ? 1 : 0);
                 insert.bind(17, deviceAdmin ? (deviceAdminNonSystem ? 2 : 1) : 0);
                 insert.bind(18, adbEnabled ? 1 : 0);
@@ -1183,8 +1183,8 @@ class AttestationProtocol {
             osEnforced.append(String.format("Auditor app version: %s\n", verified.appVersion));
             osEnforced.append(String.format("User profile secure: %s\n",
                     toYesNoString(userProfileSecure)));
-            osEnforced.append(String.format("Enrolled fingerprints: %s\n",
-                    toYesNoString(enrolledFingerprints)));
+            osEnforced.append(String.format(verified.appVersion < 26 ? "Enrolled fingerprints: %s\n" : "Enrolled biometrics: %s\n",
+                    toYesNoString(enrolledBiometrics)));
             osEnforced.append(String.format("Accessibility service(s) enabled: %s\n",
                     toYesNoString(accessibility)));
 
@@ -1280,7 +1280,7 @@ class AttestationProtocol {
         final boolean deviceAdminNonSystem = (osEnforcedFlags & OS_ENFORCED_FLAGS_DEVICE_ADMIN_NON_SYSTEM) != 0;
         final boolean adbEnabled = (osEnforcedFlags & OS_ENFORCED_FLAGS_ADB_ENABLED) != 0;
         final boolean addUsersWhenLocked = (osEnforcedFlags & OS_ENFORCED_FLAGS_ADD_USERS_WHEN_LOCKED) != 0;
-        final boolean enrolledFingerprints = (osEnforcedFlags & OS_ENFORCED_FLAGS_ENROLLED_FINGERPRINTS) != 0;
+        final boolean enrolledBiometrics = (osEnforcedFlags & OS_ENFORCED_FLAGS_ENROLLED_BIOMETRICS) != 0;
         final boolean denyNewUsb = (osEnforcedFlags & OS_ENFORCED_FLAGS_DENY_NEW_USB) != 0;
         final boolean oemUnlockAllowed = (osEnforcedFlags & OS_ENFORCED_FLAGS_OEM_UNLOCK_ALLOWED) != 0;
         final boolean systemUser = (osEnforcedFlags & OS_ENFORCED_FLAGS_SYSTEM_USER) != 0;
@@ -1298,7 +1298,7 @@ class AttestationProtocol {
 
         verify(fingerprint, pendingChallenges, userId, paired, deserializer.asReadOnlyBuffer(), signature,
                 certificates, userProfileSecure, accessibility, deviceAdmin, deviceAdminNonSystem,
-                adbEnabled, addUsersWhenLocked, enrolledFingerprints, denyNewUsb, oemUnlockAllowed,
+                adbEnabled, addUsersWhenLocked, enrolledBiometrics, denyNewUsb, oemUnlockAllowed,
                 systemUser);
     }
 }

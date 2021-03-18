@@ -238,7 +238,11 @@ function fetchDevices() {
             info.appendChild(create("h3", "Information provided by the verified OS:"));
             appendLine(info, "Auditor app version: " + device.pinnedAppVersion);
             appendLine(info, "User profile secure: " + toYesNoString(device.userProfileSecure));
-            appendLine(info, "Enrolled fingerprints: " + toYesNoString(device.enrolledFingerprints));
+            if (device.pinnedAppVersion < 26) {
+                appendLine(info, "Enrolled fingerprints: " + toYesNoString(device.enrolledBiometrics));
+            } else {
+                appendLine(info, "Enrolled biometrics: " + toYesNoString(device.enrolledBiometrics));
+            }
             appendLine(info, "Accessibility service(s) enabled: " + toYesNoString(device.accessibility));
             appendLine(info, "Device administrator(s) enabled: " + deviceAdminStrings.get(device.deviceAdmin));
             appendLine(info, "Android Debug Bridge enabled: " + toYesNoString(device.adbEnabled));

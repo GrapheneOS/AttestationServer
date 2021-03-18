@@ -1105,7 +1105,7 @@ public class AttestationServer {
                 device.add("pinnedAppVersion", select.columnInt(11));
                 device.add("pinnedSecurityLevel", pinnedSecurityLevel);
                 device.add("userProfileSecure", select.columnInt(13));
-                device.add("enrolledFingerprints", select.columnInt(14));
+                device.add("enrolledBiometrics", select.columnInt(14));
                 device.add("accessibility", select.columnInt(15));
                 device.add("deviceAdmin", select.columnInt(16));
                 device.add("adbEnabled", select.columnInt(17));
