@@ -177,6 +177,8 @@ public class AttestationServer {
                 "ON Devices (userId, verifiedTimeLast)");
         conn.exec("CREATE INDEX IF NOT EXISTS Devices_deletionTime " +
                 "ON Devices (deletionTime) WHERE deletionTime IS NOT NULL");
+        conn.exec("CREATE INDEX IF NOT EXISTS Devices_verifiedTimeLast_deletionTimeNull " +
+                "ON Devices (verifiedTimeLast) WHERE deletionTime IS NULL");
     }
 
     private static void createAttestationsTable(final SQLiteConnection conn) throws SQLiteException {
