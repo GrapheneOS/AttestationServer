@@ -28,7 +28,8 @@ class Maintenance implements Runnable {
         try {
             AttestationServer.open(conn, false);
             deleteDeletedDevices = conn.prepare("DELETE FROM Devices WHERE deletionTime < ?");
-            purgeInactiveDevices = conn.prepare("UPDATE Devices SET deletionTime = ? WHERE verifiedTimeLast < ? AND deletionTime IS NULL");
+            purgeInactiveDevices = conn.prepare("UPDATE Devices SET deletionTime = ? " +
+                    "WHERE verifiedTimeLast < ? AND deletionTime IS NULL");
             selectBackups = conn.prepare("SELECT value FROM Configuration WHERE key = 'backups'");
             updateBackups = conn.prepare("UPDATE Configuration SET value = value + 1 " +
                     "WHERE key = 'backups'");
