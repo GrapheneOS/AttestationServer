@@ -173,8 +173,8 @@ public class AttestationServer {
     private static void createDevicesIndices(final SQLiteConnection conn) throws SQLiteException {
         conn.exec("CREATE INDEX IF NOT EXISTS Devices_userId_verifiedTimeFirst " +
                 "ON Devices (userId, verifiedTimeFirst)");
-        conn.exec("CREATE INDEX IF NOT EXISTS Devices_userId_verifiedTimeLast " +
-                "ON Devices (userId, verifiedTimeLast)");
+        conn.exec("CREATE INDEX IF NOT EXISTS Devices_userId_verifiedTimeLast_deletionTimeNull " +
+                "ON Devices (userId, verifiedTimeLast) WHERE deletionTime IS NULL");
         conn.exec("CREATE INDEX IF NOT EXISTS Devices_deletionTime " +
                 "ON Devices (deletionTime) WHERE deletionTime IS NOT NULL");
         conn.exec("CREATE INDEX IF NOT EXISTS Devices_verifiedTimeLast_deletionTimeNull " +
@@ -261,6 +261,7 @@ public class AttestationServer {
 
             // drop old indices
             attestationConn.exec("DROP INDEX IF EXISTS Attestations_fingerprint_time");
+            attestationConn.exec("DROP INDEX IF EXISTS Devices_userId_verifiedTimeLast");
 
             // add loginTime column to Accounts table
             if (userVersion == 0) {
