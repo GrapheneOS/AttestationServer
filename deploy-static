@@ -12,12 +12,12 @@ fi
 
 ./process-static $fd
 
-remote=root@attestation.app
+remote=root@staging.attestation.app
 
-# use last modified timestamps from attestation.app
-rsync -rptcv --chmod=D755,F644 --delete --fsync --preallocate $remote:/srv/attestation.app/ static-production
-rsync -rpcv --chmod=D755,F644 --delete --fsync --preallocate static-tmp/ static-production
-for f in static-production/**.*(br|gz); do
+# use last modified timestamps from staging.attestation.app
+rsync -rptcv --chmod=D755,F644 --delete --fsync --preallocate $remote:/srv/attestation.app/ static-staging
+rsync -rpcv --chmod=D755,F644 --delete --fsync --preallocate static-tmp/ static-staging
+for f in static-staging/**.*(br|gz); do
     touch -r "${f%.*}" "$f"
 done
 
@@ -34,7 +34,7 @@ echo target is $target
 echo
 
 ssh $remote "rm -rf $target && cp -a $active $target"
-rsync -rpcv --chmod=D755,F644 --delete --fsync --preallocate static-production/ $remote:$target
+rsync -rpcv --chmod=D755,F644 --delete --fsync --preallocate static-staging/ $remote:$target
 ssh $remote "ln -snf $target /srv/attestation.app && sync /srv/attestation.app"
 
 echo "root $target;" > nginx-tmp/root_attestation.app.conf
