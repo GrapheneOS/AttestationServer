@@ -20,9 +20,9 @@ As root, on the server:
     cd /opt/attestation
     ln -s deploy_a deploy
 
-    mkdir -p /var/www/html_{a,b}
-    cd /var/www
-    ln -s html_a html
+    mkdir -p /srv/attestation.app_{a,b}
+    cd /srv
+    ln -s attestation.app_a attestation.app
 
 Set up ssh `authorized_keys` for the attestation user.
 
