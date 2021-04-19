@@ -1363,6 +1363,11 @@ public class AttestationServer {
                 }
             }
 
+            if (sample.size() == 0) {
+                exchange.sendResponseHeaders(400, -1);
+                return;
+            }
+
             final SQLiteConnection conn = new SQLiteConnection(SAMPLES_DATABASE);
             try {
                 open(conn, false);
