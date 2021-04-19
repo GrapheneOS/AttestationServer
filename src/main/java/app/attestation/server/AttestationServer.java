@@ -1355,12 +1355,12 @@ public class AttestationServer {
             final ByteArrayOutputStream sample = new ByteArrayOutputStream();
             final byte[] buffer = new byte[4096];
             for (int read = input.read(buffer); read != -1; read = input.read(buffer)) {
-                sample.write(buffer, 0, read);
-
-                if (sample.size() > MAX_SAMPLE_SIZE) {
+                if (sample.size() + read > MAX_SAMPLE_SIZE) {
                     exchange.sendResponseHeaders(413, -1);
                     return;
                 }
+
+                sample.write(buffer, 0, read);
             }
 
             if (sample.size() == 0) {
