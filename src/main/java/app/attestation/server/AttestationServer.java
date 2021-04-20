@@ -365,7 +365,7 @@ public class AttestationServer {
         executor.prestartAllCoreThreads();
 
         System.setProperty("sun.net.httpserver.nodelay", "true");
-        final HttpServer server = HttpServer.create(new InetSocketAddress("localhost", 8080), 4096);
+        final HttpServer server = HttpServer.create(new InetSocketAddress("::1", 8080), 4096);
         server.createContext("/api/create_account", new CreateAccountHandler());
         server.createContext("/api/change_password", new ChangePasswordHandler());
         server.createContext("/api/login", new LoginHandler());
