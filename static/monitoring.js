@@ -106,7 +106,7 @@ function appendLine(element, text) {
 function fetchHistory(parent, nextOffset) {
     const parentdata = parent.dataset;
     parentdata.offsetId = Number(nextOffset);
-    fetch("/api/attestation_history.json", {method: "POST", body: JSON.stringify({
+    fetch("/api/attestation-history.json", {method: "POST", body: JSON.stringify({
         requestToken: localStorage.getItem("requestToken"),
         fingerprint: parentdata.deviceFingerprint,
         offsetId: Number(parentdata.offsetId)
@@ -179,7 +179,7 @@ function fetchDevices() {
                         "requestToken": localStorage.getItem("requestToken"),
                         "fingerprint": device.fingerprint
                     });
-                    fetch("/api/delete_device", {method: "POST", body: data, credentials: "same-origin"}).then(response => {
+                    fetch("/api/delete-device", {method: "POST", body: data, credentials: "same-origin"}).then(response => {
                         if (response.status === 403) {
                             localStorage.removeItem("requestToken");
                         }
@@ -397,7 +397,7 @@ createForm.onsubmit = event => {
     const username = createUsername.value;
     const createJson = JSON.stringify({username: username, password: password});
     createForm.submit.disabled = true;
-    fetch("/api/create_account", {method: "POST", body: createJson}).then(response => {
+    fetch("/api/create-account", {method: "POST", body: createJson}).then(response => {
         if (!response.ok) {
             if (response.status === 409) {
                 createUsername.setCustomValidity("Username is already taken");
@@ -441,7 +441,7 @@ for (const logoutButton of document.getElementsByClassName("logout")) {
         const requestToken = localStorage.getItem("requestToken");
         logout.disabled = true;
         logoutEverywhere.disabled = true;
-        const path = logoutButton === logout ? "/api/logout" : "/api/logout_everywhere";
+        const path = logoutButton === logout ? "/api/logout" : "/api/logout-everywhere";
         fetch(path, {method: "POST", body: requestToken, credentials: "same-origin"}).then(response => {
             if (!response.ok) {
                 return Promise.reject();
@@ -495,7 +495,7 @@ changePasswordForm.onsubmit = event => {
         "currentPassword": currentPassword,
         "newPassword": newPassword
     });
-    fetch("/api/change_password", {method: "POST", body: data, credentials: "same-origin"}).then(response => {
+    fetch("/api/change-password", {method: "POST", body: data, credentials: "same-origin"}).then(response => {
         if (!response.ok) {
             return Promise.reject();
         }
