@@ -180,10 +180,10 @@ function fetchDevices() {
                         "fingerprint": device.fingerprint
                     });
                     fetch("/api/delete-device", {method: "POST", body: data, credentials: "same-origin"}).then(response => {
-                        if (response.status === 403) {
-                            localStorage.removeItem("requestToken");
-                        }
                         if (!response.ok) {
+                            if (response.status === 403) {
+                                localStorage.removeItem("requestToken");
+                            }
                             return Promise.reject();
                         }
                         event.target.disabled = false;
@@ -295,10 +295,10 @@ if (token === null) {
     loggedOutButtons.hidden = false;
 } else {
     fetch("/api/account", {method: "POST", body: token, credentials: "same-origin"}).then(response => {
-        if (response.status === 403) {
-            localStorage.removeItem("requestToken");
-        }
         if (!response.ok) {
+            if (response.status === 403) {
+                localStorage.removeItem("requestToken");
+            }
             return Promise.reject();
         }
         return response.json();
