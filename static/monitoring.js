@@ -28,7 +28,7 @@ const deviceAdminStrings = new Map([
 ]);
 
 function post(resource, body) {
-    return fetch(resource, {method: "POST", body: body});
+    return fetch(resource, {method: "POST", mode: "same-origin", body: body});
 }
 
 function formatOsVersion(osVersion) {
