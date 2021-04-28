@@ -92,6 +92,8 @@ public class AttestationServer {
     private static final long SESSION_LENGTH = 48 * 60 * 60 * 1000;
     private static final int HISTORY_PER_PAGE = 20;
 
+    private static final String ORIGIN = "https://attestation.app";
+
     private static final Logger logger = Logger.getLogger(AttestationServer.class.getName());
 
     // This should be moved to a table in the database so that it can be modified dynamically
@@ -388,12 +390,29 @@ public class AttestationServer {
     private abstract static class PostHandler implements HttpHandler {
         protected abstract void handlePost(final HttpExchange exchange) throws IOException, SQLiteException;
 
+        public void checkOrigin(final HttpExchange exchange) throws GeneralSecurityException {
+            final List<String> origin = exchange.getRequestHeaders().get("Origin");
+            if (origin != null && !origin.get(0).equals(ORIGIN)) {
+                throw new GeneralSecurityException();
+            }
+            final List<String> fetchSite = exchange.getRequestHeaders().get("Sec-Fetch-Site");
+            if (fetchSite != null && !fetchSite.get(0).equals("same-origin")) {
+                throw new GeneralSecurityException();
+            }
+        }
+
         @Override
         public final void handle(final HttpExchange exchange) throws IOException {
             try {
                 if (!exchange.getRequestMethod().equalsIgnoreCase("POST")) {
                     exchange.getResponseHeaders().set("Allow", "POST");
                     exchange.sendResponseHeaders(405, -1);
+                    return;
+                }
+                try {
+                    checkOrigin(exchange);
+                } catch (final GeneralSecurityException e) {
+                    exchange.sendResponseHeaders(403, -1);
                     return;
                 }
                 handlePost(exchange);
@@ -404,6 +423,11 @@ public class AttestationServer {
                 exchange.close();
             }
         }
+    }
+
+    private abstract static class AppPostHandler extends PostHandler {
+        @Override
+        public void checkOrigin(final HttpExchange exchange) {}
     }
 
     private static final SecureRandom random = new SecureRandom();
@@ -1248,7 +1272,7 @@ public class AttestationServer {
         }
     }
 
-    private static class ChallengeHandler extends PostHandler {
+    private static class ChallengeHandler extends AppPostHandler {
         @Override
         public void handlePost(final HttpExchange exchange) throws IOException {
             final byte[] challenge = AttestationProtocol.getChallenge();
@@ -1265,7 +1289,7 @@ public class AttestationServer {
         }
     }
 
-    private static class VerifyHandler extends PostHandler {
+    private static class VerifyHandler extends AppPostHandler {
         @Override
         public void handlePost(final HttpExchange exchange) throws IOException, SQLiteException {
             final List<String> authorization = exchange.getRequestHeaders().get("Authorization");
@@ -1347,7 +1371,7 @@ public class AttestationServer {
         }
     }
 
-    private static class SubmitHandler extends PostHandler {
+    private static class SubmitHandler extends AppPostHandler {
         @Override
         public void handlePost(final HttpExchange exchange) throws IOException, SQLiteException {
             final InputStream input = exchange.getRequestBody();
