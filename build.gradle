@@ -16,7 +16,7 @@ repositories {
 dependencies {
     implementation 'com.almworks.sqlite4java:sqlite4java:1.0.392'
     implementation 'com.almworks.sqlite4java:libsqlite4java-linux-amd64:1.0.392'
-    implementation 'com.github.ben-manes.caffeine:caffeine:3.0.1'
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.0.2'
     implementation 'com.google.guava:guava:30.1.1-jre'
     implementation 'com.google.zxing:core:3.4.1'
     implementation 'com.google.zxing:javase:3.4.1'
