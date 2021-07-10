@@ -31,8 +31,8 @@ Copy attestation.service to /etc/systemd/system/attestation.service.
 
 On your development machine, deploy the code:
 
-    ./deploy_server
-    ./deploy_static
+    ./deploy-server
+    ./deploy-static
 
 As root, on the server:
 
