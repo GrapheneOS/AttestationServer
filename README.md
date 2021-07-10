@@ -18,12 +18,10 @@ As root, on the server:
     useradd -m -s /bin/bash -b /var/lib attestation
 
     mkdir -p /opt/attestation/deploy_{a,b}
-    cd /opt/attestation
-    ln -s deploy_a deploy
+    ln -s /opt/attestation/deploy_a /opt/attestation/deploy
 
     mkdir -p /srv/attestation.app_{a,b}
-    cd /srv
-    ln -s attestation.app_a attestation.app
+    ln -s /srv/attestation.app_a /srv/attestation.app
 
 Set up ssh `authorized_keys` for the attestation user.
 
