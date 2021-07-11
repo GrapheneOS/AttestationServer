@@ -268,7 +268,7 @@ public class AttestationServer {
             // add loginTime column to Accounts table
             if (userVersion == 0) {
                 attestationConn.exec("PRAGMA foreign_keys = OFF");
-                attestationConn.exec("BEGIN TRANSACTION");
+                attestationConn.exec("BEGIN IMMEDIATE TRANSACTION");
                 attestationConn.exec("ALTER TABLE Accounts RENAME TO AccountsOld");
                 createAccountsTable(attestationConn);
                 attestationConn.exec("INSERT INTO Accounts " +
@@ -287,7 +287,7 @@ public class AttestationServer {
             // add pinnedCertificate3 column to Devices table and set it to the original attestation root certificate
             if (userVersion == 1) {
                 attestationConn.exec("PRAGMA foreign_keys = OFF");
-                attestationConn.exec("BEGIN TRANSACTION");
+                attestationConn.exec("BEGIN IMMEDIATE TRANSACTION");
                 attestationConn.exec("ALTER TABLE Devices RENAME TO DevicesOld");
                 createDevicesTable(attestationConn);
                 attestationConn.exec("INSERT INTO Devices " +
@@ -311,7 +311,7 @@ public class AttestationServer {
             // add id column to track insertion order rather than relying on ordering by time
             if (userVersion == 2) {
                 attestationConn.exec("PRAGMA foreign_keys = OFF");
-                attestationConn.exec("BEGIN TRANSACTION");
+                attestationConn.exec("BEGIN IMMEDIATE TRANSACTION");
                 attestationConn.exec("ALTER TABLE Attestations RENAME TO AttestationsOld");
                 createAttestationsTable(attestationConn);
                 attestationConn.exec("INSERT INTO Attestations " +
@@ -330,7 +330,7 @@ public class AttestationServer {
             // rename enrolledFingerprints to enrolledBiometrics
             if (userVersion == 3) {
                 attestationConn.exec("PRAGMA foreign_keys = OFF");
-                attestationConn.exec("BEGIN TRANSACTION");
+                attestationConn.exec("BEGIN IMMEDIATE TRANSACTION");
                 attestationConn.exec("ALTER TABLE Devices RENAME TO DevicesOld");
                 createDevicesTable(attestationConn);
                 attestationConn.exec("INSERT INTO Devices " +
@@ -517,7 +517,7 @@ public class AttestationServer {
         try {
             open(conn, false);
 
-            conn.exec("BEGIN TRANSACTION");
+            conn.exec("BEGIN IMMEDIATE TRANSACTION");
 
             final SQLiteStatement select = conn.prepare("SELECT passwordHash, passwordSalt " +
                     "FROM Accounts WHERE userId = ?");
@@ -567,7 +567,7 @@ public class AttestationServer {
         try {
             open(conn, false);
 
-            conn.exec("BEGIN TRANSACTION");
+            conn.exec("BEGIN IMMEDIATE TRANSACTION");
 
             final SQLiteStatement select = conn.prepare("SELECT userId, passwordHash, " +
                     "passwordSalt FROM Accounts WHERE username = ?");
@@ -1013,7 +1013,7 @@ public class AttestationServer {
             try {
                 open(conn, false);
 
-                conn.exec("BEGIN TRANSACTION");
+                conn.exec("BEGIN IMMEDIATE TRANSACTION");
 
                 final SQLiteStatement update = conn.prepare("UPDATE Accounts SET " +
                         "verifyInterval = ?, alertDelay = ? WHERE userId = ?");
