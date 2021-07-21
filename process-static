@@ -33,5 +33,11 @@ find static_tmp -name '*.html' -exec html-minifier --collapse-whitespace \
     --remove-style-link-type-attributes --sort-attributes --sort-class-name {} -o {} \;
 
 find static_tmp -name '*.xml' -exec xmllint --noblanks {} --output {} \;
+
+brotli_k() {
+    brotli -k "$@"
+}
+export -f brotli_k
+
 find static_tmp -regex '.+\.\(css\|html\|ico\|js\|json\|svg\|txt\|webmanifest\|xml\)' |
-    parallel "brotli -k {}; zopfli {}"
+    parallel -q ::: brotli_k zopfli :::: -
