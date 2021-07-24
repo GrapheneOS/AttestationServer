@@ -368,6 +368,7 @@ public class AttestationServer {
 
         System.setProperty("sun.net.httpserver.nodelay", "true");
         final HttpServer server = HttpServer.create(new InetSocketAddress("::1", 8080), 4096);
+        server.createContext("/api/status", new StatusHandler());
         server.createContext("/api/create-account", new CreateAccountHandler());
         server.createContext("/api/change-password", new ChangePasswordHandler());
         server.createContext("/api/login", new LoginHandler());
@@ -385,6 +386,27 @@ public class AttestationServer {
         server.createContext("/submit", new SubmitHandler());
         server.setExecutor(executor);
         server.start();
+    }
+
+    private static class StatusHandler implements HttpHandler {
+        @Override
+        public final void handle(final HttpExchange exchange) throws IOException {
+            try {
+                if (!exchange.getRequestMethod().equalsIgnoreCase("GET")) {
+                    exchange.getResponseHeaders().set("Allow", "GET");
+                    exchange.sendResponseHeaders(405, -1);
+                    return;
+                }
+
+                final byte[] response = "success\n".getBytes();
+                exchange.sendResponseHeaders(200, response.length);
+                try (final OutputStream output = exchange.getResponseBody()) {
+                    output.write(response);
+                }
+            } finally {
+                exchange.close();
+            }
+        }
     }
 
     private abstract static class PostHandler implements HttpHandler {
