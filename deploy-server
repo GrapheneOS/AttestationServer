@@ -22,7 +22,7 @@ echo
 
 ssh $remote rm -rf $target
 ssh $remote cp -a $active $target
-rsync -rpcve ssh --chmod=D755,F644 --delete build/libs/ $remote:$target
+rsync -rpcv --chmod=D755,F644 --delete build/libs/ $remote:$target
 ssh $remote sync -f $target
 ssh $remote ln -snf $target $path/deploy
 ssh $remote sync .
