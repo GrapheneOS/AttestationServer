@@ -1,0 +1,8 @@
+[Unit]
+Description=Archive attestation database backups
+
+[Service]
+ExecStart=/opt/attestation/archive-backups
+Type=oneshot
+User=attestation
+WorkingDirectory=/var/lib/attestation

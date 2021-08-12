@@ -1,0 +1,8 @@
+[Unit]
+Description=Archive attestation database backups four times daily
+
+[Timer]
+OnCalendar=0/6:00:00
+
+[Install]
+WantedBy=timers.target
