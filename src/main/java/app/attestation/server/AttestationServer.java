@@ -92,7 +92,8 @@ public class AttestationServer {
     private static final long SESSION_LENGTH = 48 * 60 * 60 * 1000;
     private static final int HISTORY_PER_PAGE = 20;
 
-    private static final String ORIGIN = "https://attestation.app";
+    private static final String DOMAIN = "attestation.app";
+    private static final String ORIGIN = "https://" + DOMAIN;
 
     private static final Logger logger = Logger.getLogger(AttestationServer.class.getName());
 
@@ -973,7 +974,7 @@ public class AttestationServer {
             exchange.getResponseHeaders().set("Content-Type", "image/png");
             exchange.sendResponseHeaders(200, 0);
             try (final OutputStream output = exchange.getResponseBody()) {
-                final String contents = "attestation.app " +
+                final String contents = DOMAIN + " " +
                     account.userId + " " +
                     BaseEncoding.base64().encode(account.subscribeKey) + " " +
                     account.verifyInterval;
