@@ -13,5 +13,6 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 16
+          cache: gradle
       - name: Build with Gradle
         run: ./gradlew build --no-daemon
