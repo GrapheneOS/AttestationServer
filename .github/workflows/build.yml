@@ -13,4 +13,4 @@ jobs:
         with:
           java-version: 16
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew build --no-daemon
