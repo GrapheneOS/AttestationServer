@@ -20,13 +20,13 @@ echo
 
 ssh $remote rm -rf $target
 ssh $remote cp -a $active $target
-rsync -rpcv --chmod=D755,F644 --delete static_tmp/ $remote:$target
+rsync -rptcv --chmod=D755,F644 --delete static_tmp/ $remote:$target
 ssh $remote sync -f $target
 ssh $remote ln -snf $target /srv/attestation.app
 ssh $remote sync /srv/attestation.app
 
 sed -i "s|/srv/attestation.app|$target|" nginx.conf.tmp
-rsync -rpcv --chmod=D755,F644 --delete nginx.conf.tmp $remote:/etc/nginx/nginx.conf
+rsync -rptcv --chmod=D755,F644 --delete nginx.conf.tmp $remote:/etc/nginx/nginx.conf
 ssh $remote sync -f /etc/nginx/nginx.conf
 ssh $remote nginx -s reload
 
