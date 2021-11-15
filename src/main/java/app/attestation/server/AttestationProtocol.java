@@ -193,6 +193,8 @@ class AttestationProtocol {
     private static final String DEVICE_PIXEL_5 = "Google Pixel 5";
     private static final String DEVICE_PIXEL_5_GENERIC = "Google Pixel 4a (5G) / Pixel 5";
     private static final String DEVICE_PIXEL_5a = "Google Pixel 5a";
+    private static final String DEVICE_PIXEL_6 = "Google Pixel 6";
+    private static final String DEVICE_PIXEL_6_PRO = "Google Pixel 6 Pro";
     private static final String DEVICE_SM_A705FN = "Samsung Galaxy A70 (SM-A705FN)";
     private static final String DEVICE_SM_G960F = "Samsung Galaxy S9 (SM-G960F)";
     private static final String DEVICE_SM_G960_NA = "Samsung Galaxy S9 USA/Canada (SM-G960U/SM-G960U1/SM-G960W)";
@@ -352,6 +354,10 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_PIXEL_5_GENERIC, 3, 4, false /* uses new API */, true, OS_STOCK))
             .put("1DD694CE00BF131AD61CEB576B7DCC41CF7F9B2C418F4C12B2B8F3E9A1EA911D",
                     new DeviceInfo(DEVICE_PIXEL_5a, 3, 4, false /* uses new API */, true, OS_STOCK))
+            .put("0F6E75C80183B5DEC074B0054D4271E99389EBE4B136B0819DE1F150BA0FF9D7",
+                    new DeviceInfo(DEVICE_PIXEL_6, 4, 41, false /* uses new API */, true, OS_STOCK))
+            .put("42ED1BCA352FABD428F34E8FCEE62776F4CB2C66E06F82E5A59FF4495267BFC2",
+                    new DeviceInfo(DEVICE_PIXEL_6_PRO, 4, 41, false /* uses new API */, true, OS_STOCK))
             .put("72376CAACF11726D4922585732429FB97D0D1DD69F0D2E0770B9E61D14ADDE65",
                     new DeviceInfo(DEVICE_SM_A705FN, 3, 4, false /* uses new API */, true, OS_STOCK))
             .put("33D9484FD512E610BCF00C502827F3D55A415088F276C6506657215E622FA770",
@@ -480,6 +486,10 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_PIXEL_5_GENERIC, 4, 41, false /* uses new API */, true, OS_STOCK))
             .put("1DD694CE00BF131AD61CEB576B7DCC41CF7F9B2C418F4C12B2B8F3E9A1EA911D",
                     new DeviceInfo(DEVICE_PIXEL_5a, 4, 41, false /* uses new API */, true, OS_STOCK))
+            .put("0F6E75C80183B5DEC074B0054D4271E99389EBE4B136B0819DE1F150BA0FF9D7",
+                    new DeviceInfo(DEVICE_PIXEL_6, 4, 41, false /* uses new API */, true, OS_STOCK))
+            .put("42ED1BCA352FABD428F34E8FCEE62776F4CB2C66E06F82E5A59FF4495267BFC2",
+                    new DeviceInfo(DEVICE_PIXEL_6_PRO, 4, 41, false /* uses new API */, true, OS_STOCK))
             .put("3D3DEB132A89551D0A700D230BABAE4E3E80E3C7926ACDD7BAEDF9B57AD316D0",
                     new DeviceInfo(DEVICE_SM_N970U, 3, 4, false /* uses new API */, true, OS_STOCK))
             .put("9AC63842137D92C119A1B1BE2C9270B9EBB6083BBE6350B7823571942B5869F0",
