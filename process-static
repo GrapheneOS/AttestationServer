@@ -9,10 +9,14 @@ rm -rf static-tmp
 cp -a static static-tmp
 
 for file in static-tmp/**/*.@(json|webmanifest); do
+    json_verify < "$file" >/dev/null
     json_reformat -m < "$file" | sponge "$file"
 done
 
+stylelint static-tmp/**/*.css
 find static-tmp -name '*.css' -exec csso {} -o {} \;
+
+eslint static-tmp/**/*.js
 find static-tmp -name '*.js' -exec terser --ecma 2021 --module -cmo {} {} \;
 
 replace=""
@@ -26,6 +30,8 @@ done
 cp nginx/nginx.conf nginx.conf.tmp
 sed -i "$replace" static-tmp/**/*.html nginx.conf.tmp
 
+xmllint --noout static-tmp/**/*.@(html|svg|xml)
+validatornu --Werror --also-check-css --also-check-svg static-tmp/**/*.@(css|html|svg)
 find static-tmp -name '*.html' -exec html-minifier --collapse-whitespace \
     --process-scripts "application/ld+json" --collapse-boolean-attributes \
     --remove-attribute-quotes --remove-comments --remove-empty-attributes \
