@@ -1,4 +1,4 @@
-nginx.conf.tmp
+nginx-tmp
 node_modules
 static-tmp
 build
