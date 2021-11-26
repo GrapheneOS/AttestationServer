@@ -41,10 +41,7 @@ done
 
 sed -i "$replace" static-tmp/**/*.html nginx-tmp/nginx.conf
 
-# temporarily disabled for GitHub Actions due to unresolved compatibility issue
-if [[ ${GITHUB_ACTIONS:-false} != true ]]; then
-    gixy nginx-tmp/nginx.conf
-fi
+gixy nginx-tmp/nginx.conf
 
 xmllint --noout static-tmp/**/*.@(html|svg|xml)
 validatornu --Werror --also-check-css --also-check-svg static-tmp/**/*.@(css|html|svg)
