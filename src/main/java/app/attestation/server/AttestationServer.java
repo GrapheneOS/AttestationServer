@@ -764,7 +764,7 @@ public class AttestationServer {
             try {
                 open(conn, false);
 
-                final SQLiteStatement select = conn.prepare("DELETE from Sessions where userId = ?");
+                final SQLiteStatement select = conn.prepare("DELETE FROM Sessions WHERE userId = ?");
                 select.bind(1, account.userId);
                 select.step();
                 select.dispose();
