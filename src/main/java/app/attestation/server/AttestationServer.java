@@ -404,6 +404,9 @@ public class AttestationServer {
                 try (final OutputStream output = exchange.getResponseBody()) {
                     output.write(response);
                 }
+            } catch (final Exception e) {
+                logger.log(Level.SEVERE, "unhandled error handling request", e);
+                exchange.sendResponseHeaders(500, -1);
             } finally {
                 exchange.close();
             }
