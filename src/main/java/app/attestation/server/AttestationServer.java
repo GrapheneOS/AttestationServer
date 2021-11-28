@@ -263,89 +263,9 @@ public class AttestationServer {
             attestationConn.exec("INSERT OR IGNORE INTO Configuration " +
                     "(key, value) VALUES ('backups', 0)");
 
-            // drop old indices
-            attestationConn.exec("DROP INDEX IF EXISTS Attestations_fingerprint_time");
-            attestationConn.exec("DROP INDEX IF EXISTS Devices_userId_verifiedTimeLast");
-
-            // add loginTime column to Accounts table
-            if (userVersion == 0) {
-                attestationConn.exec("PRAGMA foreign_keys = OFF");
-                attestationConn.exec("BEGIN IMMEDIATE TRANSACTION");
-                attestationConn.exec("ALTER TABLE Accounts RENAME TO AccountsOld");
-                createAccountsTable(attestationConn);
-                attestationConn.exec("INSERT INTO Accounts " +
-                        "(userId, username, passwordHash, passwordSalt, subscribeKey, creationTime, loginTime, verifyInterval, alertDelay) " +
-                        "SELECT " +
-                        "userId, username, passwordHash, passwordSalt, subscribeKey, creationTime, creationTime, verifyInterval, alertDelay " +
-                        "FROM AccountsOld");
-                attestationConn.exec("DROP TABLE AccountsOld");
-                createAccountsIndices(attestationConn);
-                attestationConn.exec("PRAGMA user_version = 1");
-                userVersion = 1;
-                attestationConn.exec("END TRANSACTION");
-                attestationConn.exec("PRAGMA foreign_keys = ON");
-            }
-
-            // add pinnedCertificate3 column to Devices table and set it to the original attestation root certificate
-            if (userVersion == 1) {
-                attestationConn.exec("PRAGMA foreign_keys = OFF");
-                attestationConn.exec("BEGIN IMMEDIATE TRANSACTION");
-                attestationConn.exec("ALTER TABLE Devices RENAME TO DevicesOld");
-                createDevicesTable(attestationConn);
-                attestationConn.exec("INSERT INTO Devices " +
-                        "(fingerprint, pinnedCertificate0, pinnedCertificate1, pinnedCertificate2, pinnedCertificate3, pinnedVerifiedBootKey, verifiedBootHash, pinnedOsVersion, pinnedOsPatchLevel, pinnedVendorPatchLevel, pinnedBootPatchLevel, pinnedAppVersion, pinnedSecurityLevel, userProfileSecure, enrolledFingerprints, accessibility, deviceAdmin, adbEnabled, addUsersWhenLocked, denyNewUsb, oemUnlockAllowed, systemUser, verifiedTimeFirst, verifiedTimeLast, expiredTimeLast, failureTimeLast, userId, deletionTime) " +
-                        "SELECT " +
-                        "fingerprint, pinnedCertificate0, pinnedCertificate1, pinnedCertificate2, pinnedCertificate2, pinnedVerifiedBootKey, verifiedBootHash, pinnedOsVersion, pinnedOsPatchLevel, pinnedVendorPatchLevel, pinnedBootPatchLevel, pinnedAppVersion, pinnedSecurityLevel, userProfileSecure, enrolledFingerprints, accessibility, deviceAdmin, adbEnabled, addUsersWhenLocked, denyNewUsb, oemUnlockAllowed, systemUser, verifiedTimeFirst, verifiedTimeLast, expiredTimeLast, failureTimeLast, userId, deletionTime " +
-                        "FROM DevicesOld");
-                final SQLiteStatement updatePinnedCertificate3 = attestationConn.prepare("UPDATE Devices SET pinnedCertificate3 = ?");
-                updatePinnedCertificate3.bind(1,
-                        AttestationProtocol.generateCertificate(new ByteArrayInputStream(AttestationProtocol.GOOGLE_ROOT_CERTIFICATE.getBytes())).getEncoded());
-                updatePinnedCertificate3.step();
-                updatePinnedCertificate3.dispose();
-                attestationConn.exec("DROP TABLE DevicesOld");
-                createDevicesIndices(attestationConn);
-                attestationConn.exec("PRAGMA user_version = 2");
-                userVersion = 2;
-                attestationConn.exec("END TRANSACTION");
-                attestationConn.exec("PRAGMA foreign_keys = ON");
-            }
-
-            // add id column to track insertion order rather than relying on ordering by time
-            if (userVersion == 2) {
-                attestationConn.exec("PRAGMA foreign_keys = OFF");
-                attestationConn.exec("BEGIN IMMEDIATE TRANSACTION");
-                attestationConn.exec("ALTER TABLE Attestations RENAME TO AttestationsOld");
-                createAttestationsTable(attestationConn);
-                attestationConn.exec("INSERT INTO Attestations " +
-                        "(fingerprint, time, strong, teeEnforced, osEnforced) " +
-                        "SELECT " +
-                        "fingerprint, time, strong, teeEnforced, osEnforced " +
-                        "FROM AttestationsOld");
-                attestationConn.exec("DROP TABLE AttestationsOld");
-                createAttestationsIndices(attestationConn);
-                attestationConn.exec("PRAGMA user_version = 3");
-                userVersion = 3;
-                attestationConn.exec("END TRANSACTION");
-                attestationConn.exec("PRAGMA foreign_keys = ON");
-            }
-
-            // rename enrolledFingerprints to enrolledBiometrics
-            if (userVersion == 3) {
-                attestationConn.exec("PRAGMA foreign_keys = OFF");
-                attestationConn.exec("BEGIN IMMEDIATE TRANSACTION");
-                attestationConn.exec("ALTER TABLE Devices RENAME TO DevicesOld");
-                createDevicesTable(attestationConn);
-                attestationConn.exec("INSERT INTO Devices " +
-                        "(fingerprint, pinnedCertificate0, pinnedCertificate1, pinnedCertificate2, pinnedCertificate3, pinnedVerifiedBootKey, verifiedBootHash, pinnedOsVersion, pinnedOsPatchLevel, pinnedVendorPatchLevel, pinnedBootPatchLevel, pinnedAppVersion, pinnedSecurityLevel, userProfileSecure, enrolledBiometrics, accessibility, deviceAdmin, adbEnabled, addUsersWhenLocked, denyNewUsb, oemUnlockAllowed, systemUser, verifiedTimeFirst, verifiedTimeLast, expiredTimeLast, failureTimeLast, userId, deletionTime) " +
-                        "SELECT " +
-                        "fingerprint, pinnedCertificate0, pinnedCertificate1, pinnedCertificate2, pinnedCertificate3, pinnedVerifiedBootKey, verifiedBootHash, pinnedOsVersion, pinnedOsPatchLevel, pinnedVendorPatchLevel, pinnedBootPatchLevel, pinnedAppVersion, pinnedSecurityLevel, userProfileSecure, enrolledFingerprints, accessibility, deviceAdmin, adbEnabled, addUsersWhenLocked, denyNewUsb, oemUnlockAllowed, systemUser, verifiedTimeFirst, verifiedTimeLast, expiredTimeLast, failureTimeLast, userId, deletionTime " +
-                        "FROM DevicesOld");
-                attestationConn.exec("DROP TABLE DevicesOld");
-                createDevicesIndices(attestationConn);
-                attestationConn.exec("PRAGMA user_version = 4");
-                userVersion = 4;
-                attestationConn.exec("END TRANSACTION");
-                attestationConn.exec("PRAGMA foreign_keys = ON");
+            if (userVersion < 4) {
+                throw new RuntimeException("Database schemas older than version 4 are no longer " +
+                        "supported. Use an older AttestationServer revision to upgrade.");
             }
 
             logger.info("New schema version: " + userVersion);
