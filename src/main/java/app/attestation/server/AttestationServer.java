@@ -119,7 +119,7 @@ public class AttestationServer {
         conn.exec("PRAGMA journal_mode = WAL");
     }
 
-    private static void createAttestationTablesAndIndices(final SQLiteConnection conn) throws SQLiteException {
+    private static void createAttestationTables(final SQLiteConnection conn) throws SQLiteException {
         conn.exec(
                 "CREATE TABLE IF NOT EXISTS Configuration (\n" +
                 "key TEXT PRIMARY KEY NOT NULL,\n" +
@@ -138,8 +138,6 @@ public class AttestationServer {
                 "verifyInterval INTEGER NOT NULL,\n" +
                 "alertDelay INTEGER NOT NULL\n" +
                 ")");
-        conn.exec("CREATE INDEX IF NOT EXISTS Accounts_loginTime " +
-                "ON Accounts (loginTime)");
 
         conn.exec(
                 "CREATE TABLE IF NOT EXISTS EmailAddresses (\n" +
@@ -156,10 +154,6 @@ public class AttestationServer {
                 "requestToken BLOB NOT NULL,\n" +
                 "expiryTime INTEGER NOT NULL\n" +
                 ")");
-        conn.exec("CREATE INDEX IF NOT EXISTS Sessions_expiryTime " +
-                "ON Sessions (expiryTime)");
-        conn.exec("CREATE INDEX IF NOT EXISTS Sessions_userId " +
-                "ON Sessions (userId)");
 
         conn.exec(
                 "CREATE TABLE IF NOT EXISTS Devices (\n" +
@@ -192,14 +186,6 @@ public class AttestationServer {
                 "userId INTEGER NOT NULL REFERENCES Accounts (userId) ON DELETE CASCADE,\n" +
                 "deletionTime INTEGER\n" +
                 ")");
-        conn.exec("CREATE INDEX IF NOT EXISTS Devices_userId_verifiedTimeFirst " +
-                "ON Devices (userId, verifiedTimeFirst)");
-        conn.exec("CREATE INDEX IF NOT EXISTS Devices_userId_verifiedTimeLast_deletionTimeNull " +
-                "ON Devices (userId, verifiedTimeLast) WHERE deletionTime IS NULL");
-        conn.exec("CREATE INDEX IF NOT EXISTS Devices_deletionTime " +
-                "ON Devices (deletionTime) WHERE deletionTime IS NOT NULL");
-        conn.exec("CREATE INDEX IF NOT EXISTS Devices_verifiedTimeLast_deletionTimeNull " +
-                "ON Devices (verifiedTimeLast) WHERE deletionTime IS NULL");
 
         conn.exec(
                 "CREATE TABLE IF NOT EXISTS Attestations (\n" +
@@ -210,6 +196,26 @@ public class AttestationServer {
                 "teeEnforced TEXT NOT NULL,\n" +
                 "osEnforced TEXT NOT NULL\n" +
                 ")");
+    }
+
+    private static void createAttestationIndices(final SQLiteConnection conn) throws SQLiteException {
+        conn.exec("CREATE INDEX IF NOT EXISTS Accounts_loginTime " +
+                "ON Accounts (loginTime)");
+
+        conn.exec("CREATE INDEX IF NOT EXISTS Sessions_expiryTime " +
+                "ON Sessions (expiryTime)");
+        conn.exec("CREATE INDEX IF NOT EXISTS Sessions_userId " +
+                "ON Sessions (userId)");
+
+        conn.exec("CREATE INDEX IF NOT EXISTS Devices_userId_verifiedTimeFirst " +
+                "ON Devices (userId, verifiedTimeFirst)");
+        conn.exec("CREATE INDEX IF NOT EXISTS Devices_userId_verifiedTimeLast_deletionTimeNull " +
+                "ON Devices (userId, verifiedTimeLast) WHERE deletionTime IS NULL");
+        conn.exec("CREATE INDEX IF NOT EXISTS Devices_deletionTime " +
+                "ON Devices (deletionTime) WHERE deletionTime IS NOT NULL");
+        conn.exec("CREATE INDEX IF NOT EXISTS Devices_verifiedTimeLast_deletionTimeNull " +
+                "ON Devices (verifiedTimeLast) WHERE deletionTime IS NULL");
+
         conn.exec("CREATE INDEX IF NOT EXISTS Attestations_fingerprint_id " +
                 "ON Attestations (fingerprint, id)");
     }
@@ -243,7 +249,8 @@ public class AttestationServer {
             getUserVersion.dispose();
             logger.info("Existing schema version: " + userVersion);
 
-            createAttestationTablesAndIndices(attestationConn);
+            createAttestationTables(attestationConn);
+            createAttestationIndices(attestationConn);
 
             attestationConn.exec("INSERT OR IGNORE INTO Configuration " +
                     "(key, value) VALUES ('backups', 0)");
