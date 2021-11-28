@@ -971,19 +971,17 @@ public class AttestationServer {
         }
     }
 
-    private static void createQrCode(final byte[] contents, final OutputStream output) throws IOException {
-        final BitMatrix result;
+    private static void writeQrCode(final byte[] contents, final OutputStream output) throws IOException {
         try {
             final QRCodeWriter writer = new QRCodeWriter();
             final Map<EncodeHintType,Object> hints = new EnumMap<>(EncodeHintType.class);
             hints.put(EncodeHintType.CHARACTER_SET, StandardCharsets.ISO_8859_1);
-            result = writer.encode(new String(contents, StandardCharsets.ISO_8859_1), BarcodeFormat.QR_CODE,
-                    QR_CODE_PIXEL_SIZE, QR_CODE_PIXEL_SIZE, hints);
+            final BitMatrix result = writer.encode(new String(contents, StandardCharsets.ISO_8859_1),
+                    BarcodeFormat.QR_CODE, QR_CODE_PIXEL_SIZE, QR_CODE_PIXEL_SIZE, hints);
+            MatrixToImageWriter.writeToStream(result, "png", output);
         } catch (WriterException e) {
             throw new RuntimeException(e);
         }
-
-        MatrixToImageWriter.writeToStream(result, "png", output);
     }
 
     private static class AccountQrHandler extends PostHandler {
@@ -1000,7 +998,7 @@ public class AttestationServer {
                     account.userId + " " +
                     BaseEncoding.base64().encode(account.subscribeKey) + " " +
                     account.verifyInterval;
-                createQrCode(contents.getBytes(), output);
+                writeQrCode(contents.getBytes(), output);
             }
         }
     }
