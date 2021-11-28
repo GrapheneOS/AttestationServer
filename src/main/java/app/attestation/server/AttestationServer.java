@@ -235,8 +235,6 @@ public class AttestationServer {
                     "key TEXT PRIMARY KEY NOT NULL,\n" +
                     "value NOT NULL\n" +
                     ")");
-            attestationConn.exec("INSERT OR IGNORE INTO Configuration " +
-                    "(key, value) VALUES ('backups', 0)");
             createAccountsTable(attestationConn);
             createAccountsIndices(attestationConn);
             attestationConn.exec(
@@ -261,6 +259,9 @@ public class AttestationServer {
             createDevicesIndices(attestationConn);
             createAttestationsTable(attestationConn);
             createAttestationsIndices(attestationConn);
+
+            attestationConn.exec("INSERT OR IGNORE INTO Configuration " +
+                    "(key, value) VALUES ('backups', 0)");
 
             // drop old indices
             attestationConn.exec("DROP INDEX IF EXISTS Attestations_fingerprint_time");
