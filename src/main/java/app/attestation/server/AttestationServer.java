@@ -220,14 +220,69 @@ public class AttestationServer {
                 "ON Attestations (fingerprint, id)");
     }
 
+    private static void createSamplesTable(final SQLiteConnection conn) throws SQLiteException {
+        conn.exec(
+                "CREATE TABLE IF NOT EXISTS Samples (\n" +
+                "sample BLOB NOT NULL,\n" +
+                "time INTEGER NOT NULL\n" +
+                ") STRICT");
+    }
+
+    private static int getUserVersion(final SQLiteConnection conn) throws SQLiteException {
+        SQLiteStatement pragmaUserVersion = null;
+        try {
+            pragmaUserVersion = conn.prepare("PRAGMA user_version");
+            pragmaUserVersion.step();
+            int userVersion = pragmaUserVersion.columnInt(0);
+            logger.info("Existing schema version: " + userVersion);
+            return userVersion;
+        } finally {
+            if (pragmaUserVersion != null) {
+                pragmaUserVersion.dispose();
+            }
+        }
+    }
+
     public static void main(final String[] args) throws Exception {
         final SQLiteConnection samplesConn = new SQLiteConnection(SAMPLES_DATABASE);
         try {
             open(samplesConn, false);
-            samplesConn.exec("CREATE TABLE IF NOT EXISTS Samples (\n" +
-                    "sample TEXT NOT NULL,\n" +
-                    "time INTEGER NOT NULL\n" +
-                    ")");
+
+            final SQLiteStatement selectCreated = samplesConn.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='Samples'");
+            if (!selectCreated.step()) {
+                samplesConn.exec("PRAGMA user_version = 1");
+            }
+            selectCreated.dispose();
+
+            int userVersion = getUserVersion(samplesConn);
+
+            createSamplesTable(samplesConn);
+
+            if (userVersion == 0) {
+                samplesConn.exec("PRAGMA foreign_keys = OFF");
+                samplesConn.exec("BEGIN IMMEDIATE TRANSACTION");
+
+                samplesConn.exec("ALTER TABLE Samples RENAME TO OldSamples");
+
+                createSamplesTable(samplesConn);
+
+                samplesConn.exec("INSERT INTO Samples " +
+                        "(sample, time) " +
+                        "SELECT " +
+                        "sample, time " +
+                        "FROM OldSamples");
+
+                samplesConn.exec("DROP TABLE OldSamples");
+
+                samplesConn.exec("PRAGMA user_version = 1");
+                userVersion = 1;
+                samplesConn.exec("COMMIT TRANSACTION");
+                samplesConn.exec("PRAGMA foreign_keys = ON");
+            }
+
+            logger.info("New schema version: " + userVersion);
+
+            logger.info("Vacuum database");
             samplesConn.exec("VACUUM");
         } finally {
             samplesConn.dispose();
@@ -243,11 +298,7 @@ public class AttestationServer {
             }
             selectCreated.dispose();
 
-            final SQLiteStatement getUserVersion = attestationConn.prepare("PRAGMA user_version");
-            getUserVersion.step();
-            int userVersion = getUserVersion.columnInt(0);
-            getUserVersion.dispose();
-            logger.info("Existing schema version: " + userVersion);
+            int userVersion = getUserVersion(attestationConn);
 
             createAttestationTables(attestationConn);
             createAttestationIndices(attestationConn);
