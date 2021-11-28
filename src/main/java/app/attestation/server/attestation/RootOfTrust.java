@@ -17,7 +17,6 @@
 package app.attestation.server.attestation;
 
 import com.google.common.io.BaseEncoding;
-
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1Sequence;
 

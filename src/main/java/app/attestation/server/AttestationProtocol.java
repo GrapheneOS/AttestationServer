@@ -1,11 +1,14 @@
 package app.attestation.server;
 
+import app.attestation.server.attestation.Attestation;
+import app.attestation.server.attestation.AttestationApplicationId;
+import app.attestation.server.attestation.AttestationPackageInfo;
+import app.attestation.server.attestation.AuthorizationList;
+import app.attestation.server.attestation.RootOfTrust;
 import com.almworks.sqlite4java.SQLiteConnection;
 import com.almworks.sqlite4java.SQLiteException;
 import com.almworks.sqlite4java.SQLiteStatement;
-
 import com.github.benmanes.caffeine.cache.Cache;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.hash.HashFunction;
@@ -37,12 +40,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
-
-import app.attestation.server.attestation.Attestation;
-import app.attestation.server.attestation.AttestationApplicationId;
-import app.attestation.server.attestation.AttestationPackageInfo;
-import app.attestation.server.attestation.AuthorizationList;
-import app.attestation.server.attestation.RootOfTrust;
 
 class AttestationProtocol {
     static final File ATTESTATION_DATABASE = new File("attestation.db");

@@ -18,7 +18,6 @@ package app.attestation.server.attestation;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.io.BaseEncoding;
-
 import org.bouncycastle.asn1.ASN1Sequence;
 
 import java.security.cert.CertificateParsingException;

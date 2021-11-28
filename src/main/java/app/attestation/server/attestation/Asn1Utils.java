@@ -17,7 +17,6 @@
 package app.attestation.server.attestation;
 
 import com.google.common.collect.ImmutableSet;
-
 import org.bouncycastle.asn1.ASN1Boolean;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1Enumerated;

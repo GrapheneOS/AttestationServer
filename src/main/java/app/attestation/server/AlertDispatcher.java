@@ -3,9 +3,7 @@ package app.attestation.server;
 import com.almworks.sqlite4java.SQLiteConnection;
 import com.almworks.sqlite4java.SQLiteException;
 import com.almworks.sqlite4java.SQLiteStatement;
-
-import java.io.File;
-
+import com.google.common.io.BaseEncoding;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.PasswordAuthentication;
@@ -15,11 +13,9 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 
 import java.util.ArrayList;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.Properties;
-
-import com.google.common.io.BaseEncoding;
 
 class AlertDispatcher implements Runnable {
     private static final long WAIT_MS = 15 * 60 * 1000;
