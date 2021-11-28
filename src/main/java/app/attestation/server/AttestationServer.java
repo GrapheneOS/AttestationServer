@@ -540,7 +540,7 @@ public class AttestationServer {
             updateLoginTime.step();
             updateLoginTime.dispose();
 
-            conn.exec("END TRANSACTION");
+            conn.exec("COMMIT TRANSACTION");
 
             return new Session(conn.getLastInsertId(), cookieToken, requestToken);
         } finally {
