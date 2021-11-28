@@ -976,13 +976,9 @@ public class AttestationServer {
         try {
             final QRCodeWriter writer = new QRCodeWriter();
             final Map<EncodeHintType,Object> hints = new EnumMap<>(EncodeHintType.class);
-            hints.put(EncodeHintType.CHARACTER_SET, "ISO-8859-1");
-            try {
-                result = writer.encode(new String(contents, "ISO-8859-1"), BarcodeFormat.QR_CODE,
-                        QR_CODE_PIXEL_SIZE, QR_CODE_PIXEL_SIZE, hints);
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException("ISO-8859-1 not supported", e);
-            }
+            hints.put(EncodeHintType.CHARACTER_SET, StandardCharsets.ISO_8859_1);
+            result = writer.encode(new String(contents, StandardCharsets.ISO_8859_1), BarcodeFormat.QR_CODE,
+                    QR_CODE_PIXEL_SIZE, QR_CODE_PIXEL_SIZE, hints);
         } catch (WriterException e) {
             throw new RuntimeException(e);
         }
