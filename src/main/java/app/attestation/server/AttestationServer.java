@@ -1143,9 +1143,7 @@ public class AttestationServer {
                     "systemUser, verifiedTimeFirst, verifiedTimeLast " +
                     "FROM Devices WHERE userId is ? AND deletionTime IS NULL " +
                     "ORDER BY verifiedTimeFirst");
-            if (userId != 0) {
-                select.bind(1, userId);
-            }
+            select.bind(1, userId);
             while (select.step()) {
                 final JsonObjectBuilder device = Json.createObjectBuilder();
                 final byte[] fingerprint = select.columnBlob(0);
