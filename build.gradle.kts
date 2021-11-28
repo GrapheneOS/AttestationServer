@@ -20,7 +20,7 @@ repositories {
 
 dependencies {
     implementation("com.almworks.sqlite4java:sqlite4java:1.0.392")
-    implementation("com.almworks.sqlite4java:libsqlite4java-linux-amd64:1.0.392")
+    runtimeOnly("com.almworks.sqlite4java:libsqlite4java-linux-amd64:1.0.392")
     implementation("com.github.ben-manes.caffeine:caffeine:3.0.4")
     implementation("com.google.guava:guava:31.0.1-jre")
     implementation("com.google.zxing:core:3.4.1")
