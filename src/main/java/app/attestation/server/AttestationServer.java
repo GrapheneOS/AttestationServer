@@ -119,7 +119,13 @@ public class AttestationServer {
         conn.exec("PRAGMA journal_mode = WAL");
     }
 
-    private static void createAccountsTable(final SQLiteConnection conn) throws SQLiteException {
+    private static void createAttestationTablesAndIndices(final SQLiteConnection conn) throws SQLiteException {
+        conn.exec(
+                "CREATE TABLE IF NOT EXISTS Configuration (\n" +
+                "key TEXT PRIMARY KEY NOT NULL,\n" +
+                "value NOT NULL\n" +
+                ")");
+
         conn.exec(
                 "CREATE TABLE IF NOT EXISTS Accounts (\n" +
                 "userId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n" +
@@ -132,14 +138,29 @@ public class AttestationServer {
                 "verifyInterval INTEGER NOT NULL,\n" +
                 "alertDelay INTEGER NOT NULL\n" +
                 ")");
-    }
-
-    private static void createAccountsIndices(final SQLiteConnection conn) throws SQLiteException {
         conn.exec("CREATE INDEX IF NOT EXISTS Accounts_loginTime " +
                 "ON Accounts (loginTime)");
-    }
 
-    private static void createDevicesTable(final SQLiteConnection conn) throws SQLiteException {
+        conn.exec(
+                "CREATE TABLE IF NOT EXISTS EmailAddresses (\n" +
+                "userId INTEGER NOT NULL REFERENCES Accounts (userId) ON DELETE CASCADE,\n" +
+                "address TEXT NOT NULL,\n" +
+                "PRIMARY KEY (userId, address)\n" +
+                ")");
+
+        conn.exec(
+                "CREATE TABLE IF NOT EXISTS Sessions (\n" +
+                "sessionId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n" +
+                "userId INTEGER NOT NULL REFERENCES Accounts (userId) ON DELETE CASCADE,\n" +
+                "cookieToken BLOB NOT NULL,\n" +
+                "requestToken BLOB NOT NULL,\n" +
+                "expiryTime INTEGER NOT NULL\n" +
+                ")");
+        conn.exec("CREATE INDEX IF NOT EXISTS Sessions_expiryTime " +
+                "ON Sessions (expiryTime)");
+        conn.exec("CREATE INDEX IF NOT EXISTS Sessions_userId " +
+                "ON Sessions (userId)");
+
         conn.exec(
                 "CREATE TABLE IF NOT EXISTS Devices (\n" +
                 "fingerprint BLOB NOT NULL PRIMARY KEY,\n" +
@@ -171,9 +192,6 @@ public class AttestationServer {
                 "userId INTEGER NOT NULL REFERENCES Accounts (userId) ON DELETE CASCADE,\n" +
                 "deletionTime INTEGER\n" +
                 ")");
-    }
-
-    private static void createDevicesIndices(final SQLiteConnection conn) throws SQLiteException {
         conn.exec("CREATE INDEX IF NOT EXISTS Devices_userId_verifiedTimeFirst " +
                 "ON Devices (userId, verifiedTimeFirst)");
         conn.exec("CREATE INDEX IF NOT EXISTS Devices_userId_verifiedTimeLast_deletionTimeNull " +
@@ -182,9 +200,7 @@ public class AttestationServer {
                 "ON Devices (deletionTime) WHERE deletionTime IS NOT NULL");
         conn.exec("CREATE INDEX IF NOT EXISTS Devices_verifiedTimeLast_deletionTimeNull " +
                 "ON Devices (verifiedTimeLast) WHERE deletionTime IS NULL");
-    }
 
-    private static void createAttestationsTable(final SQLiteConnection conn) throws SQLiteException {
         conn.exec(
                 "CREATE TABLE IF NOT EXISTS Attestations (\n" +
                 "id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n" +
@@ -194,9 +210,6 @@ public class AttestationServer {
                 "teeEnforced TEXT NOT NULL,\n" +
                 "osEnforced TEXT NOT NULL\n" +
                 ")");
-    }
-
-    private static void createAttestationsIndices(final SQLiteConnection conn) throws SQLiteException {
         conn.exec("CREATE INDEX IF NOT EXISTS Attestations_fingerprint_id " +
                 "ON Attestations (fingerprint, id)");
     }
@@ -230,35 +243,7 @@ public class AttestationServer {
             getUserVersion.dispose();
             logger.info("Existing schema version: " + userVersion);
 
-            attestationConn.exec(
-                    "CREATE TABLE IF NOT EXISTS Configuration (\n" +
-                    "key TEXT PRIMARY KEY NOT NULL,\n" +
-                    "value NOT NULL\n" +
-                    ")");
-            createAccountsTable(attestationConn);
-            createAccountsIndices(attestationConn);
-            attestationConn.exec(
-                    "CREATE TABLE IF NOT EXISTS EmailAddresses (\n" +
-                    "userId INTEGER NOT NULL REFERENCES Accounts (userId) ON DELETE CASCADE,\n" +
-                    "address TEXT NOT NULL,\n" +
-                    "PRIMARY KEY (userId, address)\n" +
-                    ")");
-            attestationConn.exec(
-                    "CREATE TABLE IF NOT EXISTS Sessions (\n" +
-                    "sessionId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n" +
-                    "userId INTEGER NOT NULL REFERENCES Accounts (userId) ON DELETE CASCADE,\n" +
-                    "cookieToken BLOB NOT NULL,\n" +
-                    "requestToken BLOB NOT NULL,\n" +
-                    "expiryTime INTEGER NOT NULL\n" +
-                    ")");
-            attestationConn.exec("CREATE INDEX IF NOT EXISTS Sessions_expiryTime " +
-                    "ON Sessions (expiryTime)");
-            attestationConn.exec("CREATE INDEX IF NOT EXISTS Sessions_userId " +
-                    "ON Sessions (userId)");
-            createDevicesTable(attestationConn);
-            createDevicesIndices(attestationConn);
-            createAttestationsTable(attestationConn);
-            createAttestationsIndices(attestationConn);
+            createAttestationTablesAndIndices(attestationConn);
 
             attestationConn.exec("INSERT OR IGNORE INTO Configuration " +
                     "(key, value) VALUES ('backups', 0)");
