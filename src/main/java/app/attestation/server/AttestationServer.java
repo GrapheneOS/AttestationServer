@@ -123,8 +123,8 @@ public class AttestationServer {
         conn.exec(
                 "CREATE TABLE IF NOT EXISTS Configuration (\n" +
                 "key TEXT PRIMARY KEY NOT NULL,\n" +
-                "value NOT NULL\n" +
-                ")");
+                "value ANY NOT NULL\n" +
+                ") STRICT");
 
         conn.exec(
                 "CREATE TABLE IF NOT EXISTS Accounts (\n" +
@@ -137,14 +137,14 @@ public class AttestationServer {
                 "loginTime INTEGER NOT NULL,\n" +
                 "verifyInterval INTEGER NOT NULL,\n" +
                 "alertDelay INTEGER NOT NULL\n" +
-                ")");
+                ") STRICT");
 
         conn.exec(
                 "CREATE TABLE IF NOT EXISTS EmailAddresses (\n" +
                 "userId INTEGER NOT NULL REFERENCES Accounts (userId) ON DELETE CASCADE,\n" +
                 "address TEXT NOT NULL,\n" +
                 "PRIMARY KEY (userId, address)\n" +
-                ")");
+                ") STRICT");
 
         conn.exec(
                 "CREATE TABLE IF NOT EXISTS Sessions (\n" +
@@ -153,7 +153,7 @@ public class AttestationServer {
                 "cookieToken BLOB NOT NULL,\n" +
                 "requestToken BLOB NOT NULL,\n" +
                 "expiryTime INTEGER NOT NULL\n" +
-                ")");
+                ") STRICT");
 
         conn.exec(
                 "CREATE TABLE IF NOT EXISTS Devices (\n" +
@@ -185,7 +185,7 @@ public class AttestationServer {
                 "failureTimeLast INTEGER,\n" +
                 "userId INTEGER NOT NULL REFERENCES Accounts (userId) ON DELETE CASCADE,\n" +
                 "deletionTime INTEGER\n" +
-                ")");
+                ") STRICT");
 
         conn.exec(
                 "CREATE TABLE IF NOT EXISTS Attestations (\n" +
@@ -195,7 +195,7 @@ public class AttestationServer {
                 "strong INTEGER NOT NULL CHECK (strong in (0, 1)),\n" +
                 "teeEnforced TEXT NOT NULL,\n" +
                 "osEnforced TEXT NOT NULL\n" +
-                ")");
+                ") STRICT");
     }
 
     private static void createAttestationIndices(final SQLiteConnection conn) throws SQLiteException {
@@ -239,7 +239,7 @@ public class AttestationServer {
 
             final SQLiteStatement selectCreated = attestationConn.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='Configuration'");
             if (!selectCreated.step()) {
-                attestationConn.exec("PRAGMA user_version = 4");
+                attestationConn.exec("PRAGMA user_version = 5");
             }
             selectCreated.dispose();
 
@@ -258,6 +258,65 @@ public class AttestationServer {
             if (userVersion < 4) {
                 throw new RuntimeException("Database schemas older than version 4 are no longer " +
                         "supported. Use an older AttestationServer revision to upgrade.");
+            }
+
+            if (userVersion == 4) {
+                attestationConn.exec("PRAGMA foreign_keys = OFF");
+                attestationConn.exec("BEGIN IMMEDIATE TRANSACTION");
+
+                attestationConn.exec("ALTER TABLE Configuration RENAME TO OldConfiguration");
+                attestationConn.exec("ALTER TABLE Accounts RENAME TO OldAccounts");
+                attestationConn.exec("ALTER TABLE EmailAddresses RENAME TO OldEmailAddresses");
+                attestationConn.exec("ALTER TABLE Sessions RENAME TO OldSessions");
+                attestationConn.exec("ALTER TABLE Devices RENAME TO OldDevices");
+                attestationConn.exec("ALTER TABLE Attestations RENAME TO OldAttestations");
+
+                createAttestationTables(attestationConn);
+
+                attestationConn.exec("INSERT INTO Configuration " +
+                        "(key, value) " +
+                        "SELECT " +
+                        "key, value " +
+                        "FROM OldConfiguration");
+                attestationConn.exec("INSERT INTO Accounts " +
+                        "(userId, username, passwordHash, passwordSalt, subscribeKey, creationTime, loginTime, verifyInterval, alertDelay) " +
+                        "SELECT " +
+                        "userId, username, passwordHash, passwordSalt, subscribeKey, creationTime, loginTime, verifyInterval, alertDelay " +
+                        "FROM OldAccounts");
+                attestationConn.exec("INSERT INTO EmailAddresses " +
+                        "(userId, address) " +
+                        "SELECT " +
+                        "userId, address " +
+                        "FROM OldEmailAddresses");
+                attestationConn.exec("INSERT INTO Sessions " +
+                        "(sessionId, userId, cookieToken, requestToken, expiryTime) " +
+                        "SELECT " +
+                        "sessionId, userId, cookieToken, requestToken, expiryTime " +
+                        "FROM OldSessions");
+                attestationConn.exec("INSERT INTO Devices " +
+                        "(fingerprint, pinnedCertificate0, pinnedCertificate1, pinnedCertificate2, pinnedCertificate3, pinnedVerifiedBootKey, verifiedBootHash, pinnedOsVersion, pinnedOsPatchLevel, pinnedVendorPatchLevel, pinnedBootPatchLevel, pinnedAppVersion, pinnedSecurityLevel, userProfileSecure, enrolledBiometrics, accessibility, deviceAdmin, adbEnabled, addUsersWhenLocked, denyNewUsb, oemUnlockAllowed, systemUser, verifiedTimeFirst, verifiedTimeLast, expiredTimeLast, failureTimeLast, userId, deletionTime)" +
+                        "SELECT " +
+                        "fingerprint, pinnedCertificate0, pinnedCertificate1, pinnedCertificate2, pinnedCertificate3, pinnedVerifiedBootKey, verifiedBootHash, pinnedOsVersion, pinnedOsPatchLevel, pinnedVendorPatchLevel, pinnedBootPatchLevel, pinnedAppVersion, pinnedSecurityLevel, userProfileSecure, enrolledBiometrics, accessibility, deviceAdmin, adbEnabled, addUsersWhenLocked, denyNewUsb, oemUnlockAllowed, systemUser, verifiedTimeFirst, verifiedTimeLast, expiredTimeLast, failureTimeLast, userId, deletionTime " +
+                        "FROM OldDevices");
+                attestationConn.exec("INSERT INTO Attestations " +
+                        "(id, fingerprint, time, strong, teeEnforced, osEnforced) " +
+                        "SELECT " +
+                        "id, fingerprint, time, strong, teeEnforced, osEnforced " +
+                        "FROM OldAttestations");
+
+                attestationConn.exec("DROP TABLE OldConfiguration");
+                attestationConn.exec("DROP TABLE OldAccounts");
+                attestationConn.exec("DROP TABLE OldEmailAddresses");
+                attestationConn.exec("DROP TABLE OldSessions");
+                attestationConn.exec("DROP TABLE OldDevices");
+                attestationConn.exec("DROP TABLE OldAttestations");
+
+                createAttestationIndices(attestationConn);
+
+                attestationConn.exec("PRAGMA user_version = 5");
+                userVersion = 5;
+                attestationConn.exec("COMMIT TRANSACTION");
+                attestationConn.exec("PRAGMA foreign_keys = ON");
             }
 
             logger.info("New schema version: " + userVersion);
