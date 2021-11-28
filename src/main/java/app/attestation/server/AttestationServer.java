@@ -164,8 +164,8 @@ public class AttestationServer {
                 "adbEnabled INTEGER NOT NULL CHECK (adbEnabled in (0, 1)),\n" +
                 "addUsersWhenLocked INTEGER NOT NULL CHECK (addUsersWhenLocked in (0, 1)),\n" +
                 "denyNewUsb INTEGER NOT NULL CHECK (denyNewUsb in (0, 1)),\n" +
-                "oemUnlockAllowed INTEGER CHECK (oemUnlockAllowed in (0, 1)),\n" +
-                "systemUser INTEGER CHECK (systemUser in (0, 1)),\n" +
+                "oemUnlockAllowed INTEGER NOT NULL CHECK (oemUnlockAllowed in (0, 1)),\n" +
+                "systemUser INTEGER NOT NULL CHECK (systemUser in (0, 1)),\n" +
                 "verifiedTimeFirst INTEGER NOT NULL,\n" +
                 "verifiedTimeLast INTEGER NOT NULL,\n" +
                 "expiredTimeLast INTEGER,\n" +
@@ -282,7 +282,7 @@ public class AttestationServer {
 
             final SQLiteStatement selectCreated = attestationConn.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='Configuration'");
             if (!selectCreated.step()) {
-                attestationConn.exec("PRAGMA user_version = 5");
+                attestationConn.exec("PRAGMA user_version = 6");
             }
             selectCreated.dispose();
 
@@ -299,8 +299,8 @@ public class AttestationServer {
                         "supported. Use an older AttestationServer revision to upgrade.");
             }
 
-            // migrate to STRICT tables
-            if (userVersion == 4) {
+            // migrate to STRICT tables and add NOT NULL to oemUnlockAllowed/systemUser
+            if (userVersion < 6) {
                 attestationConn.exec("PRAGMA foreign_keys = OFF");
                 attestationConn.exec("BEGIN IMMEDIATE TRANSACTION");
 
@@ -353,8 +353,8 @@ public class AttestationServer {
 
                 createAttestationIndices(attestationConn);
 
-                attestationConn.exec("PRAGMA user_version = 5");
-                userVersion = 5;
+                attestationConn.exec("PRAGMA user_version = 6");
+                userVersion = 6;
                 attestationConn.exec("COMMIT TRANSACTION");
                 attestationConn.exec("PRAGMA foreign_keys = ON");
             }
@@ -1197,12 +1197,8 @@ public class AttestationServer {
                 device.add("adbEnabled", select.columnInt(17));
                 device.add("addUsersWhenLocked", select.columnInt(18));
                 device.add("denyNewUsb", select.columnInt(19));
-                if (!select.columnNull(20)) {
-                    device.add("oemUnlockAllowed", select.columnInt(20));
-                }
-                if (!select.columnNull(21)) {
-                    device.add("systemUser", select.columnInt(21));
-                }
+                device.add("oemUnlockAllowed", select.columnInt(20));
+                device.add("systemUser", select.columnInt(21));
                 device.add("verifiedTimeFirst", select.columnLong(22));
                 device.add("verifiedTimeLast", select.columnLong(23));
                 final SQLiteStatement devicesAttestationsLatestSelect = conn.prepare(

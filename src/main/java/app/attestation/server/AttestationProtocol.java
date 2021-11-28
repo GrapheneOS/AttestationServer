@@ -1148,9 +1148,7 @@ class AttestationProtocol {
                 update.bind(14, addUsersWhenLocked ? 1 : 0);
                 update.bind(15, denyNewUsb ? 1 : 0);
                 update.bind(16, oemUnlockAllowed ? 1 : 0);
-                if (verified.appVersion >= 14) {
-                    update.bind(17, systemUser ? 1 : 0);
-                }
+                update.bind(17, systemUser ? 1 : 0);
                 update.bind(18, now);
                 update.bind(19, fingerprint);
                 update.step();
@@ -1191,9 +1189,7 @@ class AttestationProtocol {
                 insert.bind(19, addUsersWhenLocked ? 1 : 0);
                 insert.bind(20, denyNewUsb ? 1 : 0);
                 insert.bind(21, oemUnlockAllowed ? 1 : 0);
-                if (verified.appVersion >= 14) {
-                    insert.bind(22, systemUser ? 1 : 0);
-                }
+                insert.bind(22, systemUser ? 1 : 0);
                 insert.bind(23, now);
                 insert.bind(24, now);
                 insert.bind(25, userId);
@@ -1230,10 +1226,8 @@ class AttestationProtocol {
                     toYesNoString(denyNewUsb)));
             osEnforced.append(String.format("OEM unlocking allowed: %s\n",
                     toYesNoString(oemUnlockAllowed)));
-            if (verified.appVersion >= 14) {
-                osEnforced.append(String.format("Main user account: %s\n",
-                        toYesNoString(systemUser)));
-            }
+            osEnforced.append(String.format("Main user account: %s\n",
+                    toYesNoString(systemUser)));
 
             final String teeEnforcedString = teeEnforced.toString();
             final String osEnforcedString = osEnforced.toString();
