@@ -245,6 +245,7 @@ public class AttestationServer {
 
             createSamplesTable(samplesConn);
 
+            // migrate to STRICT table
             if (userVersion == 0) {
                 samplesConn.exec("PRAGMA foreign_keys = OFF");
                 samplesConn.exec("BEGIN IMMEDIATE TRANSACTION");
@@ -298,6 +299,7 @@ public class AttestationServer {
                         "supported. Use an older AttestationServer revision to upgrade.");
             }
 
+            // migrate to STRICT tables
             if (userVersion == 4) {
                 attestationConn.exec("PRAGMA foreign_keys = OFF");
                 attestationConn.exec("BEGIN IMMEDIATE TRANSACTION");
