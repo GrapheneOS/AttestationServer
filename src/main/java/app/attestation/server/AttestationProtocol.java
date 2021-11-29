@@ -1283,7 +1283,7 @@ class AttestationProtocol {
             chainDeserializer.get(encoded);
             certs.add(generateCertificate(new ByteArrayInputStream(encoded)));
         }
-        final Certificate[] certificates = certs.toArray(new Certificate[certs.size()]);
+        final Certificate[] certificates = certs.toArray(Certificate[]::new);
 
         final byte[] fingerprint = new byte[FINGERPRINT_LENGTH];
         deserializer.get(fingerprint);
