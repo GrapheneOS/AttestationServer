@@ -1248,8 +1248,7 @@ public class AttestationServer {
                     return;
                 }
                 writeAttestationHistoryJson(exchange, fingerprint, account, offsetId);
-            } catch (final ClassCastException | JsonException | NullPointerException | NumberFormatException |
-                    DataFormatException | GeneralSecurityException e) {
+            } catch (final ClassCastException | JsonException | NullPointerException | NumberFormatException | GeneralSecurityException e) {
                 logger.log(Level.INFO, "invalid request", e);
                 exchange.sendResponseHeaders(400, -1);
             }
@@ -1258,7 +1257,7 @@ public class AttestationServer {
 
     private static void writeAttestationHistoryJson(final HttpExchange exchange, final String deviceFingerprint,
             final Account userAccount, final long offsetId)
-            throws IOException, SQLiteException, DataFormatException, GeneralSecurityException {
+            throws IOException, SQLiteException, GeneralSecurityException {
         final SQLiteConnection conn = new SQLiteConnection(AttestationProtocol.ATTESTATION_DATABASE);
         final JsonArrayBuilder attestations = Json.createArrayBuilder();
 
