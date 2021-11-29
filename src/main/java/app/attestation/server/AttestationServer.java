@@ -40,7 +40,6 @@ import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -495,7 +494,7 @@ public class AttestationServer {
     }
 
     private static void validateUnicode(final String s) throws CharacterCodingException {
-        Charset.forName("UTF-16LE").newEncoder().encode(CharBuffer.wrap(s));
+        StandardCharsets.UTF_16LE.newEncoder().encode(CharBuffer.wrap(s));
     }
 
     private static void validatePassword(final String password) throws GeneralSecurityException {
