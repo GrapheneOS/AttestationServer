@@ -131,8 +131,7 @@ class AlertDispatcher implements Runnable {
                         final String encoded = BaseEncoding.base16().encode(fingerprint);
 
                         for (int i = 0; i < encoded.length(); i += FINGERPRINT_SPLIT_INTERVAL) {
-                            expired.append(encoded.substring(i,
-                                    Math.min(encoded.length(), i + FINGERPRINT_SPLIT_INTERVAL)));
+                            expired.append(encoded, i, Math.min(encoded.length(), i + FINGERPRINT_SPLIT_INTERVAL));
                             if (i + FINGERPRINT_SPLIT_INTERVAL < encoded.length()) {
                                 expired.append("-");
                             }
