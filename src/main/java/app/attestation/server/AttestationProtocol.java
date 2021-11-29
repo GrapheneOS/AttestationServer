@@ -38,10 +38,13 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Logger;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
 class AttestationProtocol {
+    private static final Logger logger = Logger.getLogger(AttestationProtocol.class.getName());
+
     static final File ATTESTATION_DATABASE = new File("attestation.db");
 
     // Developer previews set osVersion to 0 as a placeholder value.
@@ -1290,7 +1293,7 @@ class AttestationProtocol {
 
         final int osEnforcedFlags = deserializer.getInt();
         if ((osEnforcedFlags & ~OS_ENFORCED_FLAGS_ALL) != 0) {
-            //Log.w(TAG, "unknown OS enforced flag set (flags: " + Integer.toBinaryString(osEnforcedFlags) + ")");
+            logger.info("unknown OS enforced flag set (flags: " + Integer.toBinaryString(osEnforcedFlags) + ")");
         }
         final boolean userProfileSecure = (osEnforcedFlags & OS_ENFORCED_FLAGS_USER_PROFILE_SECURE) != 0;
         final boolean accessibility = (osEnforcedFlags & OS_ENFORCED_FLAGS_ACCESSIBILITY) != 0;
