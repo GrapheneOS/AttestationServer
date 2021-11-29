@@ -1252,7 +1252,6 @@ public class AttestationServer {
                     DataFormatException | GeneralSecurityException e) {
                 logger.log(Level.INFO, "invalid request", e);
                 exchange.sendResponseHeaders(400, -1);
-                return;
             }
         }
     }
