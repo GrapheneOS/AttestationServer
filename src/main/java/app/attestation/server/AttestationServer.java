@@ -453,6 +453,7 @@ public class AttestationServer {
                 try {
                     checkOrigin(exchange);
                 } catch (final GeneralSecurityException e) {
+                    logger.log(Level.INFO, "invalid origin headers", e);
                     exchange.sendResponseHeaders(403, -1);
                     return;
                 }
