@@ -11,7 +11,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-node@v2.5.0
+    - uses: actions/setup-node@v2
       with:
         cache: 'npm'
     - uses: actions/setup-python@v2
@@ -21,7 +21,7 @@ jobs:
 
     - name: Cache validator
       id: validator-cache
-      uses: actions/cache@v2.1.7
+      uses: actions/cache@v2
       with:
         path: vnu-runtime-image
         key: ${{ runner.os }}-validator-${{ env.VALIDATOR_VERSION }}
