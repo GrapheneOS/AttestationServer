@@ -356,9 +356,8 @@ public class AttestationServer {
                 userVersion = 6;
                 attestationConn.exec("COMMIT TRANSACTION");
                 attestationConn.exec("PRAGMA foreign_keys = ON");
+                logger.info("Migrated to schema version: " + userVersion);
             }
-
-            logger.info("New schema version: " + userVersion);
 
             logger.info("Analyze database");
             attestationConn.exec("ANALYZE");
