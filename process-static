@@ -39,7 +39,7 @@ for file in static-tmp/**/*.css static-tmp/**/*.js; do
     replace+=";s@{{path|/${file#*/}}}@/${dest#*/}@g"
 done
 
-sed -i "$replace" static-tmp/**/*.html nginx-tmp/nginx.conf
+sed -i "$replace" static-tmp/**/*.html nginx-tmp/nginx.conf nginx-tmp/snippets/preload.conf
 
 gixy nginx-tmp/nginx.conf
 
