@@ -62,7 +62,7 @@ function toSecurityLevelString(value) {
 }
 
 function reloadQrCode() {
-    qr.src = "/placeholder.png";
+    qr.src = "/placeholder.gif";
     qr.alt = "";
     post("/api/account.png", localStorage.getItem("requestToken")).then(response => {
         if (!response.ok) {
@@ -456,7 +456,7 @@ for (const logoutButton of document.getElementsByClassName("logout")) {
             accountContent.hidden = true;
             username.innerText = null;
             configuration.reset();
-            qr.src = "/placeholder.png";
+            qr.src = "/placeholder.gif";
             qr.alt = "";
             loggedInButtons.hidden = true;
             logout.disabled = false;
