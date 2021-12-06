@@ -262,8 +262,8 @@ public class AttestationServer {
                 samplesConn.exec("DROP TABLE OldSamples");
 
                 samplesConn.exec("PRAGMA user_version = 1");
-                userVersion = 1;
                 samplesConn.exec("COMMIT TRANSACTION");
+                userVersion = 1;
                 samplesConn.exec("PRAGMA foreign_keys = ON");
             }
 
@@ -353,8 +353,8 @@ public class AttestationServer {
                 createAttestationIndices(attestationConn);
 
                 attestationConn.exec("PRAGMA user_version = 6");
-                userVersion = 6;
                 attestationConn.exec("COMMIT TRANSACTION");
+                userVersion = 6;
                 attestationConn.exec("PRAGMA foreign_keys = ON");
                 logger.info("Migrated to schema version: " + userVersion);
             }
