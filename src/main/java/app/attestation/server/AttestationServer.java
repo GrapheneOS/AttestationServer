@@ -293,7 +293,7 @@ public class AttestationServer {
             attestationConn.exec("INSERT OR IGNORE INTO Configuration " +
                     "(key, value) VALUES ('backups', 0)");
 
-            if (userVersion < 4) {
+            if (userVersion < 4 && userVersion > 0) {
                 throw new RuntimeException("Database schemas older than version 4 are no longer " +
                         "supported. Use an older AttestationServer revision to upgrade.");
             }
