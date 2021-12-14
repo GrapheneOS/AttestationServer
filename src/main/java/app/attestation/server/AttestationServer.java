@@ -762,7 +762,7 @@ public class AttestationServer {
             if (account == null) {
                 return;
             }
-            clearCookie(exchange);
+            purgeSessionCookie(exchange);
             exchange.sendResponseHeaders(200, -1);
         }
     }
@@ -785,7 +785,7 @@ public class AttestationServer {
             } finally {
                 conn.dispose();
             }
-            clearCookie(exchange);
+            purgeSessionCookie(exchange);
             exchange.sendResponseHeaders(200, -1);
         }
     }
@@ -835,7 +835,7 @@ public class AttestationServer {
         return null;
     }
 
-    private static void clearCookie(final HttpExchange exchange) {
+    private static void purgeSessionCookie(final HttpExchange exchange) {
         exchange.getResponseHeaders().set("Set-Cookie",
                 "__Host-session=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0");
     }
@@ -866,7 +866,7 @@ public class AttestationServer {
         }
         final String[] session = cookie.split("\\|", 2);
         if (session.length != 2) {
-            clearCookie(exchange);
+            purgeSessionCookie(exchange);
             exchange.sendResponseHeaders(403, -1);
             return null;
         }
@@ -879,7 +879,7 @@ public class AttestationServer {
             try {
                 input.readFully(requestTokenEncoded);
             } catch (final EOFException e) {
-                clearCookie(exchange);
+                purgeSessionCookie(exchange);
                 exchange.sendResponseHeaders(403, -1);
                 return null;
             }
@@ -898,13 +898,13 @@ public class AttestationServer {
             select.bind(1, sessionId);
             if (!select.step() || !MessageDigest.isEqual(cookieToken, select.columnBlob(0)) ||
                     !MessageDigest.isEqual(requestToken, select.columnBlob(1))) {
-                clearCookie(exchange);
+                purgeSessionCookie(exchange);
                 exchange.sendResponseHeaders(403, -1);
                 return null;
             }
 
             if (select.columnLong(2) < System.currentTimeMillis()) {
-                clearCookie(exchange);
+                purgeSessionCookie(exchange);
                 exchange.sendResponseHeaders(403, -1);
                 return null;
             }
