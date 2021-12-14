@@ -1407,6 +1407,7 @@ public class AttestationServer {
             final byte[] buffer = new byte[4096];
             for (int read = input.read(buffer); read != -1; read = input.read(buffer)) {
                 if (sample.size() + read > MAX_SAMPLE_SIZE) {
+                    logger.warning("sample submission beyond size limit");
                     exchange.sendResponseHeaders(413, -1);
                     return;
                 }
@@ -1415,6 +1416,7 @@ public class AttestationServer {
             }
 
             if (sample.size() == 0) {
+                logger.warning("empty sample submission");
                 exchange.sendResponseHeaders(400, -1);
                 return;
             }
