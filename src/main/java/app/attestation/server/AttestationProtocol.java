@@ -1213,9 +1213,9 @@ class AttestationProtocol {
 
             final String deviceAdminState;
             if (deviceAdminNonSystem) {
-                deviceAdminState = "yes, but only system apps";
-            } else if (deviceAdmin) {
                 deviceAdminState = "yes, with non-system apps";
+            } else if (deviceAdmin) {
+                deviceAdminState = "yes, but only system apps";
             } else {
                 deviceAdminState = "no";
             }

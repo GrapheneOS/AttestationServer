@@ -23,8 +23,8 @@ const accountContent = document.getElementById("account_content");
 
 const deviceAdminStrings = new Map([
     [0, "no"],
-    [1, "yes, with non-system apps"],
-    [2, "yes, but only system apps"]
+    [1, "yes, but only system apps"],
+    [2, "yes, with non-system apps"]
 ]);
 
 function post(resource, body) {
