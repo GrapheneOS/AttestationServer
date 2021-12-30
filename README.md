@@ -2,15 +2,15 @@ See the overview of the project at https://attestation.app/about.
 
 ## Installation guide
 
-This is an generic guide on setting up the attestation server.
+This is a generic guide on setting up the attestation server.
 
 You need to set up nginx using the nginx configuration in the nginx directory in this repository.
 You'll need to adjust it based on your domain name. The sample configuration relies on certbot,
-[nginx-rotate-session-ticket-keys](https://github.com/GrapheneOS/nginx-rotate-session-ticket-keys)
-and certbot-ocsp-fetcher. Setting up the web server is out-of-scope for this guide.
+[nginx-rotate-session-ticket-keys](https://github.com/GrapheneOS/nginx-rotate-session-ticket-keys),
+and [certbot-ocsp-fetcher](https://github.com/tomwassenberg/certbot-ocsp-fetcher). Setting up the web server is out-of-scope for this guide.
 
-Install a headless Java runtime environment. The package name on Debian-based distributions is
-`default-jre-headless`. Install `sqlite3` in order to set up the email configuration for the
+Install a headless Java 17 runtime environment. The package name on Debian-based distributions is
+`openjdk-17-jre-headless` or `jre-openjdk-headless` on Arch Linux. Install `sqlite3` in order to set up the email configuration for the
 database.
 
 As root, on the server:
@@ -25,17 +25,19 @@ As root, on the server:
 
 Set up ssh `authorized_keys` for the attestation user.
 
-Copy attestation.service to /etc/systemd/system/attestation.service.
+Copy `attestation.service` to `/etc/systemd/system/attestation.service`.
 
-On your development machine, deploy the code:
+On your development machine, you will need to change the `remote` variable in the scripts to your server. Then deploy the attestation server and static content:
 
     ./deploy-server
     ./deploy-static
 
-As root, on the server:
+As root on the server, enable and start the attestation server:
 
     systemctl enable attestation
     systemctl start attestation
+
+The server will be listening on `[::1]:8080` by default which [can be changed](https://github.com/GrapheneOS/AttestationServer/blob/main/src/main/java/app/attestation/server/AttestationServer.java#L381).
 
 ## Email alert configuration
 
