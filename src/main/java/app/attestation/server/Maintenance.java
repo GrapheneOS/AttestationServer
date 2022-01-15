@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 class Maintenance implements Runnable {
     private static final long WAIT_MS = 24 * 60 * 60 * 1000;
     private static final long DELETE_EXPIRY_MS = 7L * 24 * 60 * 60 * 1000;
-    private static final long INACTIVE_DEVICE_EXPIRY_MS = 365L * 24 * 60 * 60 * 1000;
+    private static final long INACTIVE_DEVICE_EXPIRY_MS = 90L * 24 * 60 * 60 * 1000;
     private static final boolean PURGE_INACTIVE_DEVICES = true;
     private static final int KEEP_BACKUPS = 28;
 
