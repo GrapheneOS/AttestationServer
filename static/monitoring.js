@@ -530,7 +530,7 @@ for (const cancel of document.getElementsByClassName("cancel_account")) {
 }
 
 rotate.onclick = () => {
-    if (confirm("Are you sure you want to rotate the device subscription key?")) {
+    if (confirm("Are you sure you want to rotate the device subscription key? This will not break existing pairings, but will prevent pairing with previous subscription QR codes.")) {
         rotate.disabled = true;
         const requestToken = localStorage.getItem("requestToken");
         post("/api/rotate", requestToken).then(response => {
