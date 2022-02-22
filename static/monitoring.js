@@ -129,7 +129,7 @@ function fetchHistory(parent, nextOffset) {
                 "Successfully performed basic initial verification and pairing.";
             p.appendChild(create("strong", result));
 
-            parent.appendChild(create("h5", "Verified device information (constants omitted):"));
+            parent.appendChild(create("h5", "Hardware verified information (constants omitted):"));
             parent.appendChild(create("p", attestation.teeEnforced));
             parent.appendChild(create("h5", "Information provided by the verified OS:"));
             parent.appendChild(create("p", attestation.osEnforced));
@@ -198,7 +198,7 @@ function fetchDevices() {
                 }
             };
 
-            info.appendChild(create("h3", "Verified device information:"));
+            info.appendChild(create("h3", "Hardware verified information:"));
             appendLine(info, "Pinned security level: " + toSecurityLevelString(device.pinnedSecurityLevel));
             appendLine(info, "Pinned device: " + device.name);
             appendLine(info, "Pinned OS: " + device.osName);
