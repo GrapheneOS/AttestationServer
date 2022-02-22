@@ -204,7 +204,7 @@ function fetchDevices() {
             info.appendChild(document.createElement("br"));
             appendLine(info, "Pinned security level: " + toSecurityLevelString(device.pinnedSecurityLevel));
             appendLine(info, "Pinned device: " + device.name);
-            appendLine(info, "Pinned OS: " + device.osName);
+            appendLine(info, `Pinned OS: ${device.osName} (unmodified official release)`);
             appendLine(info, "Pinned OS version: " + formatOsVersion(device.pinnedOsVersion));
             appendLine(info, "Pinned OS patch level: " + formatPatchLevel(device.pinnedOsPatchLevel));
             if (device.pinnedVendorPatchLevel !== undefined) {
