@@ -576,7 +576,7 @@ class AttestationProtocol {
             "ex0SdDrx+tWUDqG8At2JHA==\n" +
             "-----END CERTIFICATE-----";
 
-    private static final byte[] DEFLATE_DICTIONARY_2 = BaseEncoding.base64().decode(
+    static final byte[] DEFLATE_DICTIONARY_2 = BaseEncoding.base64().decode(
             "MIIFHDCCAwSgAwIBAgIJANUP8luj8tazMA0GCSqGSIb3DQEBCwUAMBsxGTAXBgNVBAUTEGY5MjAw" +
             "OWU4NTNiNmIwNDUwHhcNMTkxMTIyMjAzNzU4WhcNMzQxMTE4MjAzNzU4WjAbMRkwFwYDVQQFExBm" +
             "OTIwMDllODUzYjZiMDQ1MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAr7bHgiuxpwHs" +
@@ -1035,7 +1035,7 @@ class AttestationProtocol {
         try {
             AttestationServer.open(conn, false);
 
-            final byte[][] pinnedCertificates = new byte[4][];
+            Certificate[] pinnedCertificates = null;
             byte[] pinnedVerifiedBootKey = null;
             int pinnedOsVersion = Integer.MAX_VALUE;
             int pinnedOsPatchLevel = Integer.MAX_VALUE;
@@ -1044,25 +1044,26 @@ class AttestationProtocol {
             int pinnedAppVersion = Integer.MAX_VALUE;
             int pinnedSecurityLevel = 1;
             if (hasPersistentKey) {
-                final SQLiteStatement st = conn.prepare("SELECT pinnedCertificate0, " +
-                        "pinnedCertificate1, pinnedCertificate2, pinnedCertificate3, pinnedVerifiedBootKey, " +
-                        "pinnedOsVersion, pinnedOsPatchLevel, pinnedVendorPatchLevel, " +
-                        "pinnedBootPatchLevel, pinnedAppVersion, pinnedSecurityLevel, userId " +
+                final SQLiteStatement st = conn.prepare("SELECT pinnedCertificates, " +
+                        "pinnedVerifiedBootKey, pinnedOsVersion, pinnedOsPatchLevel, " +
+                        "pinnedVendorPatchLevel, pinnedBootPatchLevel, pinnedAppVersion, " +
+                        "pinnedSecurityLevel, userId " +
                         "FROM Devices WHERE fingerprint = ?");
                 st.bind(1, fingerprint);
                 if (st.step()) {
-                    pinnedCertificates[0] = st.columnBlob(0);
-                    pinnedCertificates[1] = st.columnBlob(1);
-                    pinnedCertificates[2] = st.columnBlob(2);
-                    pinnedCertificates[3] = st.columnBlob(3);
-                    pinnedVerifiedBootKey = st.columnBlob(4);
-                    pinnedOsVersion = st.columnInt(5);
-                    pinnedOsPatchLevel = st.columnInt(6);
-                    pinnedVendorPatchLevel = st.columnInt(7);
-                    pinnedBootPatchLevel = st.columnInt(8);
-                    pinnedAppVersion = st.columnInt(9);
-                    pinnedSecurityLevel = st.columnInt(10);
-                    if (userId != st.columnLong(11)) {
+                    try {
+                        pinnedCertificates = decodeChain(DEFLATE_DICTIONARY_2, st.columnBlob(0));
+                    } catch (final DataFormatException e) {
+                        throw new IOException(e);
+                    }
+                    pinnedVerifiedBootKey = st.columnBlob(1);
+                    pinnedOsVersion = st.columnInt(2);
+                    pinnedOsPatchLevel = st.columnInt(3);
+                    pinnedVendorPatchLevel = st.columnInt(4);
+                    pinnedBootPatchLevel = st.columnInt(5);
+                    pinnedAppVersion = st.columnInt(6);
+                    pinnedSecurityLevel = st.columnInt(7);
+                    if (userId != st.columnLong(8)) {
                         throw new GeneralSecurityException("wrong userId");
                     }
                     st.dispose();
@@ -1083,19 +1084,14 @@ class AttestationProtocol {
             final StringBuilder teeEnforced = new StringBuilder();
             final long now = new Date().getTime();
 
-            if (attestationCertificates.length != 4) {
-                throw new GeneralSecurityException("currently only support certificate chains with length 4");
-            }
-
             if (hasPersistentKey) {
                 for (int i = 1; i < attestationCertificates.length; i++) {
-                    if (!Arrays.equals(attestationCertificates[i].getEncoded(), pinnedCertificates[i])) {
+                    if (!Arrays.equals(attestationCertificates[i].getEncoded(), pinnedCertificates[i].getEncoded())) {
                         throw new GeneralSecurityException("certificate chain mismatch");
                     }
                 }
 
-                final Certificate persistentCertificate = generateCertificate(
-                        new ByteArrayInputStream(pinnedCertificates[0]));
+                final Certificate persistentCertificate = pinnedCertificates[0];
                 if (!Arrays.equals(fingerprint, getFingerprint(persistentCertificate))) {
                     throw new GeneralSecurityException("corrupt Auditor pinning data");
                 }
@@ -1173,42 +1169,39 @@ class AttestationProtocol {
                 }
 
                 final SQLiteStatement insert = conn.prepare("INSERT INTO Devices " +
-                        "(fingerprint, pinnedCertificate0, pinnedCertificate1, pinnedCertificate2, pinnedCertificate3, " +
-                        "pinnedVerifiedBootKey, verifiedBootHash, pinnedOsVersion, pinnedOsPatchLevel, " +
+                        "(fingerprint, pinnedCertificates, pinnedVerifiedBootKey, " +
+                        "verifiedBootHash, pinnedOsVersion, pinnedOsPatchLevel, " +
                         "pinnedVendorPatchLevel, pinnedBootPatchLevel, pinnedAppVersion, pinnedSecurityLevel, " +
                         "userProfileSecure, enrolledBiometrics, accessibility, deviceAdmin, " +
                         "adbEnabled, addUsersWhenLocked, denyNewUsb, oemUnlockAllowed, systemUser, " +
                         "verifiedTimeFirst, verifiedTimeLast, userId) " +
-                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 insert.bind(1, fingerprint);
-                insert.bind(2, attestationCertificates[0].getEncoded());
-                insert.bind(3, attestationCertificates[1].getEncoded());
-                insert.bind(4, attestationCertificates[2].getEncoded());
-                insert.bind(5, attestationCertificates[3].getEncoded());
-                insert.bind(6, verifiedBootKey);
-                insert.bind(7, verified.verifiedBootHash);
-                insert.bind(8, verified.osVersion);
-                insert.bind(9, verified.osPatchLevel);
+                insert.bind(2, encodeChain(DEFLATE_DICTIONARY_2, attestationCertificates));
+                insert.bind(3, verifiedBootKey);
+                insert.bind(4, verified.verifiedBootHash);
+                insert.bind(5, verified.osVersion);
+                insert.bind(6, verified.osPatchLevel);
                 if (verified.vendorPatchLevel != 0) {
-                    insert.bind(10, verified.vendorPatchLevel);
+                    insert.bind(7, verified.vendorPatchLevel);
                 }
                 if (verified.bootPatchLevel != 0) {
-                    insert.bind(11, verified.bootPatchLevel);
+                    insert.bind(8, verified.bootPatchLevel);
                 }
-                insert.bind(12, verified.appVersion);
-                insert.bind(13, verified.securityLevel);
-                insert.bind(14, userProfileSecure ? 1 : 0);
-                insert.bind(15, enrolledBiometrics ? 1 : 0);
-                insert.bind(16, accessibility ? 1 : 0);
-                insert.bind(17, deviceAdmin ? (deviceAdminNonSystem ? 2 : 1) : 0);
-                insert.bind(18, adbEnabled ? 1 : 0);
-                insert.bind(19, addUsersWhenLocked ? 1 : 0);
-                insert.bind(20, denyNewUsb ? 1 : 0);
-                insert.bind(21, oemUnlockAllowed ? 1 : 0);
-                insert.bind(22, systemUser ? 1 : 0);
-                insert.bind(23, now);
-                insert.bind(24, now);
-                insert.bind(25, userId);
+                insert.bind(9, verified.appVersion);
+                insert.bind(10, verified.securityLevel);
+                insert.bind(11, userProfileSecure ? 1 : 0);
+                insert.bind(12, enrolledBiometrics ? 1 : 0);
+                insert.bind(13, accessibility ? 1 : 0);
+                insert.bind(14, deviceAdmin ? (deviceAdminNonSystem ? 2 : 1) : 0);
+                insert.bind(15, adbEnabled ? 1 : 0);
+                insert.bind(16, addUsersWhenLocked ? 1 : 0);
+                insert.bind(17, denyNewUsb ? 1 : 0);
+                insert.bind(18, oemUnlockAllowed ? 1 : 0);
+                insert.bind(19, systemUser ? 1 : 0);
+                insert.bind(20, now);
+                insert.bind(21, now);
+                insert.bind(22, userId);
                 insert.step();
                 insert.dispose();
 
@@ -1265,7 +1258,7 @@ class AttestationProtocol {
         }
     }
 
-    private static Certificate[] decodeChain(final byte[] dictionary, final byte[] compressedChain)
+    static Certificate[] decodeChain(final byte[] dictionary, final byte[] compressedChain)
             throws DataFormatException, GeneralSecurityException {
         final byte[] chain = new byte[MAX_ENCODED_CHAIN_LENGTH];
         final Inflater inflater = new Inflater(true);
@@ -1289,7 +1282,7 @@ class AttestationProtocol {
         return certs.toArray(new Certificate[0]);
     }
 
-    private static byte[] encodeChain(final byte[] dictionary, final Certificate[] certificates)
+    static byte[] encodeChain(final byte[] dictionary, final Certificate[] certificates)
             throws CertificateEncodingException, IOException {
         final ByteBuffer chainSerializer = ByteBuffer.allocate(MAX_ENCODED_CHAIN_LENGTH);
         for (int i = 0; i < certificates.length; i++) {
