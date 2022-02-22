@@ -53,10 +53,10 @@ function toYesNoString(value) {
 
 function toSecurityLevelString(value) {
     if (value == 1) {
-        return "Standard - Trusted Execution Environment (TEE)";
+        return "Standard — Trusted Execution Environment (TEE)";
     }
     if (value == 2) {
-        return "High (StrongBox) - Hardware Security Module (HSM)";
+        return "High (StrongBox) — Hardware Security Module (HSM)";
     }
     throw new Error("Invalid security level");
 }
