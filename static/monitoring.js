@@ -240,7 +240,7 @@ function fetchDevices() {
                 if (i > 0) {
                     advanced.appendChild(document.createElement("br"));
                 }
-                advanced.appendChild(document.createTextNode(`Certificate ${i}${label}: `));
+                advanced.appendChild(document.createTextNode(`Pinned certificate ${i}${label}: `));
                 advanced.appendChild(create("button", "show", "toggle"));
                 advanced.appendChild(create("pre", certificate, undefined, true));
             }
