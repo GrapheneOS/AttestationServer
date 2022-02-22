@@ -175,7 +175,7 @@ function fetchDevices() {
 
             const deleteButton = info.appendChild(create("button", "delete device"));
             deleteButton.onclick = event => {
-                if (confirm("Are you sure you want to delete the device " + fingerprint + "?")) {
+                if (confirm(`Are you sure you want to delete the device ${fingerprint}?`)) {
                     event.target.disabled = true;
 
                     const data = JSON.stringify({
