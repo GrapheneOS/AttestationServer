@@ -240,7 +240,7 @@ function fetchDevices() {
             advanced.appendChild(document.createElement("br"));
 
             info.appendChild(create("h3", "Information provided by the verified OS:"));
-            appendLine(info, "Pinned Auditor version: " + device.pinnedAppVersion);
+            appendLine(info, "Pinned Auditor app version: " + device.pinnedAppVersion);
             appendLine(info, "User profile secure: " + toYesNoString(device.userProfileSecure));
             if (device.pinnedAppVersion < 26) {
                 appendLine(info, "Enrolled fingerprints: " + toYesNoString(device.enrolledBiometrics));
