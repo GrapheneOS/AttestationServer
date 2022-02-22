@@ -223,22 +223,27 @@ function fetchDevices() {
             info.appendChild(create("button", "show advanced information", "toggle"));
             const advanced = info.appendChild(document.createElement("section"));
             advanced.hidden = true;
-            advanced.appendChild(document.createTextNode("Certificate 0 (persistent Auditor key): "));
-            advanced.appendChild(create("button", "show", "toggle"));
-            advanced.appendChild(create("pre", device.pinnedCertificates[0], undefined, true));
-            advanced.appendChild(document.createElement("br"));
-            advanced.appendChild(document.createTextNode("Certificate 1 (batch): "));
-            advanced.appendChild(create("button", "show", "toggle"));
-            advanced.appendChild(create("pre", device.pinnedCertificates[1], undefined, true));
-            advanced.appendChild(document.createElement("br"));
-            advanced.appendChild(document.createTextNode("Certificate 2 (intermediate): "));
-            advanced.appendChild(create("button", "show", "toggle"));
-            advanced.appendChild(create("pre", device.pinnedCertificates[2], undefined, true));
-            advanced.appendChild(document.createElement("br"));
-            advanced.appendChild(document.createTextNode("Certificate 3 (root): "));
-            advanced.appendChild(create("button", "show", "toggle"));
-            advanced.appendChild(create("pre", device.pinnedCertificates[3], undefined, true));
-            advanced.appendChild(document.createElement("br"));
+            const length = device.pinnedCertificates.length;
+            for (const [i, certificate] of device.pinnedCertificates.entries()) {
+                let label = "";
+                if (i == 0) {
+                    label = " (persistent Auditor key)";
+                } else if (length == 5 && i == 1) {
+                    label = " (persistent Auditor attest key)";
+                } else if (i == length - 3) {
+                    label = " (batch)";
+                } else if (i == length - 2) {
+                    label = " (intermediate)";
+                } else if (i == length - 1) {
+                    label = " (root)";
+                }
+                if (i > 0) {
+                    advanced.appendChild(document.createElement("br"));
+                }
+                advanced.appendChild(document.createTextNode(`Certificate ${i}${label}: `));
+                advanced.appendChild(create("button", "show", "toggle"));
+                advanced.appendChild(create("pre", certificate, undefined, true));
+            }
 
             info.appendChild(create("h3", "Information provided by the verified OS:"));
             appendLine(info, "Pinned Auditor app version: " + device.pinnedAppVersion);
