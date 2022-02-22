@@ -209,6 +209,9 @@ function fetchDevices() {
             if (device.pinnedBootPatchLevel !== undefined) {
                 appendLine(info, "Boot patch level: " + formatPatchLevel(device.pinnedBootPatchLevel));
             }
+            info.appendChild(document.createTextNode("Verified boot key hash: "));
+            info.appendChild(create("span", device.verifiedBootKey, "fingerprint"));
+            info.appendChild(document.createElement("br"));
             if (device.verifiedBootHash !== undefined) {
                 info.appendChild(document.createTextNode("Verified boot hash: "));
                 info.appendChild(create("span", device.verifiedBootHash, "fingerprint"));
@@ -235,8 +238,6 @@ function fetchDevices() {
             advanced.appendChild(create("button", "show", "toggle"));
             advanced.appendChild(create("pre", device.pinnedCertificate3, undefined, true));
             advanced.appendChild(document.createElement("br"));
-            advanced.appendChild(document.createTextNode("Verified boot key fingerprint: "));
-            advanced.appendChild(create("span", device.verifiedBootKey, "fingerprint"));
 
             info.appendChild(create("h3", "Information provided by the verified OS:"));
             appendLine(info, "Auditor app version: " + device.pinnedAppVersion);
