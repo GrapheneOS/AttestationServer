@@ -1201,10 +1201,11 @@ public class AttestationServer {
                 device.add("fingerprint", BaseEncoding.base16().encode(fingerprint));
                 try {
                     final Certificate[] pinnedCertificates = AttestationProtocol.decodeChain(AttestationProtocol.DEFLATE_DICTIONARY_2, select.columnBlob(1));
-                    device.add("pinnedCertificate0", convertToPem(pinnedCertificates[0].getEncoded()));
-                    device.add("pinnedCertificate1", convertToPem(pinnedCertificates[1].getEncoded()));
-                    device.add("pinnedCertificate2", convertToPem(pinnedCertificates[2].getEncoded()));
-                    device.add("pinnedCertificate3", convertToPem(pinnedCertificates[3].getEncoded()));
+                    final JsonArrayBuilder certificates = Json.createArrayBuilder();
+                    for (final Certificate pinnedCertificate : pinnedCertificates) {
+                        certificates.add(convertToPem(pinnedCertificate.getEncoded()));
+                    }
+                    device.add("pinnedCertificates", certificates);
                 } catch (final DataFormatException | GeneralSecurityException e) {
                     throw new IOException(e);
                 }

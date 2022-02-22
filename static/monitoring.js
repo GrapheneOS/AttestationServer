@@ -225,19 +225,19 @@ function fetchDevices() {
             advanced.hidden = true;
             advanced.appendChild(document.createTextNode("Certificate 0 (persistent Auditor key): "));
             advanced.appendChild(create("button", "show", "toggle"));
-            advanced.appendChild(create("pre", device.pinnedCertificate0, undefined, true));
+            advanced.appendChild(create("pre", device.pinnedCertificates[0], undefined, true));
             advanced.appendChild(document.createElement("br"));
             advanced.appendChild(document.createTextNode("Certificate 1 (batch): "));
             advanced.appendChild(create("button", "show", "toggle"));
-            advanced.appendChild(create("pre", device.pinnedCertificate1, undefined, true));
+            advanced.appendChild(create("pre", device.pinnedCertificates[1], undefined, true));
             advanced.appendChild(document.createElement("br"));
             advanced.appendChild(document.createTextNode("Certificate 2 (intermediate): "));
             advanced.appendChild(create("button", "show", "toggle"));
-            advanced.appendChild(create("pre", device.pinnedCertificate2, undefined, true));
+            advanced.appendChild(create("pre", device.pinnedCertificates[2], undefined, true));
             advanced.appendChild(document.createElement("br"));
             advanced.appendChild(document.createTextNode("Certificate 3 (root): "));
             advanced.appendChild(create("button", "show", "toggle"));
-            advanced.appendChild(create("pre", device.pinnedCertificate3, undefined, true));
+            advanced.appendChild(create("pre", device.pinnedCertificates[3], undefined, true));
             advanced.appendChild(document.createElement("br"));
 
             info.appendChild(create("h3", "Information provided by the verified OS:"));
