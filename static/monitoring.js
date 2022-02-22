@@ -199,7 +199,9 @@ function fetchDevices() {
             };
 
             info.appendChild(create("h3", "Hardware verified information:"));
-            appendLine(info, "Pairing identity (hash of pinned hardware-backed key): " + fingerprint);
+            info.appendChild(document.createTextNode("Pairing identity (hash of pinned hardware-backed key): "));
+            info.appendChild(create("span", fingerprint, "fingerprint"));
+            info.appendChild(document.createElement("br"));
             appendLine(info, "Pinned security level: " + toSecurityLevelString(device.pinnedSecurityLevel));
             appendLine(info, "Pinned device: " + device.name);
             appendLine(info, "Pinned OS: " + device.osName);
