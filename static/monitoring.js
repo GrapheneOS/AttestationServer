@@ -199,17 +199,17 @@ function fetchDevices() {
             };
 
             info.appendChild(create("h3", "Verified device information:"));
-            appendLine(info, "Device: " + device.name);
-            appendLine(info, "OS: " + device.osName);
-            appendLine(info, "OS version: " + formatOsVersion(device.pinnedOsVersion));
-            appendLine(info, "OS patch level: " + formatPatchLevel(device.pinnedOsPatchLevel));
+            appendLine(info, "Pinned device: " + device.name);
+            appendLine(info, "Pinned OS: " + device.osName);
+            appendLine(info, "Pinned OS version: " + formatOsVersion(device.pinnedOsVersion));
+            appendLine(info, "Pinned OS patch level: " + formatPatchLevel(device.pinnedOsPatchLevel));
             if (device.pinnedVendorPatchLevel !== undefined) {
-                appendLine(info, "Vendor patch level: " + formatPatchLevel(device.pinnedVendorPatchLevel));
+                appendLine(info, "Pinned vendor patch level: " + formatPatchLevel(device.pinnedVendorPatchLevel));
             }
             if (device.pinnedBootPatchLevel !== undefined) {
-                appendLine(info, "Boot patch level: " + formatPatchLevel(device.pinnedBootPatchLevel));
+                appendLine(info, "Pinned boot patch level: " + formatPatchLevel(device.pinnedBootPatchLevel));
             }
-            info.appendChild(document.createTextNode("Verified boot key hash: "));
+            info.appendChild(document.createTextNode("Pinned verified boot key hash: "));
             info.appendChild(create("span", device.verifiedBootKey, "fingerprint"));
             info.appendChild(document.createElement("br"));
             if (device.verifiedBootHash !== undefined) {
@@ -217,7 +217,7 @@ function fetchDevices() {
                 info.appendChild(create("span", device.verifiedBootHash, "fingerprint"));
                 info.appendChild(document.createElement("br"));
             }
-            appendLine(info, "Security level: " + toSecurityLevelString(device.pinnedSecurityLevel));
+            appendLine(info, "Pinned security level: " + toSecurityLevelString(device.pinnedSecurityLevel));
 
             info.appendChild(create("button", "show advanced information", "toggle"));
             const advanced = info.appendChild(document.createElement("section"));
@@ -240,7 +240,7 @@ function fetchDevices() {
             advanced.appendChild(document.createElement("br"));
 
             info.appendChild(create("h3", "Information provided by the verified OS:"));
-            appendLine(info, "Auditor app version: " + device.pinnedAppVersion);
+            appendLine(info, "Pinned Auditor version: " + device.pinnedAppVersion);
             appendLine(info, "User profile secure: " + toYesNoString(device.userProfileSecure));
             if (device.pinnedAppVersion < 26) {
                 appendLine(info, "Enrolled fingerprints: " + toYesNoString(device.enrolledBiometrics));
