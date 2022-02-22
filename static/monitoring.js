@@ -199,6 +199,7 @@ function fetchDevices() {
             };
 
             info.appendChild(create("h3", "Verified device information:"));
+            appendLine(info, "Pinned security level: " + toSecurityLevelString(device.pinnedSecurityLevel));
             appendLine(info, "Pinned device: " + device.name);
             appendLine(info, "Pinned OS: " + device.osName);
             appendLine(info, "Pinned OS version: " + formatOsVersion(device.pinnedOsVersion));
@@ -217,7 +218,6 @@ function fetchDevices() {
                 info.appendChild(create("span", device.verifiedBootHash, "fingerprint"));
                 info.appendChild(document.createElement("br"));
             }
-            appendLine(info, "Pinned security level: " + toSecurityLevelString(device.pinnedSecurityLevel));
 
             info.appendChild(create("button", "show advanced information", "toggle"));
             const advanced = info.appendChild(document.createElement("section"));
