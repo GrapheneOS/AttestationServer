@@ -41,7 +41,7 @@ done
 
 sed -i "$replace" static-tmp/**/*.html nginx-tmp/nginx.conf nginx-tmp/snippets/preload.conf
 
-gixy nginx-tmp/nginx.conf
+#gixy nginx-tmp/nginx.conf
 
 xmllint --noout static-tmp/**/*.@(html|svg|xml)
 validatornu --Werror --also-check-css --also-check-svg static-tmp/**/*.@(css|html|svg)
