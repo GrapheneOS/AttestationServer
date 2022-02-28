@@ -19,6 +19,8 @@ import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.ASN1Set;
 
 import java.security.cert.CertificateParsingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -131,7 +133,7 @@ public class AttestationApplicationId implements java.lang.Comparable<Attestatio
         return result;
     }
 
-    private class ByteArrayComparator implements java.util.Comparator<byte[]> {
+    private static class ByteArrayComparator implements java.util.Comparator<byte[]> {
         @Override
         public int compare(byte[] a, byte[] b) {
             int res = Integer.compare(a.length, b.length);
