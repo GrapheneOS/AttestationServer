@@ -22,7 +22,7 @@ dependencies {
     implementation("com.almworks.sqlite4java:sqlite4java:1.0.392")
     runtimeOnly(files("libs/sqlite4java-prebuilt/libsqlite4java-linux-amd64-1.0.392.so"))
     implementation("com.github.ben-manes.caffeine:caffeine:3.0.5")
-    implementation("com.google.guava:guava:31.0.1-jre")
+    implementation("com.google.guava:guava:31.1-jre")
     implementation("com.google.zxing:core:3.4.1")
     implementation("com.google.zxing:javase:3.4.1")
     implementation("com.sun.mail:jakarta.mail:2.0.1")
