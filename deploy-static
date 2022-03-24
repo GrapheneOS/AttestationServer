@@ -17,18 +17,14 @@ echo active is $active
 echo target is $target
 echo
 
-ssh $remote rm -rf $target
-ssh $remote cp -a $active $target
+ssh $remote "rm -rf $target && cp -a $active $target"
 rsync -rptcv --chmod=D755,F644 --delete static-tmp/ $remote:$target
-ssh $remote sync -f $target
-ssh $remote ln -snf $target /srv/attestation.app
-ssh $remote sync /srv/attestation.app
+ssh $remote "sync -f $target && ln -snf $target /srv/attestation.app && sync /srv/attestation.app"
 
 sed -i "s|/srv/attestation.app|$target|" nginx-tmp/nginx.conf
 rsync -rptcv --chmod=D755,F644 --delete nginx-tmp/nginx.conf $remote:/etc/nginx/nginx.conf
 rsync -rptcv --chmod=D755,F644 --delete nginx-tmp/snippets/ $remote:/etc/nginx/snippets
-ssh $remote 'sync /etc/nginx/nginx.conf /etc/nginx/snippets/*'
-ssh $remote nginx -s reload
+ssh $remote "sync /etc/nginx/nginx.conf /etc/nginx/snippets/* && nginx -s reload"
 
 echo
 echo active is now $target
