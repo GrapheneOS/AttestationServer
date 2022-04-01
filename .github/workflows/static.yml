@@ -11,7 +11,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - uses: actions/setup-node@v3.0.0
+    - uses: actions/setup-node@v3
       with:
         cache: npm
     - uses: actions/setup-python@v3
