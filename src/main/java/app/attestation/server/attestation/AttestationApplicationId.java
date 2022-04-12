@@ -19,8 +19,6 @@ import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.ASN1Set;
 
 import java.security.cert.CertificateParsingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,13 +31,12 @@ public class AttestationApplicationId implements java.lang.Comparable<Attestatio
 
     public AttestationApplicationId(ASN1Encodable asn1Encodable)
             throws CertificateParsingException {
-        if (!(asn1Encodable instanceof ASN1Sequence)) {
+        if (!(asn1Encodable instanceof ASN1Sequence sequence)) {
             throw new CertificateParsingException(
                     "Expected sequence for AttestationApplicationId, found "
                             + asn1Encodable.getClass().getName());
         }
 
-        ASN1Sequence sequence = (ASN1Sequence) asn1Encodable;
         packageInfos = parseAttestationPackageInfos(sequence.getObjectAt(PACKAGE_INFOS_INDEX));
         // The infos must be sorted, the implementation of Comparable relies on it.
         packageInfos.sort(null);
@@ -54,27 +51,6 @@ public class AttestationApplicationId implements java.lang.Comparable<Attestatio
 
     public List<byte[]> getSignatureDigests() {
         return signatureDigests;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("AttestationApplicationId:");
-        int noOfInfos = packageInfos.size();
-        int i = 1;
-        for (AttestationPackageInfo info : packageInfos) {
-            sb.append("\n### Package info " + i + "/" + noOfInfos + " ###\n");
-            sb.append(info);
-        }
-        i = 1;
-        int noOfSigs = signatureDigests.size();
-        for (byte[] sig : signatureDigests) {
-            sb.append("\nSignature digest " + i++ + "/" + noOfSigs + ":");
-            for (byte b : sig) {
-                sb.append(String.format(" %02X", b));
-            }
-        }
-        return sb.toString();
     }
 
     @Override
@@ -103,13 +79,12 @@ public class AttestationApplicationId implements java.lang.Comparable<Attestatio
 
     private List<AttestationPackageInfo> parseAttestationPackageInfos(ASN1Encodable asn1Encodable)
             throws CertificateParsingException {
-        if (!(asn1Encodable instanceof ASN1Set)) {
+        if (!(asn1Encodable instanceof ASN1Set set)) {
             throw new CertificateParsingException(
                     "Expected set for AttestationApplicationsInfos, found "
                             + asn1Encodable.getClass().getName());
         }
 
-        ASN1Set set = (ASN1Set) asn1Encodable;
         List<AttestationPackageInfo> result = new ArrayList<>();
         for (ASN1Encodable e : set) {
             result.add(new AttestationPackageInfo(e));
@@ -119,12 +94,11 @@ public class AttestationApplicationId implements java.lang.Comparable<Attestatio
 
     private List<byte[]> parseSignatures(ASN1Encodable asn1Encodable)
             throws CertificateParsingException {
-        if (!(asn1Encodable instanceof ASN1Set)) {
+        if (!(asn1Encodable instanceof ASN1Set set)) {
             throw new CertificateParsingException("Expected set for Signature digests, found "
                     + asn1Encodable.getClass().getName());
         }
 
-        ASN1Set set = (ASN1Set) asn1Encodable;
         List<byte[]> result = new ArrayList<>();
 
         for (ASN1Encodable e : set) {

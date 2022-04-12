@@ -16,9 +16,7 @@
 
 package app.attestation.server.attestation;
 
-import com.google.common.base.CharMatcher;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.io.BaseEncoding;
 import org.bouncycastle.asn1.ASN1Sequence;
 
 import java.security.cert.CertificateParsingException;
@@ -96,16 +94,12 @@ public class Attestation {
     }
 
     public static String securityLevelToString(int attestationSecurityLevel) {
-        switch (attestationSecurityLevel) {
-            case KM_SECURITY_LEVEL_SOFTWARE:
-                return "Software";
-            case KM_SECURITY_LEVEL_TRUSTED_ENVIRONMENT:
-                return "TEE";
-            case KM_SECURITY_LEVEL_STRONG_BOX:
-                return "StrongBox";
-            default:
-                return "Unknown";
-        }
+        return switch (attestationSecurityLevel) {
+            case KM_SECURITY_LEVEL_SOFTWARE -> "Software";
+            case KM_SECURITY_LEVEL_TRUSTED_ENVIRONMENT -> "TEE";
+            case KM_SECURITY_LEVEL_STRONG_BOX -> "StrongBox";
+            default -> "Unknown";
+        };
     }
 
     public int getAttestationVersion() {
@@ -143,35 +137,6 @@ public class Attestation {
 
     public Set<String> getUnexpectedExtensionOids() {
         return unexpectedExtensionOids;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder s = new StringBuilder();
-        s.append("Extension type: " + getClass());
-        s.append("\nAttest version: " + attestationVersion);
-        s.append("\nAttest security: " + securityLevelToString(getAttestationSecurityLevel()));
-        s.append("\nKM version: " + keymasterVersion);
-        s.append("\nKM security: " + securityLevelToString(keymasterSecurityLevel));
-
-        s.append("\nChallenge");
-        String stringChallenge =
-                attestationChallenge != null ? new String(attestationChallenge) : "null";
-        if (CharMatcher.ascii().matchesAllOf(stringChallenge)) {
-            s.append(": [" + stringChallenge + "]");
-        } else {
-            s.append(" (base64): [" + BaseEncoding.base64().encode(attestationChallenge) + "]");
-        }
-        if (uniqueId != null) {
-            s.append("\nUnique ID (base64): [" + BaseEncoding.base64().encode(uniqueId) + "]");
-        }
-
-        s.append("\n-- SW enforced --");
-        s.append(softwareEnforced);
-        s.append("\n-- TEE enforced --");
-        s.append(teeEnforced);
-
-        return s.toString();
     }
 
     private ASN1Sequence getAttestationSequence(X509Certificate x509Cert)

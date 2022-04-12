@@ -121,12 +121,11 @@ public class Asn1Utils {
 
     public static String getStringFromAsn1OctetStreamAssumingUTF8(ASN1Encodable encodable)
             throws CertificateParsingException, UnsupportedEncodingException {
-        if (!(encodable instanceof ASN1OctetString)) {
+        if (!(encodable instanceof ASN1OctetString octetString)) {
             throw new CertificateParsingException(
                     "Expected octet string, found " + encodable.getClass().getName());
         }
 
-        ASN1OctetString octetString = (ASN1OctetString) encodable;
         return new String(octetString.getOctets(), StandardCharsets.UTF_8);
     }
 
@@ -141,11 +140,10 @@ public class Asn1Utils {
 
     public static boolean getBooleanFromAsn1(ASN1Encodable value, boolean strictParsing)
             throws CertificateParsingException {
-        if (!(value instanceof ASN1Boolean)) {
+        if (!(value instanceof ASN1Boolean booleanValue)) {
             throw new CertificateParsingException(
                     "Expected boolean, found " + value.getClass().getName());
         }
-        ASN1Boolean booleanValue = (ASN1Boolean) value;
 
         if (booleanValue.equals(ASN1Boolean.TRUE)) {
             return true;

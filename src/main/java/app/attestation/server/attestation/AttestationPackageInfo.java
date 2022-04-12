@@ -33,13 +33,12 @@ public class AttestationPackageInfo implements java.lang.Comparable<AttestationP
     }
 
     public AttestationPackageInfo(ASN1Encodable asn1Encodable) throws CertificateParsingException {
-        if (!(asn1Encodable instanceof ASN1Sequence)) {
+        if (!(asn1Encodable instanceof ASN1Sequence sequence)) {
             throw new CertificateParsingException(
                     "Expected sequence for AttestationPackageInfo, found "
                             + asn1Encodable.getClass().getName());
         }
 
-        ASN1Sequence sequence = (ASN1Sequence) asn1Encodable;
         try {
             packageName = Asn1Utils.getStringFromAsn1OctetStreamAssumingUTF8(
                     sequence.getObjectAt(PACKAGE_NAME_INDEX));
@@ -57,12 +56,6 @@ public class AttestationPackageInfo implements java.lang.Comparable<AttestationP
 
     public long getVersion() {
         return version;
-    }
-
-    @Override
-    public String toString() {
-        return "Package name: " + getPackageName() +
-                "\nVersion: " + getVersion();
     }
 
     @Override
