@@ -18,9 +18,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 class AlertDispatcher implements Runnable {
-    private static final long WAIT_MS = 15 * 60 * 1000;
+    private static final long WAIT_MS = 15L * 60 * 1000;
     private static final int TIMEOUT_MS = 30 * 1000;
-    private static final long ALERT_THROTTLE_MS = 24 * 60 * 60 * 1000;
+    private static final long ALERT_THROTTLE_MS = 24L * 60 * 60 * 1000;
 
     // Split displayed fingerprint into groups of 4 characters
     private static final int FINGERPRINT_SPLIT_INTERVAL = 4;
@@ -120,7 +120,7 @@ class AlertDispatcher implements Runnable {
                     final ArrayList<byte[]> expiredFingerprints = new ArrayList<>();
                     final StringBuilder expired = new StringBuilder();
                     selectExpired.bind(1, userId);
-                    selectExpired.bind(2, now - alertDelay * 1000);
+                    selectExpired.bind(2, now - alertDelay * 1000L);
                     while (selectExpired.step()) {
                         final byte[] fingerprint = selectExpired.columnBlob(0);
                         expiredFingerprints.add(fingerprint);
