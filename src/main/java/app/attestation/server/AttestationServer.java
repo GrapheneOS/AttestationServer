@@ -490,6 +490,10 @@ public class AttestationServer {
             if (fetchSite != null && !fetchSite.get(0).equals("same-origin")) {
                 throw new GeneralSecurityException();
             }
+            final List<String> fetchDest = exchange.getRequestHeaders().get("Sec-Fetch-Dest");
+            if (fetchDest != null && !fetchDest.get(0).equals("empty")) {
+                throw new GeneralSecurityException();
+            }
         }
 
         @Override
