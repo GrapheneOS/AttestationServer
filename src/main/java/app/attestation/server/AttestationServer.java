@@ -474,24 +474,36 @@ public class AttestationServer {
         }
     }
 
+    private static String getRequestHeaderValue(final HttpExchange exchange, final String header)
+            throws GeneralSecurityException {
+        final List<String> values = exchange.getRequestHeaders().get(header);
+        if (values == null) {
+            return null;
+        }
+        if (values.size() > 1) {
+            throw new GeneralSecurityException("multiple values for '" + header + "' header");
+        }
+        return values.get(0);
+    }
+
     private abstract static class PostHandler implements HttpHandler {
         protected abstract void handlePost(final HttpExchange exchange) throws IOException, SQLiteException;
 
         public void checkOrigin(final HttpExchange exchange) throws GeneralSecurityException {
-            final List<String> origin = exchange.getRequestHeaders().get("Origin");
-            if (origin != null && !origin.get(0).equals(ORIGIN)) {
+            final String origin = getRequestHeaderValue(exchange, "Origin");
+            if (origin != null && !origin.equals(ORIGIN)) {
                 throw new GeneralSecurityException();
             }
-            final List<String> fetchMode = exchange.getRequestHeaders().get("Sec-Fetch-Mode");
-            if (fetchMode != null && !fetchMode.get(0).equals("same-origin")) {
+            final String fetchMode = getRequestHeaderValue(exchange, "Sec-Fetch-Mode");
+            if (fetchMode != null && !fetchMode.equals("same-origin")) {
                 throw new GeneralSecurityException();
             }
-            final List<String> fetchSite = exchange.getRequestHeaders().get("Sec-Fetch-Site");
-            if (fetchSite != null && !fetchSite.get(0).equals("same-origin")) {
+            final String fetchSite = getRequestHeaderValue(exchange, "Sec-Fetch-Site");
+            if (fetchSite != null && !fetchSite.equals("same-origin")) {
                 throw new GeneralSecurityException();
             }
-            final List<String> fetchDest = exchange.getRequestHeaders().get("Sec-Fetch-Dest");
-            if (fetchDest != null && !fetchDest.get(0).equals("empty")) {
+            final String fetchDest = getRequestHeaderValue(exchange, "Sec-Fetch-Dest");
+            if (fetchDest != null && !fetchDest.equals("empty")) {
                 throw new GeneralSecurityException();
             }
         }
@@ -1379,12 +1391,15 @@ public class AttestationServer {
     private static class VerifyHandler extends AppPostHandler {
         @Override
         public void handlePost(final HttpExchange exchange) throws IOException, SQLiteException {
-            final List<String> authorization = exchange.getRequestHeaders().get("Authorization");
+            String authorization = null;
+            try {
+                authorization = getRequestHeaderValue(exchange, "Authorization");
+            } catch (final GeneralSecurityException e) {}
             if (authorization == null) {
                 exchange.sendResponseHeaders(400, -1);
                 return;
             }
-            final String[] tokens = authorization.get(0).split(" ");
+            final String[] tokens = authorization.split(" ");
             if (!tokens[0].equals("Auditor") || tokens.length < 2 || tokens.length > 3) {
                 exchange.sendResponseHeaders(400, -1);
                 return;
