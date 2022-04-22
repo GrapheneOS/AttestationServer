@@ -372,30 +372,6 @@ public class AttestationServer {
         server.start();
     }
 
-    private static class StatusHandler implements HttpHandler {
-        @Override
-        public final void handle(final HttpExchange exchange) throws IOException {
-            try {
-                if (!exchange.getRequestMethod().equalsIgnoreCase("GET")) {
-                    exchange.getResponseHeaders().set("Allow", "GET");
-                    exchange.sendResponseHeaders(405, -1);
-                    return;
-                }
-
-                final byte[] response = "success\n".getBytes();
-                exchange.sendResponseHeaders(200, response.length);
-                try (final OutputStream output = exchange.getResponseBody()) {
-                    output.write(response);
-                }
-            } catch (final Exception e) {
-                logger.log(Level.SEVERE, "unhandled error handling request", e);
-                exchange.sendResponseHeaders(500, -1);
-            } finally {
-                exchange.close();
-            }
-        }
-    }
-
     private static String getRequestHeaderValue(final HttpExchange exchange, final String header)
             throws GeneralSecurityException {
         final List<String> values = exchange.getRequestHeaders().get(header);
@@ -458,6 +434,17 @@ public class AttestationServer {
     private abstract static class AppPostHandler extends PostHandler {
         @Override
         public void checkOrigin(final HttpExchange exchange) {}
+    }
+
+    private static class StatusHandler extends AppPostHandler {
+        @Override
+        public final void handlePost(final HttpExchange exchange) throws IOException {
+            final byte[] response = "success\n".getBytes();
+            exchange.sendResponseHeaders(200, response.length);
+            try (final OutputStream output = exchange.getResponseBody()) {
+                output.write(response);
+            }
+        }
     }
 
     private static final SecureRandom random = new SecureRandom();
