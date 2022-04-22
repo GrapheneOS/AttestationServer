@@ -297,7 +297,8 @@ public class AttestationServer {
                         "supported. Use an older AttestationServer revision to upgrade.");
             }
 
-            // migrate to STRICT tables and add NOT NULL to oemUnlockAllowed/systemUser
+            // migrate to STRICT tables, add NOT NULL to oemUnlockAllowed/systemUser and migrate
+            // certificate chains to being stored compressed within one column
             if (userVersion < 7) {
                 attestationConn.exec("PRAGMA foreign_keys = OFF");
                 attestationConn.exec("BEGIN IMMEDIATE TRANSACTION");
