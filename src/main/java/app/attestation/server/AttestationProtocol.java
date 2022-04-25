@@ -218,6 +218,7 @@ class AttestationProtocol {
     private static final String DEVICE_SM_T835 = "Samsung Galaxy Tab S4";
     private static final String DEVICE_SM_J737T1 = "Samsung Galaxy J7 (SM-J737T1)";
     private static final String DEVICE_SM_S367VL = "Samsung Galaxy J3 (SM-S367VL)";
+    private static final String DEVICE_SM_F711B = "Samsung Galaxy Z Flip3 5G (SM-F711B)";
     private static final String DEVICE_SONY_XPERIA_XA2 = "Sony Xperia XA2";
     private static final String DEVICE_SONY_XPERIA_XZ1 = "Sony Xperia XZ1 / Xperia XZ1 Compact";
     private static final String DEVICE_SONY_XPERIA_XZ2 = "Sony Xperia XZ2 (H8216)";
@@ -413,6 +414,8 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_SM_T510, 3, 4, false /* uses new API */, true, false, OS_STOCK))
             .put("87790149AED63553B768456AAB6DAAD5678CD87BDEB2BF3649467085349C34E0",
                     new DeviceInfo(DEVICE_SM_T835, 1, 2, false, false, false, OS_STOCK))
+            .put("23377439DAD9742BDB722C8D26B8A4CD7E88208DD8827940C1581895AF389630",
+                    new DeviceInfo(DEVICE_SM_F711B, 3, 4, false /* uses new API */, true, true, OS_STOCK))
             .put("4285AD64745CC79B4499817F264DC16BF2AF5163AF6C328964F39E61EC84693E",
                     new DeviceInfo(DEVICE_SONY_XPERIA_XA2, 2, 3, true, true, false, OS_STOCK))
             .put("54A9F21E9CFAD3A2D028517EF333A658302417DB7FB75E0A109A019646CC5F39",
@@ -505,6 +508,8 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_SM_N970U, 3, 4, false /* uses new API */, true, true, OS_STOCK))
             .put("9AC63842137D92C119A1B1BE2C9270B9EBB6083BBE6350B7823571942B5869F0",
                     new DeviceInfo(DEVICE_SM_N975U, 3, 4, false /* uses new API */, true, true, OS_STOCK))
+            .put("23377439DAD9742BDB722C8D26B8A4CD7E88208DD8827940C1581895AF389630",
+                    new DeviceInfo(DEVICE_SM_F711B, 3, 4, false /* uses new API */, true, true, OS_STOCK))
             .build();
 
     static final String GOOGLE_ROOT_CERTIFICATE =
