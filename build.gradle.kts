@@ -24,7 +24,7 @@ dependencies {
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.0")
     implementation("com.google.guava:guava:31.1-jre")
     implementation("com.google.zxing:core:3.4.1")
-    implementation("com.google.zxing:javase:3.4.1")
+    implementation("com.google.zxing:javase:3.5.0")
     implementation("com.sun.mail:jakarta.mail:2.0.1")
     implementation("jakarta.json:jakarta.json-api:2.0.1")
     implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
