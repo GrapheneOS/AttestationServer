@@ -26,7 +26,7 @@ dependencies {
     implementation("com.google.zxing:core:3.5.0")
     implementation("com.google.zxing:javase:3.5.0")
     implementation("com.sun.mail:jakarta.mail:2.0.1")
-    implementation("jakarta.json:jakarta.json-api:2.0.1")
+    implementation("jakarta.json:jakarta.json-api:2.1.0")
     implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
     implementation("org.glassfish:jakarta.json:2.0.1")
 }
