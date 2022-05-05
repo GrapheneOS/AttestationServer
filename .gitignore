@@ -3,3 +3,4 @@ node_modules
 static-tmp
 build
 .gradle
+lock
