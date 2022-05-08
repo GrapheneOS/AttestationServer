@@ -2,6 +2,13 @@
 
 set -o errexit
 
+touch lock-server
+exec {fd}< lock-server
+if ! flock -n $fd; then
+    echo already deploying server >&2
+    exit 1
+fi
+
 rm -rf build
 ./gradlew build
 

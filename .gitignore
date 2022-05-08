@@ -4,3 +4,4 @@ static-tmp
 build
 .gradle
 lock
+lock-server
