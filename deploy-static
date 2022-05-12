@@ -30,6 +30,7 @@ ssh $remote "ln -snf $target /srv/attestation.app && sync /srv/attestation.app"
 
 sed -i "s|/srv/attestation.app|$target|" nginx-tmp/nginx.conf
 rsync -rptcv --fsync --chmod=D755,F644 --delete nginx-tmp/nginx.conf $remote:/etc/nginx/nginx.conf
+rsync -rptcv --fsync --chmod=D755,F644 --delete nginx-tmp/mime.types $remote:/etc/nginx/mime.types
 rsync -rptcv --fsync --chmod=D755,F644 --delete nginx-tmp/snippets/ $remote:/etc/nginx/snippets
 ssh $remote nginx -s reload
 
