@@ -28,7 +28,6 @@ import org.bouncycastle.asn1.ASN1Primitive;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.ASN1SequenceParser;
 import org.bouncycastle.asn1.ASN1TaggedObject;
-import org.bouncycastle.asn1.ASN1InputStream;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -338,14 +337,11 @@ public class AuthorizationList {
     }
 
     public static String algorithmToString(int algorithm) {
-        switch (algorithm) {
-            case KM_ALGORITHM_RSA:
-                return "RSA";
-            case KM_ALGORITHM_EC:
-                return "ECDSA";
-            default:
-                return "Unknown";
-        }
+        return switch (algorithm) {
+            case KM_ALGORITHM_RSA -> "RSA";
+            case KM_ALGORITHM_EC -> "ECDSA";
+            default -> "Unknown";
+        };
     }
 
     public static String paddingModesToString(final Set<Integer> paddingModes) {
@@ -378,16 +374,12 @@ public class AuthorizationList {
     }
 
     public static String originToString(int origin) {
-        switch (origin) {
-            case KM_ORIGIN_GENERATED:
-                return "Generated";
-            case KM_ORIGIN_IMPORTED:
-                return "Imported";
-            case KM_ORIGIN_UNKNOWN:
-                return "Unknown (KM0)";
-            default:
-                return "Unknown";
-        }
+        return switch (origin) {
+            case KM_ORIGIN_GENERATED -> "Generated";
+            case KM_ORIGIN_IMPORTED -> "Imported";
+            case KM_ORIGIN_UNKNOWN -> "Unknown (KM0)";
+            default -> "Unknown";
+        };
     }
 
     private static String joinStrings(Collection<String> collection) {
@@ -451,23 +443,12 @@ public class AuthorizationList {
         ImmutableSet.Builder<String> builder = ImmutableSet.builder();
         for (int paddingMode : paddingModes) {
             switch (paddingMode) {
-                case KM_PAD_NONE:
-                    builder.add(KeyProperties.ENCRYPTION_PADDING_NONE);
-                    break;
-                case KM_PAD_RSA_OAEP:
-                    builder.add(KeyProperties.ENCRYPTION_PADDING_RSA_OAEP);
-                    break;
-                case KM_PAD_RSA_PKCS1_1_5_ENCRYPT:
-                    builder.add(KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1);
-                    break;
-                case KM_PAD_RSA_PKCS1_1_5_SIGN:
-                    builder.add(KeyProperties.SIGNATURE_PADDING_RSA_PKCS1);
-                    break;
-                case KM_PAD_RSA_PSS:
-                    builder.add(KeyProperties.SIGNATURE_PADDING_RSA_PSS);
-                    break;
-                default:
-                    throw new CertificateParsingException("Invalid padding mode " + paddingMode);
+                case KM_PAD_NONE -> builder.add(KeyProperties.ENCRYPTION_PADDING_NONE);
+                case KM_PAD_RSA_OAEP -> builder.add(KeyProperties.ENCRYPTION_PADDING_RSA_OAEP);
+                case KM_PAD_RSA_PKCS1_1_5_ENCRYPT -> builder.add(KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1);
+                case KM_PAD_RSA_PKCS1_1_5_SIGN -> builder.add(KeyProperties.SIGNATURE_PADDING_RSA_PKCS1);
+                case KM_PAD_RSA_PSS -> builder.add(KeyProperties.SIGNATURE_PADDING_RSA_PSS);
+                default -> throw new CertificateParsingException("Invalid padding mode " + paddingMode);
             }
         }
         return builder.build();
@@ -481,18 +462,13 @@ public class AuthorizationList {
         if (ecCurve == null)
             return "NULL";
 
-        switch (ecCurve) {
-            case KM_EC_CURVE_P224:
-                return "secp224r1";
-            case KM_EC_CURVE_P256:
-                return "secp256r1";
-            case KM_EC_CURVE_P384:
-                return "secp384r1";
-            case KM_EC_CURVE_P521:
-                return "secp521r1";
-            default:
-                return "unknown";
-        }
+        return switch (ecCurve) {
+            case KM_EC_CURVE_P224 -> "secp224r1";
+            case KM_EC_CURVE_P256 -> "secp256r1";
+            case KM_EC_CURVE_P384 -> "secp384r1";
+            case KM_EC_CURVE_P521 -> "secp521r1";
+            default -> "unknown";
+        };
     }
 
     public Long getRsaPublicExponent() {
@@ -623,116 +599,4 @@ public class AuthorizationList {
         }
     }
 
-    @Override
-    public String toString() {
-        StringBuilder s = new StringBuilder();
-
-        if (algorithm != null) {
-            s.append("\nAlgorithm: ").append(algorithmToString(algorithm));
-        }
-
-        if (keySize != null) {
-            s.append("\nKeySize: ").append(keySize);
-        }
-
-        if (purposes != null && !purposes.isEmpty()) {
-            s.append("\nPurposes: ").append(purposesToString(purposes));
-        }
-
-        if (digests != null && !digests.isEmpty()) {
-            s.append("\nDigests: ").append(digestsToString(digests));
-        }
-
-        if (paddingModes != null && !paddingModes.isEmpty()) {
-            s.append("\nPadding modes: ").append(paddingModesToString(paddingModes));
-        }
-
-        if (ecCurve != null) {
-            s.append("\nEC Curve: ").append(ecCurveAsString());
-        }
-
-        String label = "\nRSA exponent: ";
-        if (rsaPublicExponent != null) {
-            s.append(label).append(rsaPublicExponent);
-        }
-
-        if (activeDateTime != null) {
-            s.append("\nActive: ").append(formatDate(activeDateTime));
-        }
-
-        if (originationExpireDateTime != null) {
-            s.append("\nOrigination expire: ").append(formatDate(originationExpireDateTime));
-        }
-
-        if (usageExpireDateTime != null) {
-            s.append("\nUsage expire: ").append(formatDate(usageExpireDateTime));
-        }
-
-        if (!noAuthRequired && userAuthType != null) {
-            s.append("\nAuth types: ").append(userAuthTypeToString(userAuthType));
-            if (authTimeout != null) {
-                s.append("\nAuth timeout: ").append(authTimeout);
-            }
-        }
-
-        if (applicationId != null) {
-            s.append("\nApplication ID: ").append(new String(applicationId));
-        }
-
-        if (creationDateTime != null) {
-            s.append("\nCreated: ").append(formatDate(creationDateTime));
-        }
-
-        if (origin != null) {
-            s.append("\nOrigin: ").append(originToString(origin));
-        }
-
-        if (rollbackResistant) {
-            s.append("\nRollback resistant: true");
-        }
-
-        if (rollbackResistance) {
-            s.append("\nRollback resistance: true");
-        }
-
-        if (rootOfTrust != null) {
-            s.append("\nRoot of Trust:\n").append(rootOfTrust);
-        }
-
-        if (osVersion != null) {
-            s.append("\nOS Version: ").append(osVersion);
-        }
-
-        if (osPatchLevel != null) {
-            s.append("\nOS Patchlevel: ").append(osPatchLevel);
-        }
-
-        if (vendorPatchLevel != null) {
-            s.append("\nVendor Patchlevel: ").append(vendorPatchLevel);
-        }
-
-        if (bootPatchLevel != null) {
-            s.append("\nBoot Patchlevel: ").append(bootPatchLevel);
-        }
-
-        if (attestationApplicationId != null) {
-            s.append("\nAttestation Application Id:").append(attestationApplicationId);
-        }
-
-        if (userPresenceRequired) {
-            s.append("\nUser presence required");
-        }
-
-        if (confirmationRequired) {
-            s.append("\nConfirmation required");
-        }
-
-        if (brand != null) {
-            s.append("\nBrand: ").append(brand);
-        }
-        if (device != null) {
-            s.append("\nDevice type: ").append(device);
-        }
-        return s.toString();
-    }
 }

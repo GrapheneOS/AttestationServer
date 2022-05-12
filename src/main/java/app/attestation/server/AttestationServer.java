@@ -77,7 +77,7 @@ public class AttestationServer {
     private static final int MAX_ALERT_DELAY = 2 * 7 * 24 * 60 * 60;
     private static final int BUSY_TIMEOUT = 10 * 1000;
     private static final int QR_CODE_PIXEL_SIZE = 300;
-    private static final long SESSION_LENGTH = 48 * 60 * 60 * 1000;
+    private static final long SESSION_LENGTH = 48L * 60 * 60 * 1000;
     private static final int HISTORY_PER_PAGE = 20;
 
     private static final String DOMAIN = "attestation.app";
@@ -426,7 +426,7 @@ public class AttestationServer {
         new Thread(new AlertDispatcher()).start();
         new Thread(new Maintenance()).start();
 
-        final ThreadPoolExecutor executor = new ThreadPoolExecutor(128, 128, 0, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(1024));
+        final ThreadPoolExecutor executor = new ThreadPoolExecutor(128, 128, 0, TimeUnit.SECONDS, new LinkedBlockingQueue<>(1024));
         executor.prestartAllCoreThreads();
 
         System.setProperty("sun.net.httpserver.nodelay", "true");

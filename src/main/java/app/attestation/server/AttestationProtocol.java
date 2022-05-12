@@ -1281,8 +1281,8 @@ class AttestationProtocol {
     static byte[] encodeChain(final byte[] dictionary, final Certificate[] certificates)
             throws CertificateEncodingException, IOException {
         final ByteBuffer chainSerializer = ByteBuffer.allocate(MAX_ENCODED_CHAIN_LENGTH);
-        for (int i = 0; i < certificates.length; i++) {
-            final byte[] encoded = certificates[i].getEncoded();
+        for (Certificate certificate : certificates) {
+            final byte[] encoded = certificate.getEncoded();
             if (encoded.length > Short.MAX_VALUE) {
                 throw new RuntimeException("encoded certificate too long");
             }
@@ -1303,10 +1303,9 @@ class AttestationProtocol {
         final DeflaterOutputStream deflaterStream = new DeflaterOutputStream(byteStream, deflater);
         deflaterStream.write(chain);
         deflaterStream.finish();
-        final byte[] compressed = byteStream.toByteArray();
         //Log.d(TAG, "encoded length: " + chain.length + ", compressed length: " + compressed.length);
 
-        return compressed;
+        return byteStream.toByteArray();
     }
 
     static void verifySerialized(final byte[] attestationResult,

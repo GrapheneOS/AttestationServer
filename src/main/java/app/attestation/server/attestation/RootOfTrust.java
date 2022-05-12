@@ -16,7 +16,6 @@
 
 package app.attestation.server.attestation;
 
-import com.google.common.io.BaseEncoding;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1Sequence;
 
@@ -44,12 +43,11 @@ public class RootOfTrust {
 
     public RootOfTrust(ASN1Encodable asn1Encodable, boolean strictParsing)
             throws CertificateParsingException {
-        if (!(asn1Encodable instanceof ASN1Sequence)) {
+        if (!(asn1Encodable instanceof ASN1Sequence sequence)) {
             throw new CertificateParsingException("Expected sequence for root of trust, found "
                     + asn1Encodable.getClass().getName());
         }
 
-        ASN1Sequence sequence = (ASN1Sequence) asn1Encodable;
         verifiedBootKey =
                 Asn1Utils.getByteArrayFromAsn1(sequence.getObjectAt(VERIFIED_BOOT_KEY_INDEX));
         deviceLocked = Asn1Utils.getBooleanFromAsn1(
@@ -65,18 +63,13 @@ public class RootOfTrust {
     }
 
     public static String verifiedBootStateToString(int verifiedBootState) {
-        switch (verifiedBootState) {
-            case KM_VERIFIED_BOOT_VERIFIED:
-                return "Verified";
-            case KM_VERIFIED_BOOT_SELF_SIGNED:
-                return "Self-signed";
-            case KM_VERIFIED_BOOT_UNVERIFIED:
-                return "Unverified";
-            case KM_VERIFIED_BOOT_FAILED:
-                return "Failed";
-            default:
-                return "Unknown";
-        }
+        return switch (verifiedBootState) {
+            case KM_VERIFIED_BOOT_VERIFIED -> "Verified";
+            case KM_VERIFIED_BOOT_SELF_SIGNED -> "Self-signed";
+            case KM_VERIFIED_BOOT_UNVERIFIED -> "Unverified";
+            case KM_VERIFIED_BOOT_FAILED -> "Failed";
+            default -> "Unknown";
+        };
     }
 
     public byte[] getVerifiedBootKey() {
@@ -95,15 +88,4 @@ public class RootOfTrust {
         return verifiedBootHash;
     }
 
-    @Override
-    public String toString() {
-        return "\nVerified boot Key: " +
-                (verifiedBootKey != null ?
-                        BaseEncoding.base64().encode(verifiedBootKey) :
-                        "null") +
-                "\nDevice locked: " +
-                deviceLocked +
-                "\nVerified boot state: " +
-                verifiedBootStateToString(verifiedBootState);
-    }
 }
