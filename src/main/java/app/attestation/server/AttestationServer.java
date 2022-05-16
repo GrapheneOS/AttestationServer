@@ -59,6 +59,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.DataFormatException;
 
+import static app.attestation.server.attestation.Attestation.KM_SECURITY_LEVEL_STRONG_BOX;
 import static app.attestation.server.AttestationProtocol.fingerprintsCustomOS;
 import static app.attestation.server.AttestationProtocol.fingerprintsStock;
 import static app.attestation.server.AttestationProtocol.fingerprintsStrongBoxCustomOS;
@@ -1230,7 +1231,7 @@ public class AttestationServer {
                 device.add("verifiedBootKey", verifiedBootKey);
                 DeviceInfo info;
                 final int pinnedSecurityLevel = select.columnInt(9);
-                if (pinnedSecurityLevel == AttestationProtocol.SECURITY_LEVEL_STRONGBOX) {
+                if (pinnedSecurityLevel == KM_SECURITY_LEVEL_STRONG_BOX) {
                     info = fingerprintsStrongBoxCustomOS.get(verifiedBootKey);
                     if (info == null) {
                         info = fingerprintsStrongBoxStock.get(verifiedBootKey);
