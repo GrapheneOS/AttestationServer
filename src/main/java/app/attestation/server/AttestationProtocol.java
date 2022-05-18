@@ -1268,6 +1268,7 @@ class AttestationProtocol {
         final SQLiteConnection conn = new SQLiteConnection(ATTESTATION_DATABASE);
         try {
             AttestationServer.open(conn, false);
+            conn.exec("BEGIN IMMEDIATE TRANSACTION");
 
             Certificate[] pinnedCertificates = null;
             byte[] pinnedVerifiedBootKey = null;
@@ -1487,6 +1488,8 @@ class AttestationProtocol {
             insert.bind(5, osEnforcedString);
             insert.step();
             insert.dispose();
+
+            conn.exec("COMMIT TRANSACTION");
         } catch (final SQLiteException e) {
             throw new IOException(e);
         } finally {
