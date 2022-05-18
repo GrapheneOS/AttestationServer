@@ -1508,7 +1508,6 @@ class AttestationProtocol {
             throw new GeneralSecurityException("certificate chain is too large");
         }
         inflater.end();
-        //Log.d(TAG, "encoded length: " + chainLength + ", compressed length: " + compressedChain.length);
 
         final ByteBuffer chainDeserializer = ByteBuffer.wrap(chain, 0, chainLength);
         final List<Certificate> certs = new ArrayList<>();
@@ -1547,7 +1546,6 @@ class AttestationProtocol {
         deflaterStream.write(chain);
         deflaterStream.finish();
         final byte[] compressed = byteStream.toByteArray();
-        //Log.d(TAG, "encoded length: " + chain.length + ", compressed length: " + compressed.length);
 
         return compressed;
     }
