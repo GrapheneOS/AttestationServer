@@ -51,12 +51,19 @@ function toYesNoString(value) {
     return value ? "yes" : "no";
 }
 
-function toSecurityLevelString(value) {
-    if (value == 1) {
-        return "Standard — Trusted Execution Environment (TEE)";
-    }
-    if (value == 2) {
-        return "High (StrongBox) — Hardware Security Module (HSM)";
+function toSecurityLevelString(securityLevel, attestKey) {
+    if (securityLevel == 2) {
+        if (attestKey) {
+            return "Very High — StrongBox Hardware Security Module (HSM) with pairing specific attest key";
+        } else {
+            return "High — StrongBox Hardware Security Module (HSM)";
+        }
+    } else if (securityLevel == 1) {
+        if (attestKey) {
+            return "Standard — Trusted Execution Environment (TEE) with pairing specific attest key";
+        } else {
+            return "Standard — Trusted Execution Environment (TEE)";
+        }
     }
     throw new Error("Invalid security level");
 }
@@ -202,7 +209,7 @@ function fetchDevices() {
             info.appendChild(document.createTextNode("Pairing identity (hash of pinned hardware-backed key): "));
             info.appendChild(create("span", fingerprint, "fingerprint"));
             info.appendChild(document.createElement("br"));
-            appendLine(info, "Pinned security level: " + toSecurityLevelString(device.pinnedSecurityLevel));
+            appendLine(info, "Pinned security level: " + toSecurityLevelString(device.pinnedSecurityLevel, device.attestKey));
             appendLine(info, "Pinned device: " + device.name);
             appendLine(info, `Pinned OS: ${device.osName} (unmodified official release)`);
             appendLine(info, "Pinned OS version: " + formatOsVersion(device.pinnedOsVersion));

@@ -33,6 +33,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
+import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -973,12 +974,13 @@ class AttestationProtocol {
         final int bootPatchLevel;
         final int appVersion;
         final int securityLevel;
+        final boolean attestKey;
         final boolean enforceStrongBox;
 
         Verified(final String device, final String verifiedBootKey, final byte[] verifiedBootHash,
                 final String osName, final int osVersion, final int osPatchLevel,
                 final int vendorPatchLevel, final int bootPatchLevel, final int appVersion,
-                final int securityLevel, final boolean enforceStrongBox) {
+                final int securityLevel, final boolean attestKey, final boolean enforceStrongBox) {
             this.device = device;
             this.verifiedBootKey = verifiedBootKey;
             this.verifiedBootHash = verifiedBootHash;
@@ -989,6 +991,7 @@ class AttestationProtocol {
             this.bootPatchLevel = bootPatchLevel;
             this.appVersion = appVersion;
             this.securityLevel = securityLevel;
+            this.attestKey = attestKey;
             this.enforceStrongBox = enforceStrongBox;
         }
     }
@@ -1146,9 +1149,15 @@ class AttestationProtocol {
             throw new GeneralSecurityException("verifiedBootHash expected for attestation version >= 3");
         }
 
+        boolean attestKey = false;
+        try {
+            new Attestation((X509Certificate) certificates[1]);
+            attestKey = true;
+        } catch (final CertificateParsingException e) {}
+
         return new Verified(device.name, verifiedBootKey, verifiedBootHash, device.osName,
                 osVersion, osPatchLevel, vendorPatchLevel, bootPatchLevel, appVersion,
-                attestationSecurityLevel, device.enforceStrongBox);
+                attestationSecurityLevel, attestKey, device.enforceStrongBox);
     }
 
     private static void verifyCertificateSignatures(Certificate[] certChain)
@@ -1395,39 +1404,40 @@ class AttestationProtocol {
                 }
 
                 final SQLiteStatement insert = conn.prepare("INSERT INTO Devices " +
-                        "(fingerprint, pinnedCertificates, pinnedVerifiedBootKey, " +
+                        "(fingerprint, pinnedCertificates, attestKey, pinnedVerifiedBootKey, " +
                         "verifiedBootHash, pinnedOsVersion, pinnedOsPatchLevel, " +
                         "pinnedVendorPatchLevel, pinnedBootPatchLevel, pinnedAppVersion, pinnedSecurityLevel, " +
                         "userProfileSecure, enrolledBiometrics, accessibility, deviceAdmin, " +
                         "adbEnabled, addUsersWhenLocked, denyNewUsb, oemUnlockAllowed, systemUser, " +
                         "verifiedTimeFirst, verifiedTimeLast, userId) " +
-                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 insert.bind(1, fingerprint);
                 insert.bind(2, encodeChain(DEFLATE_DICTIONARY_2, attestationCertificates));
-                insert.bind(3, verifiedBootKey);
-                insert.bind(4, verified.verifiedBootHash);
-                insert.bind(5, verified.osVersion);
-                insert.bind(6, verified.osPatchLevel);
+                insert.bind(3, verified.attestKey ? 1 : 0);
+                insert.bind(4, verifiedBootKey);
+                insert.bind(5, verified.verifiedBootHash);
+                insert.bind(6, verified.osVersion);
+                insert.bind(7, verified.osPatchLevel);
                 if (verified.vendorPatchLevel != 0) {
-                    insert.bind(7, verified.vendorPatchLevel);
+                    insert.bind(8, verified.vendorPatchLevel);
                 }
                 if (verified.bootPatchLevel != 0) {
-                    insert.bind(8, verified.bootPatchLevel);
+                    insert.bind(9, verified.bootPatchLevel);
                 }
-                insert.bind(9, verified.appVersion);
-                insert.bind(10, verified.securityLevel);
-                insert.bind(11, userProfileSecure ? 1 : 0);
-                insert.bind(12, enrolledBiometrics ? 1 : 0);
-                insert.bind(13, accessibility ? 1 : 0);
-                insert.bind(14, deviceAdmin ? (deviceAdminNonSystem ? 2 : 1) : 0);
-                insert.bind(15, adbEnabled ? 1 : 0);
-                insert.bind(16, addUsersWhenLocked ? 1 : 0);
-                insert.bind(17, denyNewUsb ? 1 : 0);
-                insert.bind(18, oemUnlockAllowed ? 1 : 0);
-                insert.bind(19, systemUser ? 1 : 0);
-                insert.bind(20, now);
+                insert.bind(10, verified.appVersion);
+                insert.bind(11, verified.securityLevel);
+                insert.bind(12, userProfileSecure ? 1 : 0);
+                insert.bind(13, enrolledBiometrics ? 1 : 0);
+                insert.bind(14, accessibility ? 1 : 0);
+                insert.bind(15, deviceAdmin ? (deviceAdminNonSystem ? 2 : 1) : 0);
+                insert.bind(16, adbEnabled ? 1 : 0);
+                insert.bind(17, addUsersWhenLocked ? 1 : 0);
+                insert.bind(18, denyNewUsb ? 1 : 0);
+                insert.bind(19, oemUnlockAllowed ? 1 : 0);
+                insert.bind(20, systemUser ? 1 : 0);
                 insert.bind(21, now);
-                insert.bind(22, userId);
+                insert.bind(22, now);
+                insert.bind(23, userId);
                 insert.step();
                 insert.dispose();
 
