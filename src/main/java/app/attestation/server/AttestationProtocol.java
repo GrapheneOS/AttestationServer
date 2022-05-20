@@ -1002,10 +1002,11 @@ class AttestationProtocol {
     }
 
     private static Verified verifyStateless(final Certificate[] certificates,
-            final Cache<ByteBuffer, Boolean> pendingChallenges, final Certificate root0,
-            final Certificate root1, final Certificate root2) throws GeneralSecurityException {
+            final Cache<ByteBuffer, Boolean> pendingChallenges, final boolean hasPersistentKey,
+            final Certificate root0, final Certificate root1, final Certificate root2)
+            throws GeneralSecurityException {
 
-        verifyCertificateSignatures(certificates);
+        verifyCertificateSignatures(certificates, hasPersistentKey);
 
         // check that the root certificate is a valid key attestation root
         if (!Arrays.equals(root0.getEncoded(), certificates[certificates.length - 1].getEncoded()) &&
@@ -1160,12 +1161,18 @@ class AttestationProtocol {
                 attestationSecurityLevel, attestKey, device.enforceStrongBox);
     }
 
-    private static void verifyCertificateSignatures(Certificate[] certChain)
+    // Only checks expiry beyond the initial certificate for the initial pairing since the
+    // certificates are short lived when remote provisioning is in use and we prevent rotation by
+    // using the attest key feature to provide permanent pairing-specific certificate chains in
+    // order to pin them.
+    private static void verifyCertificateSignatures(Certificate[] certChain, final boolean hasPersistentKey)
             throws GeneralSecurityException {
         for (int i = 1; i < certChain.length; ++i) {
             final PublicKey pubKey = certChain[i].getPublicKey();
             try {
-                ((X509Certificate) certChain[i - 1]).checkValidity();
+                if (i == 1 || !hasPersistentKey) {
+                    ((X509Certificate) certChain[i - 1]).checkValidity();
+                }
                 certChain[i - 1].verify(pubKey);
             } catch (InvalidKeyException | CertificateException | NoSuchAlgorithmException
                     | NoSuchProviderException | SignatureException e) {
@@ -1175,7 +1182,9 @@ class AttestationProtocol {
             if (i == certChain.length - 1) {
                 // Last cert is self-signed.
                 try {
-                    ((X509Certificate) certChain[i]).checkValidity();
+                    if (!hasPersistentKey) {
+                        ((X509Certificate) certChain[i]).checkValidity();
+                    }
                     certChain[i].verify(pubKey);
                 } catch (CertificateException e) {
                     throw new GeneralSecurityException(
@@ -1304,7 +1313,7 @@ class AttestationProtocol {
                 }
             }
 
-            final Verified verified = verifyStateless(attestationCertificates, pendingChallenges,
+            final Verified verified = verifyStateless(attestationCertificates, pendingChallenges, hasPersistentKey,
                     generateCertificate(new ByteArrayInputStream(GOOGLE_ROOT_CERTIFICATE_0.getBytes())),
                     generateCertificate(new ByteArrayInputStream(GOOGLE_ROOT_CERTIFICATE_1.getBytes())),
                     generateCertificate(new ByteArrayInputStream(GOOGLE_ROOT_CERTIFICATE_2.getBytes())));
