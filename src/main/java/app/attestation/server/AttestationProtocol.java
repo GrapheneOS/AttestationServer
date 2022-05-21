@@ -1169,8 +1169,10 @@ class AttestationProtocol {
             throws GeneralSecurityException {
         for (int i = 1; i < certChain.length; ++i) {
             try {
-                if (i == 1 || !hasPersistentKey) {
-                    ((X509Certificate) certChain[i - 1]).checkValidity();
+                if (i != 1) {
+                    if (i == 1 || !hasPersistentKey) {
+                        ((X509Certificate) certChain[i - 1]).checkValidity();
+                    }
                 }
                 certChain[i - 1].verify(certChain[i].getPublicKey());
             } catch (InvalidKeyException | CertificateException | NoSuchAlgorithmException
