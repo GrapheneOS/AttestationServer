@@ -133,7 +133,7 @@ class AttestationProtocol {
     // the outer signature and the rest of the chain for pinning the expected chain. It enforces
     // downgrade protection for the OS version/patch (bootloader/TEE enforced) and app version (OS
     // enforced) by keeping them updated.
-    static final byte PROTOCOL_VERSION = 3;
+    static final byte PROTOCOL_VERSION = 4;
     private static final byte PROTOCOL_VERSION_MINIMUM = 2;
     // can become longer in the future, but this is the minimum length
     private static final byte CHALLENGE_MESSAGE_LENGTH = 1 + CHALLENGE_LENGTH * 2;
@@ -1322,8 +1322,19 @@ class AttestationProtocol {
             final long now = new Date().getTime();
 
             if (hasPersistentKey) {
-                for (int i = 1; i < attestationCertificates.length; i++) {
-                    if (!Arrays.equals(attestationCertificates[i].getEncoded(), pinnedCertificates[i].getEncoded())) {
+                final int pinOffset;
+                if (attestationCertificates.length != pinnedCertificates.length) {
+                    if (attestationCertificates.length == 5 && pinnedCertificates.length == 4) {
+                        pinOffset = 1;
+                    } else {
+                        throw new GeneralSecurityException("certificate chain length mismatch");
+                    }
+                } else {
+                    pinOffset = 0;
+                }
+
+                for (int i = 1 + pinOffset; i < attestationCertificates.length; i++) {
+                    if (!Arrays.equals(attestationCertificates[i].getEncoded(), pinnedCertificates[i - pinOffset].getEncoded())) {
                         throw new GeneralSecurityException("certificate chain mismatch");
                     }
                 }
