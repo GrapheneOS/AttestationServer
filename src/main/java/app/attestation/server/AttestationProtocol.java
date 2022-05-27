@@ -1126,6 +1126,10 @@ class AttestationProtocol {
         }
 
         // key sanity checks
+        if (!teeEnforced.getPurposes().equals(
+                ImmutableSet.of(AuthorizationList.KM_PURPOSE_SIGN, AuthorizationList.KM_PURPOSE_VERIFY))) {
+            throw new GeneralSecurityException("key has invalid purposes");
+        }
         if (teeEnforced.getOrigin() != AuthorizationList.KM_ORIGIN_GENERATED) {
             throw new GeneralSecurityException("not a generated key");
         }
