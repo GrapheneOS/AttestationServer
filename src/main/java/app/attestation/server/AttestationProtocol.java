@@ -59,6 +59,8 @@ class AttestationProtocol {
     private static final HashFunction FINGERPRINT_HASH_FUNCTION = Hashing.sha256();
     private static final int FINGERPRINT_LENGTH = FINGERPRINT_HASH_FUNCTION.bits() / 8;
 
+    private static final boolean ALLOW_ATTEST_KEY_DOWNGRADE = true;
+
     // Challenge message:
     //
     // byte maxVersion = PROTOCOL_VERSION
@@ -1413,20 +1415,30 @@ class AttestationProtocol {
             final StringBuilder teeEnforced = new StringBuilder();
             final long now = new Date().getTime();
 
+            boolean attestKeyMigration = false;
             if (hasPersistentKey) {
+                final int chainOffset;
                 final int pinOffset;
                 if (attestationCertificates.length != pinnedCertificates.length) {
                     if (attestationCertificates.length == 5 && pinnedCertificates.length == 4) {
+                        // backwards compatible use of attest key without the security benefits for
+                        // forward compatibility with remote provisioning
+                        chainOffset = 1;
+                        pinOffset = 0;
+                        attestKeyMigration = true;
+                    } else if (ALLOW_ATTEST_KEY_DOWNGRADE && attestationCertificates.length == 4 && pinnedCertificates.length == 5) {
+                        // temporarily work around attest key breakage by allowing not using it
+                        chainOffset = 0;
                         pinOffset = 1;
                     } else {
                         throw new GeneralSecurityException("certificate chain length mismatch");
                     }
                 } else {
+                    chainOffset = 0;
                     pinOffset = 0;
                 }
-
-                for (int i = 1 + pinOffset; i < attestationCertificates.length; i++) {
-                    if (!Arrays.equals(attestationCertificates[i].getEncoded(), pinnedCertificates[i - pinOffset].getEncoded())) {
+                for (int i = 1 + chainOffset; i < attestationCertificates.length; i++) {
+                    if (!Arrays.equals(attestationCertificates[i].getEncoded(), pinnedCertificates[i - chainOffset + pinOffset].getEncoded())) {
                         throw new GeneralSecurityException("certificate chain mismatch");
                     }
                 }
@@ -1473,7 +1485,7 @@ class AttestationProtocol {
                         "pinnedAppVersion = ?, pinnedSecurityLevel = ?, userProfileSecure = ?, enrolledBiometrics = ?, " +
                         "accessibility = ?, deviceAdmin = ?, adbEnabled = ?, " +
                         "addUsersWhenLocked = ?, denyNewUsb = ?, oemUnlockAllowed = ?, " +
-                        "systemUser = ?, verifiedTimeLast = ? " +
+                        "systemUser = ?, verifiedTimeLast = ?, attestKey = ? " +
                         "WHERE fingerprint = ?");
                 // handle migration to v2 verified boot key fingerprint
                 update.bind(1, verifiedBootKey);
@@ -1498,7 +1510,8 @@ class AttestationProtocol {
                 update.bind(16, oemUnlockAllowed ? 1 : 0);
                 update.bind(17, systemUser ? 1 : 0);
                 update.bind(18, now);
-                update.bind(19, fingerprint);
+                update.bind(19, (verified.attestKey && !attestKeyMigration) ? 1 : 0);
+                update.bind(20, fingerprint);
                 update.step();
                 update.dispose();
             } else {
