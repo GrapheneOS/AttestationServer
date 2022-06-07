@@ -1499,7 +1499,7 @@ class AttestationProtocol {
                     update.bind(6, verified.bootPatchLevel);
                 }
                 update.bind(7, verified.appVersion);
-                update.bind(8, verified.securityLevel); // new field
+                update.bind(8, verified.securityLevel);
                 update.bind(9, userProfileSecure ? 1 : 0);
                 update.bind(10, enrolledBiometrics ? 1 : 0);
                 update.bind(11, accessibility ? 1 : 0);
