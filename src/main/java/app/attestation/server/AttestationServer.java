@@ -1351,11 +1351,7 @@ public class AttestationServer {
                 attestation.write(buffer, 0, read);
 
                 if (attestation.size() > AttestationProtocol.MAX_MESSAGE_SIZE) {
-                    final byte[] response = "Attestation too large".getBytes();
-                    exchange.sendResponseHeaders(400, response.length);
-                    try (final OutputStream output = exchange.getResponseBody()) {
-                        output.write(response);
-                    }
+                    exchange.sendResponseHeaders(413, -1);
                     return;
                 }
             }
