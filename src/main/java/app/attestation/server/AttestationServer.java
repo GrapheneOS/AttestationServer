@@ -389,7 +389,7 @@ public class AttestationServer {
 
         public void checkOrigin(final HttpExchange exchange) throws GeneralSecurityException {
             final String origin = getRequestHeaderValue(exchange, "Origin");
-            if (origin != null && !origin.equals(ORIGIN)) {
+            if (origin == null || !origin.equals(ORIGIN)) {
                 throw new GeneralSecurityException();
             }
             final String fetchMode = getRequestHeaderValue(exchange, "Sec-Fetch-Mode");
