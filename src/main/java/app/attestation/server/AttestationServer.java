@@ -411,7 +411,7 @@ public class AttestationServer {
     private abstract static class PostHandler implements HttpHandler {
         protected abstract void handlePost(final HttpExchange exchange) throws IOException, SQLiteException;
 
-        public void checkOrigin(final HttpExchange exchange) throws GeneralSecurityException {
+        public void checkRequestHeaders(final HttpExchange exchange) throws GeneralSecurityException {
             final String origin = getRequestHeaderValue(exchange, "Origin");
             if (origin == null || !origin.equals(ORIGIN)) {
                 throw new GeneralSecurityException();
@@ -443,9 +443,9 @@ public class AttestationServer {
                     return;
                 }
                 try {
-                    checkOrigin(exchange);
+                    checkRequestHeaders(exchange);
                 } catch (final GeneralSecurityException e) {
-                    logger.log(Level.INFO, "invalid origin headers", e);
+                    logger.log(Level.INFO, "invalid request headers", e);
                     exchange.sendResponseHeaders(403, -1);
                     return;
                 }
@@ -461,7 +461,7 @@ public class AttestationServer {
 
     private abstract static class AppPostHandler extends PostHandler {
         @Override
-        public void checkOrigin(final HttpExchange exchange) throws GeneralSecurityException {
+        public void checkRequestHeaders(final HttpExchange exchange) throws GeneralSecurityException {
             if (getRequestHeaderValue(exchange, "Origin") != null) {
                 throw new GeneralSecurityException();
             }
