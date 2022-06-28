@@ -416,6 +416,10 @@ public class AttestationServer {
             if (origin == null || !origin.equals(ORIGIN)) {
                 throw new GeneralSecurityException();
             }
+            final String contentType = getRequestHeaderValue(exchange, "Content-Type");
+            if (contentType == null || !contentType.equals("application/json")) {
+                throw new GeneralSecurityException();
+            }
             final String fetchMode = getRequestHeaderValue(exchange, "Sec-Fetch-Mode");
             if (fetchMode != null && !fetchMode.equals("same-origin")) {
                 throw new GeneralSecurityException();
