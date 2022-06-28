@@ -20,6 +20,8 @@ export PATH="$PWD/node_modules/.bin:$PATH"
 rm -rf nginx-tmp
 cp -a nginx nginx-tmp
 
+gixy nginx-tmp/nginx.conf
+
 rm -rf static-tmp
 cp -a static static-tmp
 
@@ -52,8 +54,6 @@ for file in static-tmp/**/*.css static-tmp/**/*.js; do
 done
 
 sed -i "$replace" static-tmp/**/*.html nginx-tmp/nginx.conf nginx-tmp/snippets/preload.conf
-
-gixy nginx-tmp/nginx.conf
 
 xmllint --noout static-tmp/**/*.@(html|svg|xml)
 validatornu --Werror --also-check-css --also-check-svg static-tmp/**/*.@(css|html|svg)
