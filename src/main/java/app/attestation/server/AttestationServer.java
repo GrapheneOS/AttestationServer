@@ -461,7 +461,11 @@ public class AttestationServer {
 
     private abstract static class AppPostHandler extends PostHandler {
         @Override
-        public void checkOrigin(final HttpExchange exchange) {}
+        public void checkOrigin(final HttpExchange exchange) throws GeneralSecurityException {
+            if (getRequestHeaderValue(exchange, "Origin") != null) {
+                throw new GeneralSecurityException();
+            }
+        }
     }
 
     private static class StatusHandler extends AppPostHandler {
