@@ -73,7 +73,7 @@ function reloadQrCode() {
     qr.alt = "";
     post("/api/account.png", localStorage.getItem("requestToken")).then(response => {
         if (!response.ok) {
-            return Promise.reject();
+            return Promise.reject(new Error(response.status));
         }
         return response.blob();
     }).then(imageBlob => {
@@ -123,7 +123,7 @@ function fetchHistory(parent, nextOffset) {
         offsetId: Number(parentdata.offsetId)
     })).then(response => {
         if (!response.ok) {
-            return Promise.reject();
+            return Promise.reject(new Error(response.status));
         }
         return response.json();
     }).then(attestations => {
@@ -158,7 +158,7 @@ function fetchDevices() {
     const token = localStorage.getItem("requestToken");
     post("/api/devices.json", token).then(response => {
         if (!response.ok) {
-            return Promise.reject();
+            return Promise.reject(new Error(response.status));
         }
         return response.json();
     }).then(devicesJson => {
@@ -194,7 +194,7 @@ function fetchDevices() {
                             if (response.status === 403) {
                                 localStorage.removeItem("requestToken");
                             }
-                            return Promise.reject();
+                            return Promise.reject(new Error(response.status));
                         }
                         event.target.disabled = false;
                         devices.removeChild(info);
@@ -318,7 +318,7 @@ if (token === null) {
             if (response.status === 403) {
                 localStorage.removeItem("requestToken");
             }
-            return Promise.reject();
+            return Promise.reject(new Error(response.status));
         }
         return response.json();
     }).then(account => {
@@ -380,14 +380,14 @@ function login(username, password) {
                 loginPassword.setCustomValidity("Incorrect password");
                 loginPassword.reportValidity();
             }
-            return Promise.reject();
+            return Promise.reject(new Error(response.status));
         }
         return response.text();
     }).then(requestToken => {
         localStorage.setItem("requestToken", requestToken);
         post("/api/account", requestToken).then(response => {
             if (!response.ok) {
-                return Promise.reject();
+                return Promise.reject(new Error(response.status));
             }
             return response.json();
         }).then(account => {
@@ -422,7 +422,7 @@ createForm.onsubmit = event => {
                 createUsername.setCustomValidity("Username is already taken");
                 createUsername.reportValidity();
             }
-            return Promise.reject();
+            return Promise.reject(new Error(response.status));
         }
         createForm.hidden = true;
         createForm.reset();
@@ -463,7 +463,7 @@ for (const logoutButton of document.getElementsByClassName("logout")) {
         const path = logoutButton === logout ? "/api/logout" : "/api/logout-everywhere";
         post(path, requestToken).then(response => {
             if (!response.ok) {
-                return Promise.reject();
+                return Promise.reject(new Error(response.status));
             }
 
             localStorage.removeItem("requestToken");
@@ -516,7 +516,7 @@ changePasswordForm.onsubmit = event => {
     });
     post("/api/change-password", data).then(response => {
         if (!response.ok) {
-            return Promise.reject();
+            return Promise.reject(new Error(response.status));
         }
         changePasswordForm.hidden = true;
         changePasswordForm.reset();
@@ -542,7 +542,7 @@ rotate.onclick = () => {
         const requestToken = localStorage.getItem("requestToken");
         post("/api/rotate", requestToken).then(response => {
             if (!response.ok) {
-                return Promise.reject();
+                return Promise.reject(new Error(response.status));
             }
             rotate.disabled = false;
             reloadQrCode();
@@ -574,7 +574,7 @@ configuration.onsubmit = event => {
     });
     post("/api/configuration", data).then(response => {
         if (!response.ok) {
-            return Promise.reject();
+            return Promise.reject(new Error(response.status));
         }
         configuration.submit.disabled = false;
         reloadQrCode();
