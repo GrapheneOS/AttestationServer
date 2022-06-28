@@ -71,7 +71,7 @@ function toSecurityLevelString(securityLevel, attestKey) {
 function reloadQrCode() {
     qr.src = "/placeholder.gif";
     qr.alt = "";
-    post("/api/account.png", localStorage.getItem("requestToken")).then(response => {
+    post("/api/account.png").then(response => {
         if (!response.ok) {
             return Promise.reject(new Error(response.status));
         }
@@ -118,7 +118,6 @@ function fetchHistory(parent, nextOffset) {
     const parentdata = parent.dataset;
     parentdata.offsetId = Number(nextOffset);
     post("/api/attestation-history.json", JSON.stringify({
-        requestToken: localStorage.getItem("requestToken"),
         fingerprint: parentdata.deviceFingerprint,
         offsetId: Number(parentdata.offsetId)
     })).then(response => {
@@ -155,8 +154,7 @@ function fetchHistory(parent, nextOffset) {
 function fetchDevices() {
     devices.appendChild(create("p", "Loading device data..."));
 
-    const token = localStorage.getItem("requestToken");
-    post("/api/devices.json", token).then(response => {
+    post("/api/devices.json").then(response => {
         if (!response.ok) {
             return Promise.reject(new Error(response.status));
         }
@@ -186,14 +184,10 @@ function fetchDevices() {
                     event.target.disabled = true;
 
                     const data = JSON.stringify({
-                        "requestToken": localStorage.getItem("requestToken"),
                         "fingerprint": device.fingerprint
                     });
                     post("/api/delete-device", data).then(response => {
                         if (!response.ok) {
-                            if (response.status === 403) {
-                                localStorage.removeItem("requestToken");
-                            }
                             return Promise.reject(new Error(response.status));
                         }
                         event.target.disabled = false;
@@ -309,25 +303,17 @@ function fetchDevices() {
     });
 }
 
-const token = localStorage.getItem("requestToken");
-if (token === null) {
+post("/api/account").then(response => {
+    if (!response.ok) {
+        return Promise.reject(new Error(response.status));
+    }
+    return response.json();
+}).then(account => {
+    displayLogin(account);
+}).catch(error => {
+    console.log(error);
     loggedOutButtons.hidden = false;
-} else {
-    post("/api/account", token).then(response => {
-        if (!response.ok) {
-            if (response.status === 403) {
-                localStorage.removeItem("requestToken");
-            }
-            return Promise.reject(new Error(response.status));
-        }
-        return response.json();
-    }).then(account => {
-        displayLogin(account);
-    }).catch(error => {
-        console.log(error);
-        loggedOutButtons.hidden = false;
-    });
-}
+});
 
 document.getElementById("create").onclick = () => {
     loggedOutButtons.hidden = true;
@@ -382,10 +368,7 @@ function login(username, password) {
             }
             return Promise.reject(new Error(response.status));
         }
-        return response.text();
-    }).then(requestToken => {
-        localStorage.setItem("requestToken", requestToken);
-        post("/api/account", requestToken).then(response => {
+        post("/api/account").then(response => {
             if (!response.ok) {
                 return Promise.reject(new Error(response.status));
             }
@@ -457,16 +440,14 @@ for (const cancel of document.getElementsByClassName("cancel")) {
 
 for (const logoutButton of document.getElementsByClassName("logout")) {
     logoutButton.onclick = () => {
-        const requestToken = localStorage.getItem("requestToken");
         logout.disabled = true;
         logoutEverywhere.disabled = true;
         const path = logoutButton === logout ? "/api/logout" : "/api/logout-everywhere";
-        post(path, requestToken).then(response => {
+        post(path).then(response => {
             if (!response.ok) {
                 return Promise.reject(new Error(response.status));
             }
 
-            localStorage.removeItem("requestToken");
             loginStatus.hidden = true;
             devices.innerText = null;
             accountContent.hidden = true;
@@ -510,7 +491,6 @@ changePasswordForm.onsubmit = event => {
 
     changePasswordForm.submit.disabled = true;
     const data = JSON.stringify({
-        "requestToken": localStorage.getItem("requestToken"),
         "currentPassword": currentPassword,
         "newPassword": newPassword
     });
@@ -539,8 +519,7 @@ for (const cancel of document.getElementsByClassName("cancel_account")) {
 rotate.onclick = () => {
     if (confirm("Are you sure you want to rotate the device subscription key? This will not break existing pairings, but will prevent pairing with previous subscription QR codes.")) {
         rotate.disabled = true;
-        const requestToken = localStorage.getItem("requestToken");
-        post("/api/rotate", requestToken).then(response => {
+        post("/api/rotate").then(response => {
             if (!response.ok) {
                 return Promise.reject(new Error(response.status));
             }
@@ -567,7 +546,6 @@ configuration.onsubmit = event => {
 
     configuration.submit.disabled = true;
     const data = JSON.stringify({
-        "requestToken": localStorage.getItem("requestToken"),
         "verifyInterval": verifyInterval * 60 * 60,
         "alertDelay": alertDelay * 60 * 60,
         "email": configuration.email.value
@@ -583,5 +561,7 @@ configuration.onsubmit = event => {
         console.log(error);
     });
 };
+
+localStorage.removeItem("requestToken");
 
 // @license-end

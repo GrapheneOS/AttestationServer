@@ -139,8 +139,7 @@ public class AttestationServer {
                 "CREATE TABLE IF NOT EXISTS Sessions (\n" +
                 "sessionId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n" +
                 "userId INTEGER NOT NULL REFERENCES Accounts (userId) ON DELETE CASCADE,\n" +
-                "cookieToken BLOB NOT NULL,\n" +
-                "requestToken BLOB NOT NULL,\n" +
+                "token BLOB NOT NULL,\n" +
                 "expiryTime INTEGER NOT NULL\n" +
                 ") STRICT");
 
@@ -282,7 +281,7 @@ public class AttestationServer {
 
             final SQLiteStatement selectCreated = attestationConn.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='Configuration'");
             if (!selectCreated.step()) {
-                attestationConn.exec("PRAGMA user_version = 8");
+                attestationConn.exec("PRAGMA user_version = 9");
             }
             selectCreated.dispose();
 
@@ -328,6 +327,31 @@ public class AttestationServer {
                 attestationConn.exec("PRAGMA user_version = 8");
                 attestationConn.exec("COMMIT TRANSACTION");
                 userVersion = 8;
+                attestationConn.exec("PRAGMA foreign_keys = ON");
+                logger.info("Migrated to schema version: " + userVersion);
+            }
+
+            // remove obsolete requestToken column from Sessions table
+            if (userVersion < 9) {
+                attestationConn.exec("PRAGMA foreign_keys = OFF");
+                attestationConn.exec("BEGIN IMMEDIATE TRANSACTION");
+
+                attestationConn.exec("ALTER TABLE Sessions RENAME TO OldSessions");
+
+                createAttestationTables(attestationConn);
+
+                attestationConn.exec("INSERT INTO Sessions " +
+                        "(sessionId, userId, token, expiryTime) " +
+                        "SELECT " +
+                        "sessionId, userId, cookieToken, expiryTime " +
+                        "FROM OldSessions");
+
+                attestationConn.exec("DROP TABLE OldSessions");
+
+                createAttestationIndices(attestationConn);
+                attestationConn.exec("PRAGMA user_version = 9");
+                attestationConn.exec("COMMIT TRANSACTION");
+                userVersion = 9;
                 attestationConn.exec("PRAGMA foreign_keys = ON");
                 logger.info("Migrated to schema version: " + userVersion);
             }
@@ -562,13 +586,11 @@ public class AttestationServer {
 
     private static class Session {
         final long sessionId;
-        final byte[] cookieToken;
-        final byte[] requestToken;
+        final byte[] token;
 
-        Session(final long sessionId, final byte[] cookieToken, final byte[] requestToken) {
+        Session(final long sessionId, final byte[] token) {
             this.sessionId = sessionId;
-            this.cookieToken = cookieToken;
-            this.requestToken = requestToken;
+            this.token = token;
         }
     }
 
@@ -602,15 +624,13 @@ public class AttestationServer {
             delete.step();
             delete.dispose();
 
-            final byte[] cookieToken = generateRandomToken();
-            final byte[] requestToken = generateRandomToken();
+            final byte[] token = generateRandomToken();
 
             final SQLiteStatement insert = conn.prepare("INSERT INTO Sessions " +
-                    "(userId, cookieToken, requestToken, expiryTime) VALUES (?, ?, ?, ?)");
+                    "(userId, token, expiryTime) VALUES (?, ?, ?)");
             insert.bind(1, userId);
-            insert.bind(2, cookieToken);
-            insert.bind(3, requestToken);
-            insert.bind(4, now + SESSION_LENGTH);
+            insert.bind(2, token);
+            insert.bind(3, now + SESSION_LENGTH);
             insert.step();
             insert.dispose();
 
@@ -623,7 +643,7 @@ public class AttestationServer {
 
             conn.exec("COMMIT TRANSACTION");
 
-            return new Session(conn.getLastInsertId(), cookieToken, requestToken);
+            return new Session(conn.getLastInsertId(), token);
         } finally {
             conn.dispose();
         }
@@ -661,12 +681,10 @@ public class AttestationServer {
     private static class ChangePasswordHandler extends PostHandler {
         @Override
         public void handlePost(final HttpExchange exchange) throws IOException, SQLiteException {
-            final String requestToken;
             final String currentPassword;
             final String newPassword;
             try (final JsonReader reader = Json.createReader(exchange.getRequestBody())) {
                 final JsonObject object = reader.readObject();
-                requestToken = object.getString("requestToken");
                 currentPassword = object.getString("currentPassword");
                 newPassword = object.getString("newPassword");
             } catch (final ClassCastException | JsonException | NullPointerException e) {
@@ -675,7 +693,7 @@ public class AttestationServer {
                 return;
             }
 
-            final Account account = verifySession(exchange, false, requestToken.getBytes(StandardCharsets.UTF_8));
+            final Account account = verifySession(exchange, false);
             if (account == null) {
                 return;
             }
@@ -719,22 +737,18 @@ public class AttestationServer {
             }
 
             final Base64.Encoder encoder = Base64.getEncoder();
-            final byte[] requestToken = encoder.encode(session.requestToken);
             exchange.getResponseHeaders().set("Set-Cookie",
                     String.format("__Host-session=%d|%s; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=%d",
-                        session.sessionId, new String(encoder.encode(session.cookieToken)),
+                        session.sessionId, new String(encoder.encode(session.token)),
                         SESSION_LENGTH / 1000));
-            exchange.sendResponseHeaders(200, requestToken.length);
-            try (final OutputStream output = exchange.getResponseBody()) {
-                output.write(requestToken);
-            }
+            exchange.sendResponseHeaders(200, -1);
         }
     }
 
     private static class LogoutHandler extends PostHandler {
         @Override
         public void handlePost(final HttpExchange exchange) throws IOException, SQLiteException {
-            final Account account = verifySession(exchange, true, null);
+            final Account account = verifySession(exchange, true);
             if (account == null) {
                 return;
             }
@@ -746,7 +760,7 @@ public class AttestationServer {
     private static class LogoutEverywhereHandler extends PostHandler {
         @Override
         public void handlePost(final HttpExchange exchange) throws IOException, SQLiteException {
-            final Account account = verifySession(exchange, false, null);
+            final Account account = verifySession(exchange, false);
             if (account == null) {
                 return;
             }
@@ -769,7 +783,7 @@ public class AttestationServer {
     private static class RotateHandler extends PostHandler {
         @Override
         public void handlePost(final HttpExchange exchange) throws IOException, SQLiteException {
-            final Account account = verifySession(exchange, false, null);
+            final Account account = verifySession(exchange, false);
             if (account == null) {
                 return;
             }
@@ -833,7 +847,7 @@ public class AttestationServer {
         }
     }
 
-    private static Account verifySession(final HttpExchange exchange, final boolean end, byte[] requestTokenEncoded)
+    private static Account verifySession(final HttpExchange exchange, final boolean end)
             throws IOException, SQLiteException {
         final String cookie = getCookie(exchange, "__Host-session");
         if (cookie == null) {
@@ -847,39 +861,25 @@ public class AttestationServer {
             return null;
         }
         final long sessionId = Long.parseLong(session[0]);
-        final byte[] cookieToken = Base64.getDecoder().decode(session[1]);
-
-        if (requestTokenEncoded == null) {
-            requestTokenEncoded = new byte[session[1].length()];
-            final DataInputStream input = new DataInputStream(exchange.getRequestBody());
-            try {
-                input.readFully(requestTokenEncoded);
-            } catch (final EOFException e) {
-                purgeSessionCookie(exchange);
-                exchange.sendResponseHeaders(403, -1);
-                return null;
-            }
-        }
-        final byte[] requestToken = Base64.getDecoder().decode(requestTokenEncoded);
+        final byte[] token = Base64.getDecoder().decode(session[1]);
 
         final SQLiteConnection conn = new SQLiteConnection(AttestationProtocol.ATTESTATION_DATABASE);
         try {
             open(conn, !end);
 
-            final SQLiteStatement select = conn.prepare("SELECT cookieToken, requestToken, " +
-                    "expiryTime, username, subscribeKey, Accounts.userId, verifyInterval, alertDelay " +
+            final SQLiteStatement select = conn.prepare("SELECT token, expiryTime, " +
+                    "username, subscribeKey, Accounts.userId, verifyInterval, alertDelay " +
                     "FROM Sessions " +
                     "INNER JOIN Accounts on Accounts.userId = Sessions.userId " +
                     "WHERE sessionId = ?");
             select.bind(1, sessionId);
-            if (!select.step() || !MessageDigest.isEqual(cookieToken, select.columnBlob(0)) ||
-                    !MessageDigest.isEqual(requestToken, select.columnBlob(1))) {
+            if (!select.step() || !MessageDigest.isEqual(token, select.columnBlob(0))) {
                 purgeSessionCookie(exchange);
                 exchange.sendResponseHeaders(403, -1);
                 return null;
             }
 
-            if (select.columnLong(2) < System.currentTimeMillis()) {
+            if (select.columnLong(1) < System.currentTimeMillis()) {
                 purgeSessionCookie(exchange);
                 exchange.sendResponseHeaders(403, -1);
                 return null;
@@ -893,8 +893,8 @@ public class AttestationServer {
                 delete.dispose();
             }
 
-            return new Account(select.columnLong(5), select.columnString(3), select.columnBlob(4),
-                    select.columnInt(6), select.columnInt(7));
+            return new Account(select.columnLong(4), select.columnString(2), select.columnBlob(3),
+                    select.columnInt(5), select.columnInt(6));
         } finally {
             conn.dispose();
         }
@@ -903,7 +903,7 @@ public class AttestationServer {
     private static class AccountHandler extends PostHandler {
         @Override
         public void handlePost(final HttpExchange exchange) throws IOException, SQLiteException {
-            final Account account = verifySession(exchange, false, null);
+            final Account account = verifySession(exchange, false);
             if (account == null) {
                 return;
             }
@@ -951,7 +951,7 @@ public class AttestationServer {
     private static class AccountQrHandler extends PostHandler {
         @Override
         public void handlePost(final HttpExchange exchange) throws IOException, SQLiteException {
-            final Account account = verifySession(exchange, false, null);
+            final Account account = verifySession(exchange, false);
             if (account == null) {
                 return;
             }
@@ -973,10 +973,8 @@ public class AttestationServer {
             final int verifyInterval;
             final int alertDelay;
             final String email;
-            final String requestToken;
             try (final JsonReader reader = Json.createReader(exchange.getRequestBody())) {
                 final JsonObject object = reader.readObject();
-                requestToken = object.getString("requestToken");
                 verifyInterval = object.getInt("verifyInterval");
                 alertDelay = object.getInt("alertDelay");
                 email = object.getString("email").trim();
@@ -986,7 +984,7 @@ public class AttestationServer {
                 return;
             }
 
-            final Account account = verifySession(exchange, false, requestToken.getBytes(StandardCharsets.UTF_8));
+            final Account account = verifySession(exchange, false);
             if (account == null) {
                 return;
             }
@@ -1056,11 +1054,9 @@ public class AttestationServer {
     private static class DeleteDeviceHandler extends PostHandler {
         @Override
         public void handlePost(final HttpExchange exchange) throws IOException, SQLiteException {
-            final String requestToken;
             final String fingerprint;
             try (final JsonReader reader = Json.createReader(exchange.getRequestBody())) {
                 final JsonObject object = reader.readObject();
-                requestToken = object.getString("requestToken");
                 fingerprint = object.getString("fingerprint");
             } catch (final ClassCastException | JsonException | NullPointerException e) {
                 logger.log(Level.INFO, "invalid request", e);
@@ -1068,7 +1064,7 @@ public class AttestationServer {
                 return;
             }
 
-            final Account account = verifySession(exchange, false, requestToken.getBytes(StandardCharsets.UTF_8));
+            final Account account = verifySession(exchange, false);
             if (account == null) {
                 return;
             }
@@ -1208,7 +1204,7 @@ public class AttestationServer {
     private static class DevicesHandler extends PostHandler {
         @Override
         public void handlePost(final HttpExchange exchange) throws IOException, SQLiteException {
-            final Account account = verifySession(exchange, false, null);
+            final Account account = verifySession(exchange, false);
             if (account == null) {
                 return;
             }
@@ -1224,8 +1220,7 @@ public class AttestationServer {
                 final JsonObject object = reader.readObject();
                 fingerprint = object.getString("fingerprint");
                 long offsetId = object.getJsonNumber("offsetId").longValue();
-                String requestToken = object.getString("requestToken");
-                final Account account = verifySession(exchange, false, requestToken.getBytes(StandardCharsets.UTF_8));
+                final Account account = verifySession(exchange, false);
                 if (account == null) {
                     return;
                 }
