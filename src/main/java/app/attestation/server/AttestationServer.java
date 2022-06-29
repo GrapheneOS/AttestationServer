@@ -437,7 +437,7 @@ public class AttestationServer {
         @Override
         public final void handle(final HttpExchange exchange) throws IOException {
             try {
-                if (!exchange.getRequestMethod().equalsIgnoreCase("POST")) {
+                if (!exchange.getRequestMethod().equals("POST")) {
                     exchange.getResponseHeaders().set("Allow", "POST");
                     exchange.sendResponseHeaders(405, -1);
                     return;
