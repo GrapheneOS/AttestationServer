@@ -11,5 +11,5 @@ sqlite3 attestation.db ".backup remote-backup/$suffix/attestation.db"
 sqlite3 samples.db ".backup remote-backup/$suffix/samples.db"
 tar cf ./remote-backup/$suffix.tar remote-backup/$suffix
 zstd -9 -o remote-backup/$suffix.tar.zst remote-backup/$suffix.tar
-age -r $(cat cloud-archive-public-key.txt) -o remote-backup/$suffix.tar.zst.age remote-backup/$suffix.tar.zst
+age -r $(cat backup-public-key.txt) -o remote-backup/$suffix.tar.zst.age remote-backup/$suffix.tar.zst
 sshpass -f cloud-archive-password.txt rsync -v ./remote-backup/$suffix.tar.zst.age pca@gateways.storage.gra.cloud.ovh.net:backup/
