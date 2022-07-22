@@ -1,0 +1,8 @@
+[Unit]
+Description=Perform remote backup
+
+[Service]
+ExecStart=/opt/attestation/remote-backup
+Type=oneshot
+User=attestation
+WorkingDirectory=/var/lib/attestation
