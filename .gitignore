@@ -1,4 +1,6 @@
 backup
+backup-key.txt
+backup-public-key.txt
 nginx-tmp
 node_modules
 static-tmp
