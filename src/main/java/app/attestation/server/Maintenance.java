@@ -16,6 +16,8 @@ class Maintenance implements Runnable {
     private static final boolean PURGE_INACTIVE_DEVICES = true;
     private static final long HISTORY_EXPIRY_MS = 180L * 24 * 60 * 60 * 1000;
     private static final boolean PURGE_LEGACY_HISTORY = true;
+    private static final long INACTIVE_ACCOUNT_EXPIRY_MS = 730L * 24 * 60 * 60 * 1000;
+    private static final boolean PURGE_INACTIVE_ACCOUNTS = true;
 
     private static final Logger logger = Logger.getLogger(Maintenance.class.getName());
 
@@ -26,6 +28,7 @@ class Maintenance implements Runnable {
         final SQLiteStatement deleteDeletedDevices;
         final SQLiteStatement purgeInactiveDevices;
         final SQLiteStatement purgeLegacyHistory;
+        final SQLiteStatement purgeInactiveAccounts;
         try {
             AttestationServer.open(samplesConn, false);
             AttestationServer.open(attestationConn, false);
@@ -33,6 +36,8 @@ class Maintenance implements Runnable {
             purgeInactiveDevices = attestationConn.prepare("UPDATE Devices SET deletionTime = ? " +
                     "WHERE verifiedTimeLast < ? AND deletionTime IS NULL");
             purgeLegacyHistory = attestationConn.prepare("DELETE FROM Attestations WHERE time < ?");
+            purgeInactiveAccounts = attestationConn.prepare("DELETE FROM Accounts WHERE loginTime < ? " +
+                    "AND NOT EXISTS (SELECT 1 FROM Devices WHERE Accounts.userId = Devices.userId)");
         } catch (final SQLiteException e) {
             attestationConn.dispose();
             throw new RuntimeException(e);
@@ -62,6 +67,12 @@ class Maintenance implements Runnable {
                     logger.info("cleared " + attestationConn.getChanges() + " legacy history entries");
                 }
 
+                if (PURGE_INACTIVE_ACCOUNTS) {
+                    purgeInactiveAccounts.bind(1, now - INACTIVE_ACCOUNT_EXPIRY_MS);
+                    purgeInactiveAccounts.step();
+                    logger.info("cleared " + attestationConn.getChanges() + " inactive accounts");
+                }
+
                 attestationConn.exec("ANALYZE");
                 attestationConn.exec("VACUUM");
             } catch (final SQLiteException e) {
@@ -71,6 +82,7 @@ class Maintenance implements Runnable {
                     deleteDeletedDevices.reset();
                     purgeInactiveDevices.reset();
                     purgeLegacyHistory.reset();
+                    purgeInactiveAccounts.reset();
                 } catch (final SQLiteException e) {
                     logger.log(Level.WARNING, "database error", e);
                 }
