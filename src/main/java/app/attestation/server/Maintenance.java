@@ -33,11 +33,6 @@ class Maintenance implements Runnable {
         }
 
         while (true) {
-            try {
-                Thread.sleep(WAIT_MS);
-            } catch (final InterruptedException e) {
-                return;
-            }
             logger.info("maintenance");
 
             try {
@@ -64,6 +59,12 @@ class Maintenance implements Runnable {
                 } catch (final SQLiteException e) {
                     logger.log(Level.WARNING, "database error", e);
                 }
+            }
+
+            try {
+                Thread.sleep(WAIT_MS);
+            } catch (final InterruptedException e) {
+                return;
             }
         }
     }
