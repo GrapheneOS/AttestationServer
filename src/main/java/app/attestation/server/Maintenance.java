@@ -14,7 +14,6 @@ class Maintenance implements Runnable {
     private static final long DELETE_EXPIRY_MS = 7L * 24 * 60 * 60 * 1000;
     private static final long INACTIVE_DEVICE_EXPIRY_MS = 90L * 24 * 60 * 60 * 1000;
     private static final boolean PURGE_INACTIVE_DEVICES = true;
-    private static final int KEEP_BACKUPS = 28;
 
     private static final Logger logger = Logger.getLogger(Maintenance.class.getName());
 
@@ -23,16 +22,11 @@ class Maintenance implements Runnable {
         final SQLiteConnection conn = new SQLiteConnection(AttestationProtocol.ATTESTATION_DATABASE);
         final SQLiteStatement deleteDeletedDevices;
         final SQLiteStatement purgeInactiveDevices;
-        final SQLiteStatement selectBackups;
-        final SQLiteStatement updateBackups;
         try {
             AttestationServer.open(conn, false);
             deleteDeletedDevices = conn.prepare("DELETE FROM Devices WHERE deletionTime < ?");
             purgeInactiveDevices = conn.prepare("UPDATE Devices SET deletionTime = ? " +
                     "WHERE verifiedTimeLast < ? AND deletionTime IS NULL");
-            selectBackups = conn.prepare("SELECT value FROM Configuration WHERE key = 'backups'");
-            updateBackups = conn.prepare("UPDATE Configuration SET value = value + 1 " +
-                    "WHERE key = 'backups'");
         } catch (final SQLiteException e) {
             conn.dispose();
             throw new RuntimeException(e);
@@ -61,41 +55,12 @@ class Maintenance implements Runnable {
                     logger.info("cleared " + conn.getChanges() + " inactive devices");
                 }
 
-                selectBackups.step();
-                final long backups = selectBackups.columnLong(0);
-
-                updateBackups.step();
-                final SQLiteBackup backup = conn.initializeBackup(new File("backup/" + backups + ".db"));
-                try {
-                    backup.backupStep(-1);
-                } finally {
-                    backup.dispose();
-                }
-
-                final File[] backupFiles = new File("backup/").listFiles();
-                for (final File backupFile : backupFiles) {
-                    final String name = backupFile.getName();
-                    try {
-                        long backupIndex = Long.parseLong(name.split("\\.")[0]);
-                        if (backupIndex <= backups - KEEP_BACKUPS) {
-                            if (backupFile.delete()) {
-                                logger.info("deleted old database backup: " + backupFile);
-                            } else {
-                                logger.warning("failed to delete database backup: " + name);
-                            }
-                        }
-                    } catch (final NumberFormatException e) {
-                        logger.warning("invalid database backup filename: " + name);
-                    }
-                }
             } catch (final SQLiteException e) {
                 logger.log(Level.WARNING, "database error", e);
             } finally {
                 try {
                     deleteDeletedDevices.reset();
                     purgeInactiveDevices.reset();
-                    selectBackups.reset();
-                    updateBackups.reset();
                 } catch (final SQLiteException e) {
                     logger.log(Level.WARNING, "database error", e);
                 }
