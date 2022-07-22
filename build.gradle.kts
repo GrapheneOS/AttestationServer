@@ -27,7 +27,7 @@ dependencies {
     implementation("com.google.zxing:javase:3.5.0")
     implementation("org.bouncycastle:bcpkix-jdk18on:1.71")
     implementation("org.eclipse.angus:jakarta.mail:1.0.0")
-    implementation("org.eclipse.parsson:jakarta.json:1.1.0")
+    implementation("org.eclipse.parsson:jakarta.json:1.1.1")
 }
 
 tasks.withType<AbstractArchiveTask>().configureEach {
