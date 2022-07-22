@@ -2,6 +2,7 @@
 Description=Perform remote backup
 
 [Service]
+CPUSchedulingPolicy=batch
 ExecStart=/usr/local/bin/remote-backup
 Type=oneshot
 User=attestation
