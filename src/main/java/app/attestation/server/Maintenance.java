@@ -19,16 +19,18 @@ class Maintenance implements Runnable {
 
     @Override
     public void run() {
-        final SQLiteConnection conn = new SQLiteConnection(AttestationProtocol.ATTESTATION_DATABASE);
+        final SQLiteConnection samplesConn = new SQLiteConnection(AttestationServer.SAMPLES_DATABASE);
+        final SQLiteConnection attestationConn = new SQLiteConnection(AttestationProtocol.ATTESTATION_DATABASE);
         final SQLiteStatement deleteDeletedDevices;
         final SQLiteStatement purgeInactiveDevices;
         try {
-            AttestationServer.open(conn, false);
-            deleteDeletedDevices = conn.prepare("DELETE FROM Devices WHERE deletionTime < ?");
-            purgeInactiveDevices = conn.prepare("UPDATE Devices SET deletionTime = ? " +
+            AttestationServer.open(samplesConn, false);
+            AttestationServer.open(attestationConn, false);
+            deleteDeletedDevices = attestationConn.prepare("DELETE FROM Devices WHERE deletionTime < ?");
+            purgeInactiveDevices = attestationConn.prepare("UPDATE Devices SET deletionTime = ? " +
                     "WHERE verifiedTimeLast < ? AND deletionTime IS NULL");
         } catch (final SQLiteException e) {
-            conn.dispose();
+            attestationConn.dispose();
             throw new RuntimeException(e);
         }
 
@@ -36,7 +38,10 @@ class Maintenance implements Runnable {
             logger.info("maintenance");
 
             try {
-                conn.exec("ANALYZE");
+                samplesConn.exec("VACUUM");
+
+                attestationConn.exec("ANALYZE");
+                attestationConn.exec("VACUUM");
 
                 final long now = System.currentTimeMillis();
 
@@ -47,7 +52,7 @@ class Maintenance implements Runnable {
                     purgeInactiveDevices.bind(1, now);
                     purgeInactiveDevices.bind(2, now - INACTIVE_DEVICE_EXPIRY_MS);
                     purgeInactiveDevices.step();
-                    logger.info("cleared " + conn.getChanges() + " inactive devices");
+                    logger.info("cleared " + attestationConn.getChanges() + " inactive devices");
                 }
 
             } catch (final SQLiteException e) {
