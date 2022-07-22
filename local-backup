@@ -13,5 +13,5 @@ ssh $remote "sqlite3 attestation.db \".backup local-backup/$suffix/attestation.d
 ssh $remote "sqlite3 samples.db \".backup local-backup/$suffix/samples.db\""
 ssh $remote "tar cf ./local-backup/$suffix.tar local-backup/$suffix"
 ssh $remote "zstd -9 -o local-backup/$suffix.tar.zst local-backup/$suffix.tar"
-ssh $remote "age -r \$(cat cloud-archive-public-key.txt) -o local-backup/$suffix.tar.zst.age local-backup/$suffix.tar.zst"
+ssh $remote "age -r \$(cat backup-public-key.txt) -o local-backup/$suffix.tar.zst.age local-backup/$suffix.tar.zst"
 rsync -v $remote:./local-backup/$suffix.tar.zst.age backup/
