@@ -290,8 +290,6 @@ public class AttestationServer {
             createAttestationTables(attestationConn);
             createAttestationIndices(attestationConn);
 
-            attestationConn.exec("DELETE FROM Configuration WHERE key = 'backups'");
-
             if (userVersion < 7) {
                 throw new RuntimeException("Database schemas older than version 4 are no longer " +
                         "supported. Use an older AttestationServer revision to upgrade.");
@@ -353,6 +351,13 @@ public class AttestationServer {
                 userVersion = 9;
                 attestationConn.exec("PRAGMA foreign_keys = ON");
                 logger.info("Migrated to schema version: " + userVersion);
+            }
+
+            // remove obsolete backups key from Configuration table
+            if (userVersion < 10) {
+                attestationConn.exec("DELETE FROM Configuration WHERE key = 'backups'");
+
+                // version not upgraded yet since it's harmless to run this each time
             }
 
             logger.info("Analyze database");
