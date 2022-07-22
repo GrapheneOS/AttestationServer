@@ -14,6 +14,8 @@ class Maintenance implements Runnable {
     private static final long DELETE_EXPIRY_MS = 7L * 24 * 60 * 60 * 1000;
     private static final long INACTIVE_DEVICE_EXPIRY_MS = 90L * 24 * 60 * 60 * 1000;
     private static final boolean PURGE_INACTIVE_DEVICES = true;
+    private static final long HISTORY_EXPIRY_MS = 180L * 24 * 60 * 60 * 1000;
+    private static final boolean PURGE_LEGACY_HISTORY = true;
 
     private static final Logger logger = Logger.getLogger(Maintenance.class.getName());
 
@@ -23,12 +25,14 @@ class Maintenance implements Runnable {
         final SQLiteConnection attestationConn = new SQLiteConnection(AttestationProtocol.ATTESTATION_DATABASE);
         final SQLiteStatement deleteDeletedDevices;
         final SQLiteStatement purgeInactiveDevices;
+        final SQLiteStatement purgeLegacyHistory;
         try {
             AttestationServer.open(samplesConn, false);
             AttestationServer.open(attestationConn, false);
             deleteDeletedDevices = attestationConn.prepare("DELETE FROM Devices WHERE deletionTime < ?");
             purgeInactiveDevices = attestationConn.prepare("UPDATE Devices SET deletionTime = ? " +
                     "WHERE verifiedTimeLast < ? AND deletionTime IS NULL");
+            purgeLegacyHistory = attestationConn.prepare("DELETE FROM Attestations WHERE time < ?");
         } catch (final SQLiteException e) {
             attestationConn.dispose();
             throw new RuntimeException(e);
@@ -52,6 +56,12 @@ class Maintenance implements Runnable {
                     logger.info("cleared " + attestationConn.getChanges() + " inactive devices");
                 }
 
+                if (PURGE_LEGACY_HISTORY) {
+                    purgeLegacyHistory.bind(1, now - HISTORY_EXPIRY_MS);
+                    purgeLegacyHistory.step();
+                    logger.info("cleared " + attestationConn.getChanges() + " legacy history entries");
+                }
+
                 attestationConn.exec("ANALYZE");
                 attestationConn.exec("VACUUM");
             } catch (final SQLiteException e) {
@@ -60,6 +70,7 @@ class Maintenance implements Runnable {
                 try {
                     deleteDeletedDevices.reset();
                     purgeInactiveDevices.reset();
+                    purgeLegacyHistory.reset();
                 } catch (final SQLiteException e) {
                     logger.log(Level.WARNING, "database error", e);
                 }
