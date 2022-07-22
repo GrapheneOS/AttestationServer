@@ -61,7 +61,7 @@
                 <label>Password: <input id="create_password" type="password" autocomplete="new-password" maxlength="256" minlength="8" required="required"/></label><br/>
                 <label>Confirm password: <input id="create_password_confirm" type="password" autocomplete="new-password" maxlength="256" minlength="8" required="required"/></label><br/>
                 <p>There's currently no form of account recovery. If you forget your password, you'll need to make a new account and move your devices over to it.</p>
-                <p>Accounts will eventually expire if they have no paired devices.</p>
+                <p>Accounts with no paired devices are deleted after 730 days without a successful login. Paired devices expire after 90 days without submitting a valid attestation.</p>
                 <button name="submit">Create account</button>
                 <button type="button" class="cancel">Cancel</button>
             </form>
