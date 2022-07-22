@@ -2,14 +2,14 @@
 
 set -o errexit -o nounset -o pipefail
 
-suffix=$(date -u +%Y-%m-%dT%H:%m:%SZ)
+timestamp=$(date -u +%Y-%m-%dT%H:%m:%SZ)
 rm -rf remote-backup
 mkdir remote-backup
 
-mkdir remote-backup/$suffix
-sqlite3 attestation.db ".backup remote-backup/$suffix/attestation.db"
-sqlite3 samples.db ".backup remote-backup/$suffix/samples.db"
-tar cf ./remote-backup/$suffix.tar remote-backup/$suffix
-zstd -9 -o remote-backup/$suffix.tar.zst remote-backup/$suffix.tar
-age -r $(cat backup-public-key.txt) -o remote-backup/$suffix.tar.zst.age remote-backup/$suffix.tar.zst
-sshpass -f cloud-archive-password.txt rsync -v ./remote-backup/$suffix.tar.zst.age pca@gateways.storage.gra.cloud.ovh.net:backup/
+mkdir remote-backup/$timestamp
+sqlite3 attestation.db ".backup remote-backup/$timestamp/attestation.db"
+sqlite3 samples.db ".backup remote-backup/$timestamp/samples.db"
+tar cf ./remote-backup/$timestamp.tar remote-backup/$timestamp
+zstd -9 -o remote-backup/$timestamp.tar.zst remote-backup/$timestamp.tar
+age -r $(cat backup-public-key.txt) -o remote-backup/$timestamp.tar.zst.age remote-backup/$timestamp.tar.zst
+sshpass -f cloud-archive-password.txt rsync -v ./remote-backup/$timestamp.tar.zst.age pca@gateways.storage.gra.cloud.ovh.net:backup/
