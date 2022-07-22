@@ -13,11 +13,11 @@ class Maintenance implements Runnable {
     private static final long WAIT_MS = 24 * 60 * 60 * 1000;
     private static final long DELETE_EXPIRY_MS = 7L * 24 * 60 * 60 * 1000;
     private static final long INACTIVE_DEVICE_EXPIRY_MS = 90L * 24 * 60 * 60 * 1000;
-    private static final boolean PURGE_INACTIVE_DEVICES = true;
+    private static final boolean DELETE_INACTIVE_DEVICES = true;
     private static final long HISTORY_EXPIRY_MS = 180L * 24 * 60 * 60 * 1000;
-    private static final boolean PURGE_LEGACY_HISTORY = true;
+    private static final boolean DELETE_LEGACY_HISTORY = true;
     private static final long INACTIVE_ACCOUNT_EXPIRY_MS = 730L * 24 * 60 * 60 * 1000;
-    private static final boolean PURGE_INACTIVE_ACCOUNTS = true;
+    private static final boolean DELETE_INACTIVE_ACCOUNTS = true;
 
     private static final Logger logger = Logger.getLogger(Maintenance.class.getName());
 
@@ -26,16 +26,16 @@ class Maintenance implements Runnable {
         final SQLiteConnection samplesConn = new SQLiteConnection(AttestationServer.SAMPLES_DATABASE);
         final SQLiteConnection attestationConn = new SQLiteConnection(AttestationProtocol.ATTESTATION_DATABASE);
         final SQLiteStatement deleteDeletedDevices;
-        final SQLiteStatement purgeInactiveDevices;
-        final SQLiteStatement purgeLegacyHistory;
-        final SQLiteStatement purgeInactiveAccounts;
+        final SQLiteStatement deleteInactiveDevices;
+        final SQLiteStatement deleteLegacyHistory;
+        final SQLiteStatement deleteInactiveAccounts;
         try {
             AttestationServer.open(samplesConn, false);
             AttestationServer.open(attestationConn, false);
             deleteDeletedDevices = attestationConn.prepare("DELETE FROM Devices WHERE deletionTime < ?");
-            purgeInactiveDevices = attestationConn.prepare("DELETE FROM Devices WHERE verifiedTimeLast < ?");
-            purgeLegacyHistory = attestationConn.prepare("DELETE FROM Attestations WHERE time < ?");
-            purgeInactiveAccounts = attestationConn.prepare("DELETE FROM Accounts WHERE loginTime < ? " +
+            deleteInactiveDevices = attestationConn.prepare("DELETE FROM Devices WHERE verifiedTimeLast < ?");
+            deleteLegacyHistory = attestationConn.prepare("DELETE FROM Attestations WHERE time < ?");
+            deleteInactiveAccounts = attestationConn.prepare("DELETE FROM Accounts WHERE loginTime < ? " +
                     "AND NOT EXISTS (SELECT 1 FROM Devices WHERE Accounts.userId = Devices.userId)");
         } catch (final SQLiteException e) {
             attestationConn.dispose();
@@ -53,21 +53,21 @@ class Maintenance implements Runnable {
                 deleteDeletedDevices.bind(1, now - DELETE_EXPIRY_MS);
                 deleteDeletedDevices.step();
 
-                if (PURGE_INACTIVE_DEVICES) {
-                    purgeInactiveDevices.bind(1, now - INACTIVE_DEVICE_EXPIRY_MS);
-                    purgeInactiveDevices.step();
+                if (DELETE_INACTIVE_DEVICES) {
+                    deleteInactiveDevices.bind(1, now - INACTIVE_DEVICE_EXPIRY_MS);
+                    deleteInactiveDevices.step();
                     logger.info("cleared " + attestationConn.getChanges() + " inactive devices");
                 }
 
-                if (PURGE_LEGACY_HISTORY) {
-                    purgeLegacyHistory.bind(1, now - HISTORY_EXPIRY_MS);
-                    purgeLegacyHistory.step();
+                if (DELETE_LEGACY_HISTORY) {
+                    deleteLegacyHistory.bind(1, now - HISTORY_EXPIRY_MS);
+                    deleteLegacyHistory.step();
                     logger.info("cleared " + attestationConn.getChanges() + " legacy history entries");
                 }
 
-                if (PURGE_INACTIVE_ACCOUNTS) {
-                    purgeInactiveAccounts.bind(1, now - INACTIVE_ACCOUNT_EXPIRY_MS);
-                    purgeInactiveAccounts.step();
+                if (DELETE_INACTIVE_ACCOUNTS) {
+                    deleteInactiveAccounts.bind(1, now - INACTIVE_ACCOUNT_EXPIRY_MS);
+                    deleteInactiveAccounts.step();
                     logger.info("cleared " + attestationConn.getChanges() + " inactive accounts");
                 }
 
@@ -78,9 +78,9 @@ class Maintenance implements Runnable {
             } finally {
                 try {
                     deleteDeletedDevices.reset();
-                    purgeInactiveDevices.reset();
-                    purgeLegacyHistory.reset();
-                    purgeInactiveAccounts.reset();
+                    deleteInactiveDevices.reset();
+                    deleteLegacyHistory.reset();
+                    deleteInactiveAccounts.reset();
                 } catch (final SQLiteException e) {
                     logger.log(Level.WARNING, "database error", e);
                 }
