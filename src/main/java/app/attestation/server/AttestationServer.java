@@ -67,7 +67,7 @@ import static app.attestation.server.AttestationProtocol.fingerprintsStrongBoxSt
 import static com.almworks.sqlite4java.SQLiteConstants.SQLITE_CONSTRAINT_UNIQUE;
 
 public class AttestationServer {
-    private static final File SAMPLES_DATABASE = new File("samples.db");
+    static final File SAMPLES_DATABASE = new File("samples.db");
     private static final int MAX_SAMPLE_SIZE = 64 * 1024;
 
     private static final int DEFAULT_VERIFY_INTERVAL = 4 * 60 * 60;
@@ -268,9 +268,6 @@ public class AttestationServer {
             }
 
             logger.info("New schema version: " + userVersion);
-
-            logger.info("Vacuum database");
-            samplesConn.exec("VACUUM");
         } finally {
             samplesConn.dispose();
         }
@@ -359,11 +356,6 @@ public class AttestationServer {
 
                 // version not upgraded yet since it's harmless to run this each time
             }
-
-            logger.info("Analyze database");
-            attestationConn.exec("ANALYZE");
-            logger.info("Vacuum database");
-            attestationConn.exec("VACUUM");
 
             logger.info("Finished database setup");
         } finally {
