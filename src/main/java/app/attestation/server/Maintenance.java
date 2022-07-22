@@ -43,7 +43,7 @@ class Maintenance implements Runnable {
         }
 
         while (true) {
-            logger.info("maintenance");
+            logger.info("maintenance started");
 
             try {
                 samplesConn.exec("VACUUM");
@@ -85,6 +85,8 @@ class Maintenance implements Runnable {
                     logger.log(Level.WARNING, "database error", e);
                 }
             }
+
+            logger.info("maintenance completed");
 
             try {
                 Thread.sleep(WAIT_MS);
