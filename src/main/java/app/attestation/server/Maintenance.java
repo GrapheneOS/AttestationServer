@@ -33,8 +33,7 @@ class Maintenance implements Runnable {
             AttestationServer.open(samplesConn, false);
             AttestationServer.open(attestationConn, false);
             deleteDeletedDevices = attestationConn.prepare("DELETE FROM Devices WHERE deletionTime < ?");
-            purgeInactiveDevices = attestationConn.prepare("UPDATE Devices SET deletionTime = ? " +
-                    "WHERE verifiedTimeLast < ? AND deletionTime IS NULL");
+            purgeInactiveDevices = attestationConn.prepare("DELETE FROM Devices WHERE verifiedTimeLast < ?");
             purgeLegacyHistory = attestationConn.prepare("DELETE FROM Attestations WHERE time < ?");
             purgeInactiveAccounts = attestationConn.prepare("DELETE FROM Accounts WHERE loginTime < ? " +
                     "AND NOT EXISTS (SELECT 1 FROM Devices WHERE Accounts.userId = Devices.userId)");
@@ -55,8 +54,7 @@ class Maintenance implements Runnable {
                 deleteDeletedDevices.step();
 
                 if (PURGE_INACTIVE_DEVICES) {
-                    purgeInactiveDevices.bind(1, now);
-                    purgeInactiveDevices.bind(2, now - INACTIVE_DEVICE_EXPIRY_MS);
+                    purgeInactiveDevices.bind(1, now - INACTIVE_DEVICE_EXPIRY_MS);
                     purgeInactiveDevices.step();
                     logger.info("cleared " + attestationConn.getChanges() + " inactive devices");
                 }
