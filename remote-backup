@@ -9,7 +9,5 @@ mkdir remote-backup
 mkdir remote-backup/$timestamp
 sqlite3 attestation.db ".backup remote-backup/$timestamp/attestation.db"
 sqlite3 samples.db ".backup remote-backup/$timestamp/samples.db"
-tar cf ./remote-backup/$timestamp.tar remote-backup/$timestamp
-zstd -9 -o remote-backup/$timestamp.tar.zst remote-backup/$timestamp.tar
-age -r $(cat backup-public-key.txt) -o remote-backup/$timestamp.tar.zst.age remote-backup/$timestamp.tar.zst
+tar c remote-backup/$timestamp | zstd -9 | age -r $(cat backup-public-key.txt) -o remote-backup/$timestamp.tar.zst.age
 sshpass -f cloud-archive-password.txt rsync -v ./remote-backup/$timestamp.tar.zst.age pca@gateways.storage.gra.cloud.ovh.net:backup/
