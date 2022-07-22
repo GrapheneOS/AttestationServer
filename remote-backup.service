@@ -2,8 +2,33 @@
 Description=Perform remote backup
 
 [Service]
+CapabilityBoundingSet=
 CPUSchedulingPolicy=batch
 ExecStart=/usr/local/bin/remote-backup
+LockPersonality=true
+NoNewPrivileges=true
+PrivateDevices=true
+PrivateIPC=true
+PrivateTmp=true
+PrivateUsers=true
+ProtectClock=true
+ProtectControlGroups=true
+ProtectHome=true
+ProtectHostname=true
+ProtectKernelLogs=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+ProtectProc=invisible
+ProtectSystem=strict
+ReadWritePaths=/var/lib/attestation
+RestrictAddressFamilies=AF_INET AF_INET6
+RestrictNamespaces=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged @resources @obsolete
 Type=oneshot
+UMask=0077
 User=attestation
 WorkingDirectory=/var/lib/attestation
