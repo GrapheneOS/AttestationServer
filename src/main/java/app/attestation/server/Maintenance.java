@@ -40,9 +40,6 @@ class Maintenance implements Runnable {
             try {
                 samplesConn.exec("VACUUM");
 
-                attestationConn.exec("ANALYZE");
-                attestationConn.exec("VACUUM");
-
                 final long now = System.currentTimeMillis();
 
                 deleteDeletedDevices.bind(1, now - DELETE_EXPIRY_MS);
@@ -55,6 +52,8 @@ class Maintenance implements Runnable {
                     logger.info("cleared " + attestationConn.getChanges() + " inactive devices");
                 }
 
+                attestationConn.exec("ANALYZE");
+                attestationConn.exec("VACUUM");
             } catch (final SQLiteException e) {
                 logger.log(Level.WARNING, "database error", e);
             } finally {
