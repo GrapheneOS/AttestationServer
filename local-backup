@@ -11,7 +11,5 @@ ssh $remote "mkdir local-backup"
 ssh $remote "mkdir local-backup/$timestamp"
 ssh $remote "sqlite3 attestation.db \".backup local-backup/$timestamp/attestation.db\""
 ssh $remote "sqlite3 samples.db \".backup local-backup/$timestamp/samples.db\""
-ssh $remote "tar cf ./local-backup/$timestamp.tar local-backup/$timestamp"
-ssh $remote "zstd -9 -o local-backup/$timestamp.tar.zst local-backup/$timestamp.tar"
-ssh $remote "age -r \$(cat backup-public-key.txt) -o local-backup/$timestamp.tar.zst.age local-backup/$timestamp.tar.zst"
+ssh $remote "tar c local-backup/$timestamp | zstd -9 | age -r \$(cat backup-public-key.txt) -o local-backup/$timestamp.tar.zst.age"
 rsync -v $remote:./local-backup/$timestamp.tar.zst.age backup/
