@@ -9,8 +9,8 @@ You'll need to adjust it based on your domain name. The sample configuration rel
 [nginx-rotate-session-ticket-keys](https://github.com/GrapheneOS/nginx-rotate-session-ticket-keys),
 and [certbot-ocsp-fetcher](https://github.com/tomwassenberg/certbot-ocsp-fetcher). Setting up the web server is out-of-scope for this guide.
 
-Install a headless Java 17 runtime environment. The package name on Debian-based distributions is
-`openjdk-17-jre-headless` or `jre-openjdk-headless` on Arch Linux. Install `sqlite3` in order to set up the email configuration for the
+Install a headless Java 18 runtime environment. The package name on Debian-based distributions is
+`openjdk-18-jre-headless` or `jre-openjdk-headless` on Arch Linux. Install `sqlite3` in order to set up the email configuration for the
 database.
 
 As root, on the server:
