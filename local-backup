@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -o errexit -o nounset -o pipefail
+
+remote=attestation@attestation.app
+
+suffix=$(date -u +%Y-%m-%dT%H:%m:%SZ)
+ssh $remote "rm -rf local-backup"
+ssh $remote "mkdir local-backup"
+
+ssh $remote "mkdir local-backup/$suffix"
+ssh $remote "sqlite3 attestation.db \".backup local-backup/$suffix/attestation.db\""
+ssh $remote "sqlite3 samples.db \".backup local-backup/$suffix/samples.db\""
+ssh $remote "tar cf ./local-backup/$suffix.tar local-backup/$suffix"
+ssh $remote "zstd -9 -o local-backup/$suffix.tar.zst local-backup/$suffix.tar"
+ssh $remote "age -r \$(cat cloud-archive-public-key.txt) -o local-backup/$suffix.tar.zst.age local-backup/$suffix.tar.zst"
+rsync -v $remote:./local-backup/$suffix.tar.zst.age backup/

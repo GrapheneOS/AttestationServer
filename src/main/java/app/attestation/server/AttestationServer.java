@@ -290,8 +290,7 @@ public class AttestationServer {
             createAttestationTables(attestationConn);
             createAttestationIndices(attestationConn);
 
-            attestationConn.exec("INSERT OR IGNORE INTO Configuration " +
-                    "(key, value) VALUES ('backups', 0)");
+            attestationConn.exec("DELETE FROM Configuration WHERE key = 'backups'");
 
             if (userVersion < 7) {
                 throw new RuntimeException("Database schemas older than version 4 are no longer " +
@@ -365,8 +364,6 @@ public class AttestationServer {
         } finally {
             attestationConn.dispose();
         }
-
-        Files.createDirectories(Paths.get("backup"));
 
         new Thread(new AlertDispatcher()).start();
         new Thread(new Maintenance()).start();

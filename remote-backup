@@ -2,21 +2,14 @@
 
 set -o errexit -o nounset -o pipefail
 
-rm -rf archive
-mkdir archive
+suffix=$(date -u +%Y-%m-%dT%H:%m:%SZ)
+rm -rf remote-backup
+mkdir remote-backup
 
-echo -n '@ls -1 backup/' | sshpass -f cloud-archive-password.txt sftp -q -oBatchMode=no pca@gateways.storage.gra.cloud.ovh.net | sed 's/\.zst\.age$//' | sort > archive/remote.txt
-find backup/ -name '*.db' | sort > archive/local.txt
-
-public_key=$(cat cloud-archive-public-key.txt)
-
-need_sync=0
-for file in $(comm -13 archive/remote.txt archive/local.txt); do
-    need_sync=1
-    zstd -9 -o archive/$(basename $file).zst $file
-    age -r $public_key -o archive/$(basename $file).zst.age archive/$(basename $file).zst
-done
-
-if ((need_sync)); then
-    sshpass -f cloud-archive-password.txt rsync -v archive/*.db.zst.age pca@gateways.storage.gra.cloud.ovh.net:backup/
-fi
+mkdir remote-backup/$suffix
+sqlite3 attestation.db ".backup remote-backup/$suffix/attestation.db"
+sqlite3 samples.db ".backup remote-backup/$suffix/samples.db"
+tar cf ./remote-backup/$suffix.tar remote-backup/$suffix
+zstd -9 -o remote-backup/$suffix.tar.zst remote-backup/$suffix.tar
+age -r $(cat cloud-archive-public-key.txt) -o remote-backup/$suffix.tar.zst.age remote-backup/$suffix.tar.zst
+sshpass -f cloud-archive-password.txt rsync -v ./remote-backup/$suffix.tar.zst.age pca@gateways.storage.gra.cloud.ovh.net:backup/
