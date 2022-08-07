@@ -11,9 +11,19 @@ You'll need to adjust it based on your domain name. The sample configuration rel
 [nginx-rotate-session-ticket-keys](https://github.com/GrapheneOS/nginx-rotate-session-ticket-keys),
 and [certbot-ocsp-fetcher](https://github.com/tomwassenberg/certbot-ocsp-fetcher). Setting up the web server is out-of-scope for this guide.
 
+The deploy and process scripts on the development machine require the following dependencies to be installed:
+
+    rsync, zopfli, parallel, yajl, brotli, nginx-mod-brotli, python3, python-pip, nodejs, npm, libxml2
+
+`validatornu` must be obtained manually
+[here](https://github.com/validator/validator/releases/tag/20.6.30) (vnu.linux.zip). Unzip it in
+the same directory in AttestationServer and change the binary path in `process-static` from
+`validatornu` to `vnu-runtime-image/bin/vnu` using sed: `sed -i
+'s+validatornu+vnu-runtime-image/bin/vnu+g' process-static`
+
 Install a headless Java 18 runtime environment. The package name on Debian-based distributions is
-`openjdk-18-jre-headless` or `jre-openjdk-headless` on Arch Linux. Install `sqlite3` in order to set up the email configuration for the
-database.
+`openjdk-18-jre-headless` or `jre-openjdk-headless` on Arch Linux. Install `sqlite3` in order to
+set up the email configuration for the database.
 
 As root, on the server:
 
@@ -29,11 +39,19 @@ Set up ssh `authorized_keys` for the attestation user.
 
 Copy `attestation.service` to `/etc/systemd/system/attestation.service`.
 
-On your development machine, you will need to change the `remote` variable in the deploy scripts to your server. You'll also need to change the
-[DOMAIN](https://github.com/GrapheneOS/AttestationServer/blob/main/src/main/java/app/attestation/server/AttestationServer.java#L83) in
-AttestationServer.java to your server and the [app signing key](https://github.com/GrapheneOS/AttestationServer/blob/main/src/main/java/app/attestation/server/AttestationProtocol.java#L173-L174) and [app ID](https://github.com/GrapheneOS/AttestationServer/blob/main/src/main/java/app/attestation/server/AttestationProtocol.java#L169).
+On your development machine, you will need to change the `remote` variable in the deploy scripts
+to your server. You'll also need to change the
+[DOMAIN](https://github.com/GrapheneOS/AttestationServer/blob/main/src/main/java/app/attestation/server/AttestationServer.java#L83)
+in AttestationServer.java to your server and the [app signing
+key](https://github.com/GrapheneOS/AttestationServer/blob/main/src/main/java/app/attestation/server/AttestationProtocol.java#L173-L174)
+and [app
+ID](https://github.com/GrapheneOS/AttestationServer/blob/main/src/main/java/app/attestation/server/AttestationProtocol.java#L169).
 Then deploy the attestation server and static content:
 
+    npm i
+    python -m venv venv
+    source venv/bin/activate
+    pip install -r requirements.txt
     ./deploy-server
     ./deploy-static
 
