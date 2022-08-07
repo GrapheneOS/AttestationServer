@@ -1181,7 +1181,7 @@ public class AttestationServer {
                 device.add("verifiedTimeFirst", select.columnLong(20));
                 device.add("verifiedTimeLast", select.columnLong(21));
                 final SQLiteStatement devicesAttestationsLatestSelect = conn.prepare(
-                        "SELECT MIN(id), MAX(id) FROM Attestations WHERE fingerprint = ?");
+                        "SELECT min(id), max(id) FROM Attestations WHERE fingerprint = ?");
                 devicesAttestationsLatestSelect.bind(1, fingerprint);
                 if (devicesAttestationsLatestSelect.step()) {
                     device.add("minId", devicesAttestationsLatestSelect.columnLong(0));
