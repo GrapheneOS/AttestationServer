@@ -1114,7 +1114,9 @@ public class AttestationServer {
                     "pinnedBootPatchLevel, pinnedAppVersion, pinnedSecurityLevel, " +
                     "userProfileSecure, enrolledBiometrics, accessibility, deviceAdmin, " +
                     "adbEnabled, addUsersWhenLocked, denyNewUsb, oemUnlockAllowed, " +
-                    "systemUser, verifiedTimeFirst, verifiedTimeLast " +
+                    "systemUser, verifiedTimeFirst, verifiedTimeLast, " +
+                    "(SELECT min(id) FROM Attestations WHERE Attestations.fingerprint = Devices.fingerprint), " +
+                    "(SELECT max(id) FROM Attestations WHERE Attestations.fingerprint = Devices.fingerprint) " +
                     "FROM Devices WHERE userId is ? AND deletionTime IS NULL " +
                     "ORDER BY verifiedTimeFirst");
             select.bind(1, userId);
@@ -1180,14 +1182,8 @@ public class AttestationServer {
                 device.add("systemUser", select.columnInt(19));
                 device.add("verifiedTimeFirst", select.columnLong(20));
                 device.add("verifiedTimeLast", select.columnLong(21));
-                final SQLiteStatement devicesAttestationsLatestSelect = conn.prepare(
-                        "SELECT min(id), max(id) FROM Attestations WHERE fingerprint = ?");
-                devicesAttestationsLatestSelect.bind(1, fingerprint);
-                if (devicesAttestationsLatestSelect.step()) {
-                    device.add("minId", devicesAttestationsLatestSelect.columnLong(0));
-                    device.add("maxId", devicesAttestationsLatestSelect.columnLong(1));
-                }
-                devicesAttestationsLatestSelect.dispose();
+                device.add("minId", select.columnLong(22));
+                device.add("maxId", select.columnLong(23));
                 devices.add(device);
             }
             select.dispose();
