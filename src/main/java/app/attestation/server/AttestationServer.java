@@ -1109,7 +1109,7 @@ public class AttestationServer {
 
             final SQLiteStatement select = conn.prepare("SELECT fingerprint, " +
                     "pinnedCertificates, attestKey, hex(pinnedVerifiedBootKey), " +
-                    "(SELECT hex(verifiedBootHash) where verifiedBootHash IS NOT NULL), " +
+                    "(SELECT hex(verifiedBootHash) WHERE verifiedBootHash IS NOT NULL), " +
                     "pinnedOsVersion, pinnedOsPatchLevel, pinnedVendorPatchLevel, " +
                     "pinnedBootPatchLevel, pinnedAppVersion, pinnedSecurityLevel, " +
                     "userProfileSecure, enrolledBiometrics, accessibility, deviceAdmin, " +
