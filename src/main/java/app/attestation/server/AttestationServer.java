@@ -105,6 +105,7 @@ public class AttestationServer {
         conn.setBusyTimeout(BUSY_TIMEOUT);
         conn.exec("PRAGMA foreign_keys = ON");
         conn.exec("PRAGMA journal_mode = WAL");
+        conn.exec("PRAGMA trusted_schema = OFF");
     }
 
     private static void createAttestationTables(final SQLiteConnection conn) throws SQLiteException {
