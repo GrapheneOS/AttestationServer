@@ -1336,19 +1336,6 @@ class AttestationProtocol {
         }
     }
 
-    static class VerificationResult {
-        final boolean strong;
-        final String teeEnforced;
-        final String osEnforced;
-
-        VerificationResult(final boolean strong, final String teeEnforced,
-                final String osEnforced) {
-            this.strong = strong;
-            this.teeEnforced = teeEnforced;
-            this.osEnforced = osEnforced;
-        }
-    }
-
     private static String toYesNoString(final boolean value) {
         return value ? "yes" : "no";
     }
