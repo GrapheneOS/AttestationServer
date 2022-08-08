@@ -31,7 +31,7 @@ class AlertDispatcher implements Runnable {
     public void run() {
         final SQLiteConnection conn;
         try {
-            conn = AttestationServer.open(AttestationProtocol.ATTESTATION_DATABASE, false);
+            conn = AttestationServer.open(AttestationProtocol.ATTESTATION_DATABASE);
         } catch (final SQLiteException e) {
             throw new RuntimeException(e);
         }
