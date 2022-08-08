@@ -231,17 +231,14 @@ public class AttestationServer {
     }
 
     private static int getUserVersion(final SQLiteConnection conn) throws SQLiteException {
-        SQLiteStatement pragmaUserVersion = null;
+        final SQLiteStatement pragmaUserVersion = conn.prepare("PRAGMA user_version");
         try {
-            pragmaUserVersion = conn.prepare("PRAGMA user_version");
             pragmaUserVersion.step();
             int userVersion = pragmaUserVersion.columnInt(0);
             logger.info("Existing schema version: " + userVersion);
             return userVersion;
         } finally {
-            if (pragmaUserVersion != null) {
-                pragmaUserVersion.dispose();
-            }
+            pragmaUserVersion.dispose();
         }
     }
 
