@@ -141,9 +141,35 @@ function fetchHistory(parent, nextOffset) {
             p.appendChild(create("strong", result));
 
             parent.appendChild(create("h5", "Hardware verified information (constants omitted):"));
-            parent.appendChild(create("p", attestation.teeEnforced));
+            appendLine(parent, "OS version: " + formatOsVersion(attestation.osVersion));
+            appendLine(parent, "OS patch level: " + formatPatchLevel(attestation.osPatchLevel));
+            if (attestation.vendorPatchLevel !== undefined) {
+                appendLine(parent, "Vendor patch level: " + formatPatchLevel(attestation.vendorPatchLevel));
+            }
+            if (attestation.bootPatchLevel !== undefined) {
+                appendLine(parent, "Boot patch level: " + formatPatchLevel(attestation.bootPatchLevel));
+            }
+            if (attestation.verifiedBootHash !== undefined) {
+                parent.appendChild(document.createTextNode("Verified boot hash: "));
+                parent.appendChild(create("span", attestation.verifiedBootHash, "fingerprint"));
+                parent.appendChild(document.createElement("br"));
+            }
+
             parent.appendChild(create("h5", "Information provided by the verified OS:"));
-            parent.appendChild(create("p", attestation.osEnforced));
+            appendLine(parent, "Pinned Auditor app version: " + attestation.appVersion);
+            appendLine(parent, "User profile secure: " + toYesNoString(attestation.userProfileSecure));
+            if (attestation.appVersion < 26) {
+                appendLine(parent, "Enrolled fingerprints: " + toYesNoString(attestation.enrolledBiometrics));
+            } else {
+                appendLine(parent, "Enrolled biometrics: " + toYesNoString(attestation.enrolledBiometrics));
+            }
+            appendLine(parent, "Accessibility service(s) enabled: " + toYesNoString(attestation.accessibility));
+            appendLine(parent, "Device administrator(s) enabled: " + deviceAdminStrings.get(attestation.deviceAdmin));
+            appendLine(parent, "Android Debug Bridge enabled: " + toYesNoString(attestation.adbEnabled));
+            appendLine(parent, "Add users from lock screen: " + toYesNoString(attestation.addUsersWhenLocked));
+            appendLine(parent, "Disallow new USB peripherals when locked: " + toYesNoString(attestation.denyNewUsb));
+            appendLine(parent, "OEM unlocking allowed: " + toYesNoString(attestation.oemUnlockAllowed));
+            appendLine(parent, "Main user account: " + toYesNoString(attestation.systemUser));
         }
         const earliestCurrentId = attestations.slice(-1)[0].id;
         function fetchHistoryNextPage() {
