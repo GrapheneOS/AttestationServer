@@ -643,17 +643,20 @@ public class AttestationServer {
             final SQLiteStatement insert = conn.prepare("INSERT INTO Accounts " +
                     "(username, passwordHash, passwordSalt, subscribeKey, creationTime, loginTime, verifyInterval, alertDelay) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-            insert.bind(1, username);
-            insert.bind(2, passwordHash);
-            insert.bind(3, passwordSalt);
-            insert.bind(4, subscribeKey);
-            final long now = System.currentTimeMillis();
-            insert.bind(5, now);
-            insert.bind(6, now);
-            insert.bind(7, DEFAULT_VERIFY_INTERVAL);
-            insert.bind(8, DEFAULT_ALERT_DELAY);
-            insert.step();
-            insert.dispose();
+            try {
+                insert.bind(1, username);
+                insert.bind(2, passwordHash);
+                insert.bind(3, passwordSalt);
+                insert.bind(4, subscribeKey);
+                final long now = System.currentTimeMillis();
+                insert.bind(5, now);
+                insert.bind(6, now);
+                insert.bind(7, DEFAULT_VERIFY_INTERVAL);
+                insert.bind(8, DEFAULT_ALERT_DELAY);
+                insert.step();
+            } finally {
+                insert.dispose();
+            }
         } catch (final SQLiteException e) {
             if (e.getErrorCode() == SQLITE_CONSTRAINT_UNIQUE) {
                 throw new UsernameUnavailableException();
@@ -675,11 +678,16 @@ public class AttestationServer {
 
             final SQLiteStatement select = conn.prepare("SELECT passwordHash, passwordSalt " +
                     "FROM Accounts WHERE userId = ?");
-            select.bind(1, userId);
-            select.step();
-            final byte[] currentPasswordHash = select.columnBlob(0);
-            final byte[] currentPasswordSalt = select.columnBlob(1);
-            select.dispose();
+            final byte[] currentPasswordHash;
+            final byte[] currentPasswordSalt;
+            try {
+                select.bind(1, userId);
+                select.step();
+                currentPasswordHash = select.columnBlob(0);
+                currentPasswordSalt = select.columnBlob(1);
+            } finally {
+                select.dispose();
+            }
             if (!MessageDigest.isEqual(hash(currentPassword.getBytes(), currentPasswordSalt), currentPasswordHash)) {
                 throw new GeneralSecurityException("invalid password");
             }
@@ -689,11 +697,14 @@ public class AttestationServer {
 
             final SQLiteStatement update = conn.prepare("UPDATE Accounts " +
                     "SET passwordHash = ?, passwordSalt = ? WHERE userId = ?");
-            update.bind(1, newPasswordHash);
-            update.bind(2, newPasswordSalt);
-            update.bind(3, userId);
-            update.step();
-            update.dispose();
+            try {
+                update.bind(1, newPasswordHash);
+                update.bind(2, newPasswordSalt);
+                update.bind(3, userId);
+                update.step();
+            } finally {
+                update.dispose();
+            }
 
             conn.exec("COMMIT TRANSACTION");
         } finally {
@@ -721,40 +732,55 @@ public class AttestationServer {
 
             final SQLiteStatement select = conn.prepare("SELECT userId, passwordHash, " +
                     "passwordSalt FROM Accounts WHERE username = ?");
-            select.bind(1, username);
-            if (!select.step()) {
-                throw new UsernameUnavailableException();
+            final long userId;
+            final byte[] passwordHash;
+            final byte[] passwordSalt;
+            try {
+                select.bind(1, username);
+                if (!select.step()) {
+                    throw new UsernameUnavailableException();
+                }
+                userId = select.columnLong(0);
+                passwordHash = select.columnBlob(1);
+                passwordSalt = select.columnBlob(2);
+            } finally {
+                select.dispose();
             }
-            final long userId = select.columnLong(0);
-            final byte[] passwordHash = select.columnBlob(1);
-            final byte[] passwordSalt = select.columnBlob(2);
-            select.dispose();
             if (!MessageDigest.isEqual(hash(password.getBytes(), passwordSalt), passwordHash)) {
                 throw new GeneralSecurityException("invalid password");
             }
 
             final long now = System.currentTimeMillis();
             final SQLiteStatement delete = conn.prepare("DELETE FROM Sessions WHERE expiryTime < ?");
-            delete.bind(1, now);
-            delete.step();
-            delete.dispose();
+            try {
+                delete.bind(1, now);
+                delete.step();
+            } finally {
+                delete.dispose();
+            }
 
             final byte[] token = generateRandomToken();
 
             final SQLiteStatement insert = conn.prepare("INSERT INTO Sessions " +
                     "(userId, token, expiryTime) VALUES (?, ?, ?)");
-            insert.bind(1, userId);
-            insert.bind(2, token);
-            insert.bind(3, now + SESSION_LENGTH);
-            insert.step();
-            insert.dispose();
+            try {
+                insert.bind(1, userId);
+                insert.bind(2, token);
+                insert.bind(3, now + SESSION_LENGTH);
+                insert.step();
+            } finally {
+                insert.dispose();
+            }
 
             final SQLiteStatement updateLoginTime = conn.prepare("UPDATE Accounts SET " +
                     "loginTime = ? WHERE userId = ?");
-            updateLoginTime.bind(1, now);
-            updateLoginTime.bind(2, userId);
-            updateLoginTime.step();
-            updateLoginTime.dispose();
+            try {
+                updateLoginTime.bind(1, now);
+                updateLoginTime.bind(2, userId);
+                updateLoginTime.step();
+            } finally {
+                updateLoginTime.dispose();
+            }
 
             conn.exec("COMMIT TRANSACTION");
 
@@ -882,9 +908,12 @@ public class AttestationServer {
             final SQLiteConnection conn = open(AttestationProtocol.ATTESTATION_DATABASE);
             try {
                 final SQLiteStatement select = conn.prepare("DELETE FROM Sessions WHERE userId = ?");
-                select.bind(1, account.userId);
-                select.step();
-                select.dispose();
+                try {
+                    select.bind(1, account.userId);
+                    select.step();
+                } finally {
+                    select.dispose();
+                }
             } finally {
                 conn.dispose();
             }
@@ -906,10 +935,13 @@ public class AttestationServer {
 
                 final SQLiteStatement select = conn.prepare("UPDATE Accounts SET " +
                         "subscribeKey = ? WHERE userId = ?");
-                select.bind(1, subscribeKey);
-                select.bind(2, account.userId);
-                select.step();
-                select.dispose();
+                try {
+                    select.bind(1, subscribeKey);
+                    select.bind(2, account.userId);
+                    select.step();
+                } finally {
+                    select.dispose();
+                }
             } finally {
                 conn.dispose();
             }
@@ -981,29 +1013,36 @@ public class AttestationServer {
                     "FROM Sessions " +
                     "INNER JOIN Accounts on Accounts.userId = Sessions.userId " +
                     "WHERE sessionId = ?");
-            select.bind(1, sessionId);
-            if (!select.step() || !MessageDigest.isEqual(token, select.columnBlob(0))) {
-                purgeSessionCookie(exchange);
-                exchange.sendResponseHeaders(403, -1);
-                return null;
-            }
+            try {
+                select.bind(1, sessionId);
+                if (!select.step() || !MessageDigest.isEqual(token, select.columnBlob(0))) {
+                    purgeSessionCookie(exchange);
+                    exchange.sendResponseHeaders(403, -1);
+                    return null;
+                }
 
-            if (select.columnLong(1) < System.currentTimeMillis()) {
-                purgeSessionCookie(exchange);
-                exchange.sendResponseHeaders(403, -1);
-                return null;
-            }
+                if (select.columnLong(1) < System.currentTimeMillis()) {
+                    purgeSessionCookie(exchange);
+                    exchange.sendResponseHeaders(403, -1);
+                    return null;
+                }
 
-            if (end) {
-                final SQLiteStatement delete = conn.prepare("DELETE FROM Sessions " +
-                        "WHERE sessionId = ?");
-                delete.bind(1, sessionId);
-                delete.step();
-                delete.dispose();
-            }
+                if (end) {
+                    final SQLiteStatement delete = conn.prepare("DELETE FROM Sessions " +
+                            "WHERE sessionId = ?");
+                    try {
+                        delete.bind(1, sessionId);
+                        delete.step();
+                    } finally {
+                        delete.dispose();
+                    }
+                }
 
-            return new Account(select.columnLong(4), select.columnString(2), select.columnBlob(3),
-                    select.columnInt(5), select.columnInt(6));
+                return new Account(select.columnLong(4), select.columnString(2), select.columnBlob(3),
+                        select.columnInt(5), select.columnInt(6));
+            } finally {
+                select.dispose();
+            }
         } finally {
             conn.dispose();
         }
@@ -1025,11 +1064,14 @@ public class AttestationServer {
             try {
                 final SQLiteStatement select = conn.prepare("SELECT address FROM EmailAddresses " +
                         "WHERE userId = ?");
-                select.bind(1, account.userId);
-                if (select.step()) {
-                    accountJson.add("email", select.columnString(0));
+                try {
+                    select.bind(1, account.userId);
+                    if (select.step()) {
+                        accountJson.add("email", select.columnString(0));
+                    }
+                } finally {
+                    select.dispose();
                 }
-                select.dispose();
             } finally {
                 conn.dispose();
             }
@@ -1128,25 +1170,34 @@ public class AttestationServer {
 
                 final SQLiteStatement update = conn.prepare("UPDATE Accounts SET " +
                         "verifyInterval = ?, alertDelay = ? WHERE userId = ?");
-                update.bind(1, verifyInterval);
-                update.bind(2, alertDelay);
-                update.bind(3, account.userId);
-                update.step();
-                update.dispose();
+                try {
+                    update.bind(1, verifyInterval);
+                    update.bind(2, alertDelay);
+                    update.bind(3, account.userId);
+                    update.step();
+                } finally {
+                    update.dispose();
+                }
 
                 final SQLiteStatement delete = conn.prepare("DELETE FROM EmailAddresses " +
                         "WHERE userId = ?");
-                delete.bind(1, account.userId);
-                delete.step();
-                delete.dispose();
+                try {
+                    delete.bind(1, account.userId);
+                    delete.step();
+                } finally {
+                    delete.dispose();
+                }
 
                 if (!email.isEmpty()) {
                     final SQLiteStatement insert = conn.prepare("INSERT INTO EmailAddresses " +
                             "(userId, address) VALUES (?, ?)");
-                    insert.bind(1, account.userId);
-                    insert.bind(2, email);
-                    insert.step();
-                    insert.dispose();
+                    try {
+                        insert.bind(1, account.userId);
+                        insert.bind(2, email);
+                        insert.step();
+                    } finally {
+                        insert.dispose();
+                    }
                 }
 
                 conn.exec("COMMIT TRANSACTION");
@@ -1179,11 +1230,14 @@ public class AttestationServer {
             try {
                 final SQLiteStatement update = conn.prepare("UPDATE Devices SET " +
                         "deletionTime = ? WHERE userId = ? AND fingerprint = ?");
-                update.bind(1, System.currentTimeMillis());
-                update.bind(2, account.userId);
-                update.bind(3, BaseEncoding.base16().decode(fingerprint));
-                update.step();
-                update.dispose();
+                try {
+                    update.bind(1, System.currentTimeMillis());
+                    update.bind(2, account.userId);
+                    update.bind(3, BaseEncoding.base16().decode(fingerprint));
+                    update.step();
+                } finally {
+                    update.dispose();
+                }
 
                 if (conn.getChanges() == 0) {
                     exchange.sendResponseHeaders(400, -1);
@@ -1219,74 +1273,77 @@ public class AttestationServer {
                     "(SELECT max(id) FROM Attestations WHERE Attestations.fingerprint = Devices.fingerprint) " +
                     "FROM Devices WHERE userId is ? AND deletionTime IS NULL " +
                     "ORDER BY verifiedTimeFirst");
-            select.bind(1, userId);
-            while (select.step()) {
-                final JsonObjectBuilder device = Json.createObjectBuilder();
-                final byte[] fingerprint = select.columnBlob(0);
-                device.add("fingerprint", BaseEncoding.base16().encode(fingerprint));
-                try {
-                    final Certificate[] pinnedCertificates = AttestationProtocol.decodeChain(AttestationProtocol.DEFLATE_DICTIONARY_2, select.columnBlob(1));
-                    final JsonArrayBuilder certificates = Json.createArrayBuilder();
-                    for (final Certificate pinnedCertificate : pinnedCertificates) {
-                        certificates.add(convertToPem(pinnedCertificate.getEncoded()));
+            try {
+                select.bind(1, userId);
+                while (select.step()) {
+                    final JsonObjectBuilder device = Json.createObjectBuilder();
+                    final byte[] fingerprint = select.columnBlob(0);
+                    device.add("fingerprint", BaseEncoding.base16().encode(fingerprint));
+                    try {
+                        final Certificate[] pinnedCertificates = AttestationProtocol.decodeChain(AttestationProtocol.DEFLATE_DICTIONARY_2, select.columnBlob(1));
+                        final JsonArrayBuilder certificates = Json.createArrayBuilder();
+                        for (final Certificate pinnedCertificate : pinnedCertificates) {
+                            certificates.add(convertToPem(pinnedCertificate.getEncoded()));
+                        }
+                        device.add("pinnedCertificates", certificates);
+                    } catch (final DataFormatException | GeneralSecurityException e) {
+                        throw new IOException(e);
                     }
-                    device.add("pinnedCertificates", certificates);
-                } catch (final DataFormatException | GeneralSecurityException e) {
-                    throw new IOException(e);
-                }
-                device.add("attestKey", select.columnInt(2));
-                final String verifiedBootKey = select.columnString(3);
-                device.add("verifiedBootKey", verifiedBootKey);
-                DeviceInfo info;
-                final int pinnedSecurityLevel = select.columnInt(10);
-                if (pinnedSecurityLevel == KM_SECURITY_LEVEL_STRONG_BOX) {
-                    info = fingerprintsStrongBoxCustomOS.get(verifiedBootKey);
-                    if (info == null) {
-                        info = fingerprintsStrongBoxStock.get(verifiedBootKey);
+                    device.add("attestKey", select.columnInt(2));
+                    final String verifiedBootKey = select.columnString(3);
+                    device.add("verifiedBootKey", verifiedBootKey);
+                    DeviceInfo info;
+                    final int pinnedSecurityLevel = select.columnInt(10);
+                    if (pinnedSecurityLevel == KM_SECURITY_LEVEL_STRONG_BOX) {
+                        info = fingerprintsStrongBoxCustomOS.get(verifiedBootKey);
                         if (info == null) {
-                            throw new RuntimeException("invalid fingerprint");
+                            info = fingerprintsStrongBoxStock.get(verifiedBootKey);
+                            if (info == null) {
+                                throw new RuntimeException("invalid fingerprint");
+                            }
+                        }
+                    } else {
+                        info = fingerprintsCustomOS.get(verifiedBootKey);
+                        if (info == null) {
+                            info = fingerprintsStock.get(verifiedBootKey);
+                            if (info == null) {
+                                throw new RuntimeException("invalid fingerprint");
+                            }
                         }
                     }
-                } else {
-                    info = fingerprintsCustomOS.get(verifiedBootKey);
-                    if (info == null) {
-                        info = fingerprintsStock.get(verifiedBootKey);
-                        if (info == null) {
-                            throw new RuntimeException("invalid fingerprint");
-                        }
+                    device.add("osName", info.osName);
+                    device.add("name", info.name);
+                    if (!select.columnNull(4)) {
+                        device.add("verifiedBootHash", select.columnString(4));
                     }
+                    device.add("pinnedOsVersion", select.columnInt(5));
+                    device.add("pinnedOsPatchLevel", select.columnInt(6));
+                    if (!select.columnNull(7)) {
+                        device.add("pinnedVendorPatchLevel", select.columnInt(7));
+                    }
+                    if (!select.columnNull(8)) {
+                        device.add("pinnedBootPatchLevel", select.columnInt(8));
+                    }
+                    device.add("pinnedAppVersion", select.columnInt(9));
+                    device.add("pinnedSecurityLevel", pinnedSecurityLevel);
+                    device.add("userProfileSecure", select.columnInt(11));
+                    device.add("enrolledBiometrics", select.columnInt(12));
+                    device.add("accessibility", select.columnInt(13));
+                    device.add("deviceAdmin", select.columnInt(14));
+                    device.add("adbEnabled", select.columnInt(15));
+                    device.add("addUsersWhenLocked", select.columnInt(16));
+                    device.add("denyNewUsb", select.columnInt(17));
+                    device.add("oemUnlockAllowed", select.columnInt(18));
+                    device.add("systemUser", select.columnInt(19));
+                    device.add("verifiedTimeFirst", select.columnLong(20));
+                    device.add("verifiedTimeLast", select.columnLong(21));
+                    device.add("minId", select.columnLong(22));
+                    device.add("maxId", select.columnLong(23));
+                    devices.add(device);
                 }
-                device.add("osName", info.osName);
-                device.add("name", info.name);
-                if (!select.columnNull(4)) {
-                    device.add("verifiedBootHash", select.columnString(4));
-                }
-                device.add("pinnedOsVersion", select.columnInt(5));
-                device.add("pinnedOsPatchLevel", select.columnInt(6));
-                if (!select.columnNull(7)) {
-                    device.add("pinnedVendorPatchLevel", select.columnInt(7));
-                }
-                if (!select.columnNull(8)) {
-                    device.add("pinnedBootPatchLevel", select.columnInt(8));
-                }
-                device.add("pinnedAppVersion", select.columnInt(9));
-                device.add("pinnedSecurityLevel", pinnedSecurityLevel);
-                device.add("userProfileSecure", select.columnInt(11));
-                device.add("enrolledBiometrics", select.columnInt(12));
-                device.add("accessibility", select.columnInt(13));
-                device.add("deviceAdmin", select.columnInt(14));
-                device.add("adbEnabled", select.columnInt(15));
-                device.add("addUsersWhenLocked", select.columnInt(16));
-                device.add("denyNewUsb", select.columnInt(17));
-                device.add("oemUnlockAllowed", select.columnInt(18));
-                device.add("systemUser", select.columnInt(19));
-                device.add("verifiedTimeFirst", select.columnLong(20));
-                device.add("verifiedTimeLast", select.columnLong(21));
-                device.add("minId", select.columnLong(22));
-                device.add("maxId", select.columnLong(23));
-                devices.add(device);
+            } finally {
+                select.dispose();
             }
-            select.dispose();
         } finally {
             conn.dispose();
         }
@@ -1347,40 +1404,43 @@ public class AttestationServer {
                 "Attestations.fingerprint = Devices.fingerprint " +
                 "WHERE Devices.fingerprint = ? AND userid = ? " +
                 "AND Attestations.id <= ? ORDER BY id DESC LIMIT " + HISTORY_PER_PAGE);
-            history.bind(1, fingerprint);
-            history.bind(2, userAccount.userId);
-            history.bind(3, offsetId);
             int rowCount = 0;
-            while (history.step()) {
-                final JsonObjectBuilder attestation = Json.createObjectBuilder();
-                attestation.add("id", history.columnLong(0));
-                attestation.add("time", history.columnLong(1));
-                attestation.add("strong", history.columnInt(2) != 0);
-                attestation.add("osVersion", history.columnInt(3));
-                attestation.add("osPatchLevel", history.columnInt(4));
-                if (!history.columnNull(5)) {
-                    attestation.add("vendorPatchLevel", history.columnInt(5));
+            try {
+                history.bind(1, fingerprint);
+                history.bind(2, userAccount.userId);
+                history.bind(3, offsetId);
+                while (history.step()) {
+                    final JsonObjectBuilder attestation = Json.createObjectBuilder();
+                    attestation.add("id", history.columnLong(0));
+                    attestation.add("time", history.columnLong(1));
+                    attestation.add("strong", history.columnInt(2) != 0);
+                    attestation.add("osVersion", history.columnInt(3));
+                    attestation.add("osPatchLevel", history.columnInt(4));
+                    if (!history.columnNull(5)) {
+                        attestation.add("vendorPatchLevel", history.columnInt(5));
+                    }
+                    if (!history.columnNull(6)) {
+                        attestation.add("bootPatchLevel", history.columnInt(6));
+                    }
+                    if (!history.columnNull(7)) {
+                        attestation.add("verifiedBootHash", BaseEncoding.base16().encode(history.columnBlob(7)));
+                    }
+                    attestation.add("appVersion", history.columnInt(8));
+                    attestation.add("userProfileSecure", history.columnInt(9));
+                    attestation.add("enrolledBiometrics", history.columnInt(10));
+                    attestation.add("accessibility", history.columnInt(11));
+                    attestation.add("deviceAdmin", history.columnInt(12));
+                    attestation.add("adbEnabled", history.columnInt(13));
+                    attestation.add("addUsersWhenLocked", history.columnInt(14));
+                    attestation.add("denyNewUsb", history.columnInt(15));
+                    attestation.add("oemUnlockAllowed", history.columnInt(16));
+                    attestation.add("systemUser", history.columnInt(17));
+                    attestations.add(attestation);
+                    rowCount += 1;
                 }
-                if (!history.columnNull(6)) {
-                    attestation.add("bootPatchLevel", history.columnInt(6));
-                }
-                if (!history.columnNull(7)) {
-                    attestation.add("verifiedBootHash", BaseEncoding.base16().encode(history.columnBlob(7)));
-                }
-                attestation.add("appVersion", history.columnInt(8));
-                attestation.add("userProfileSecure", history.columnInt(9));
-                attestation.add("enrolledBiometrics", history.columnInt(10));
-                attestation.add("accessibility", history.columnInt(11));
-                attestation.add("deviceAdmin", history.columnInt(12));
-                attestation.add("adbEnabled", history.columnInt(13));
-                attestation.add("addUsersWhenLocked", history.columnInt(14));
-                attestation.add("denyNewUsb", history.columnInt(15));
-                attestation.add("oemUnlockAllowed", history.columnInt(16));
-                attestation.add("systemUser", history.columnInt(17));
-                attestations.add(attestation);
-                rowCount += 1;
+            } finally {
+                history.dispose();
             }
-            history.dispose();
             if (rowCount == 0) {
                 throw new GeneralSecurityException("found no attestation history for userId: " + userAccount.userId +
                         ", fingerprint: " + deviceFingerprint);
@@ -1438,14 +1498,17 @@ public class AttestationServer {
             try {
                 final SQLiteStatement select = conn.prepare("SELECT subscribeKey, verifyInterval " +
                         "FROM Accounts WHERE userId = ?");
-                select.bind(1, userId);
-                if (!select.step()) {
-                    exchange.sendResponseHeaders(400, -1);
-                    return;
+                try {
+                    select.bind(1, userId);
+                    if (!select.step()) {
+                        exchange.sendResponseHeaders(400, -1);
+                        return;
+                    }
+                    currentSubscribeKey = select.columnBlob(0);
+                    verifyInterval = select.columnInt(1);
+                } finally {
+                    select.dispose();
                 }
-                currentSubscribeKey = select.columnBlob(0);
-                verifyInterval = select.columnInt(1);
-                select.dispose();
             } finally {
                 conn.dispose();
             }
@@ -1519,10 +1582,13 @@ public class AttestationServer {
             try {
                 final SQLiteStatement insert = conn.prepare("INSERT INTO Samples " +
                        "(sample, time) VALUES (?, ?)");
-                insert.bind(1, sample.toByteArray());
-                insert.bind(2, System.currentTimeMillis());
-                insert.step();
-                insert.dispose();
+                try {
+                    insert.bind(1, sample.toByteArray());
+                    insert.bind(2, System.currentTimeMillis());
+                    insert.step();
+                } finally {
+                    insert.dispose();
+                }
             } finally {
                 conn.dispose();
             }
