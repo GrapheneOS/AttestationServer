@@ -23,15 +23,19 @@ class Maintenance implements Runnable {
 
     @Override
     public void run() {
-        final SQLiteConnection samplesConn = new SQLiteConnection(AttestationServer.SAMPLES_DATABASE);
-        final SQLiteConnection attestationConn = new SQLiteConnection(AttestationProtocol.ATTESTATION_DATABASE);
+        final SQLiteConnection samplesConn;
+        final SQLiteConnection attestationConn;
+        try {
+            samplesConn = AttestationServer.open(AttestationServer.SAMPLES_DATABASE, false);
+            attestationConn = AttestationServer.open(AttestationProtocol.ATTESTATION_DATABASE, false);
+        } catch (final SQLiteException e) {
+            throw new RuntimeException(e);
+        }
         final SQLiteStatement deleteDeletedDevices;
         final SQLiteStatement deleteInactiveDevices;
         final SQLiteStatement deleteLegacyHistory;
         final SQLiteStatement deleteInactiveAccounts;
         try {
-            AttestationServer.open(samplesConn, false);
-            AttestationServer.open(attestationConn, false);
             deleteDeletedDevices = attestationConn.prepare("DELETE FROM Devices WHERE deletionTime < ?");
             deleteInactiveDevices = attestationConn.prepare("DELETE FROM Devices WHERE verifiedTimeLast < ?");
             deleteLegacyHistory = attestationConn.prepare("DELETE FROM Attestations WHERE time < ?");
