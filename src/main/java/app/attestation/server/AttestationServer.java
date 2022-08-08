@@ -1359,10 +1359,9 @@ public class AttestationServer {
         final JsonArrayBuilder attestations = Json.createArrayBuilder();
 
         final byte[] fingerprint = BaseEncoding.base16().decode(deviceFingerprint);
-        SQLiteStatement history;
         try {
             open(conn, true);
-            history = conn.prepare("SELECT id, time, strong, osVersion, osPatchLevel, " +
+            final SQLiteStatement history = conn.prepare("SELECT id, time, strong, osVersion, osPatchLevel, " +
                 "vendorPatchLevel, bootPatchLevel, Attestations.verifiedBootHash, appVersion, " +
                 "Attestations.userProfileSecure, Attestations.enrolledBiometrics, " +
                 "Attestations.accessibility, Attestations.deviceAdmin, Attestations.adbEnabled, " +
