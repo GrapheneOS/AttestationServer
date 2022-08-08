@@ -1332,7 +1332,7 @@ class AttestationProtocol {
             throw new GeneralSecurityException("must be authenticated with subscribeKey for initial verification");
         }
 
-        final SQLiteConnection conn = AttestationServer.open(ATTESTATION_DATABASE);
+        final SQLiteConnection conn = AttestationServer.getLocalAttestationConn();
         try {
             conn.exec("BEGIN IMMEDIATE TRANSACTION");
 
@@ -1573,7 +1573,7 @@ class AttestationProtocol {
 
             conn.exec("COMMIT TRANSACTION");
         } finally {
-            conn.dispose();
+            AttestationServer.rollbackIfNeeded(conn);
         }
     }
 
