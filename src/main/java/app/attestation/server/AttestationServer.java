@@ -178,8 +178,21 @@ public class AttestationServer {
                 "fingerprint BLOB NOT NULL REFERENCES Devices (fingerprint) ON DELETE CASCADE,\n" +
                 "time INTEGER NOT NULL,\n" +
                 "strong INTEGER NOT NULL CHECK (strong in (0, 1)),\n" +
-                "teeEnforced TEXT NOT NULL,\n" +
-                "osEnforced TEXT NOT NULL\n" +
+                "osVersion INTEGER NOT NULL,\n" +
+                "osPatchLevel INTEGER NOT NULL,\n" +
+                "vendorPatchLevel INTEGER,\n" +
+                "bootPatchLevel INTEGER,\n" +
+                "verifiedBootHash BLOB,\n" +
+                "appVersion INTEGER NOT NULL,\n" +
+                "userProfileSecure INTEGER NOT NULL CHECK (userProfileSecure in (0, 1)),\n" +
+                "enrolledBiometrics INTEGER NOT NULL CHECK (enrolledBiometrics in (0, 1)),\n" +
+                "accessibility INTEGER NOT NULL CHECK (accessibility in (0, 1)),\n" +
+                "deviceAdmin INTEGER NOT NULL CHECK (deviceAdmin in (0, 1, 2)),\n" +
+                "adbEnabled INTEGER NOT NULL CHECK (adbEnabled in (0, 1)),\n" +
+                "addUsersWhenLocked INTEGER NOT NULL CHECK (addUsersWhenLocked in (0, 1)),\n" +
+                "denyNewUsb INTEGER NOT NULL CHECK (denyNewUsb in (0, 1)),\n" +
+                "oemUnlockAllowed INTEGER NOT NULL CHECK (oemUnlockAllowed in (0, 1)),\n" +
+                "systemUser INTEGER NOT NULL CHECK (systemUser in (0, 1))\n" +
                 ") STRICT");
     }
 
@@ -277,7 +290,7 @@ public class AttestationServer {
 
             final SQLiteStatement selectCreated = attestationConn.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='Configuration'");
             if (!selectCreated.step()) {
-                attestationConn.exec("PRAGMA user_version = 9");
+                attestationConn.exec("PRAGMA user_version = 10");
             }
             selectCreated.dispose();
 
@@ -353,7 +366,116 @@ public class AttestationServer {
             if (userVersion < 10) {
                 attestationConn.exec("DELETE FROM Configuration WHERE key = 'backups'");
 
-                // version not upgraded yet since it's harmless to run this each time
+                attestationConn.exec("PRAGMA foreign_keys = OFF");
+                attestationConn.exec("BEGIN IMMEDIATE TRANSACTION");
+
+                attestationConn.exec("ALTER TABLE Attestations RENAME TO OldAttestations");
+
+                createAttestationTables(attestationConn);
+
+                final SQLiteStatement select = attestationConn.prepare("SELECT id, fingerprint, time, strong, teeEnforced, osEnforced FROM OldAttestations");
+                final SQLiteStatement insert = attestationConn.prepare("INSERT INTO Attestations " +
+                        "(id, fingerprint, time, strong, osVersion, osPatchLevel, vendorPatchLevel, bootPatchLevel, verifiedBootHash, appVersion, userProfileSecure, enrolledBiometrics, accessibility, deviceAdmin, adbEnabled, addUsersWhenLocked, denyNewUsb, oemUnlockAllowed, systemUser) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
+                while (select.step()) {
+                    insert.bind(1, select.columnLong(0));
+                    insert.bind(2, select.columnBlob(1));
+                    insert.bind(3, select.columnLong(2));
+                    insert.bind(4, select.columnInt(3));
+
+                    final String[] teeEnforced = select.columnString(4).split("\n");
+                    for (final String line : teeEnforced) {
+                        final String[] pair = line.split(": ");
+                        switch (pair[0]) {
+                            case "OS version":
+                                final String[] versionSplit = pair[1].split("\\.");
+                                if (versionSplit.length != 3) {
+                                    throw new RuntimeException("unreachable");
+                                }
+                                int version = Integer.parseInt(String.format("%d%02d%02d",
+                                        Integer.parseInt(versionSplit[0]), Integer.parseInt(versionSplit[1]), Integer.parseInt(versionSplit[2])));
+                                insert.bind(5, version);
+                                break;
+                            case "OS patch level":
+                                insert.bind(6, Integer.parseInt(pair[1].replace("-", "")));
+                                break;
+                            case "Vendor patch level":
+                                insert.bind(7, Integer.parseInt(pair[1].replace("-", "")));
+                                break;
+                            case "Boot patch level":
+                                insert.bind(8, Integer.parseInt(pair[1].replace("-", "")));
+                                break;
+                            case "Verified boot hash":
+                                insert.bind(9, BaseEncoding.base16().decode(pair[1]));
+                                break;
+                            default:
+                                throw new RuntimeException("unreachable");
+                        }
+                    }
+                    final String[] osEnforced = select.columnString(5).split("\n");
+                    for (final String line : osEnforced) {
+                        final String[] pair = line.split(": ");
+                        switch (pair[0]) {
+                            case "Auditor app version":
+                                insert.bind(10, Integer.parseInt(pair[1]));
+                                break;
+                            case "User profile secure":
+                                insert.bind(11, pair[1].equals("yes") ? 1 : 0);
+                                break;
+                            case "Enrolled fingerprints":
+                            case "Enrolled biometrics":
+                                insert.bind(12, pair[1].equals("yes") ? 1 : 0);
+                                break;
+                            case "Accessibility service(s) enabled":
+                                insert.bind(13, pair[1].equals("yes") ? 1 : 0);
+                                break;
+                            case "Device administrator(s) enabled":
+                                if (pair[1].equals("no")) {
+                                    insert.bind(14, 0);
+                                } else if (pair[1].equals("yes, but only system apps")) {
+                                    insert.bind(14, 1);
+                                } else if (pair[1].equals("yes, with non-system apps")) {
+                                    insert.bind(14, 2);
+                                } else {
+                                    throw new RuntimeException("unreachable");
+                                }
+                                break;
+                            case "Android Debug Bridge enabled":
+                                insert.bind(15, pair[1].equals("yes") ? 1 : 0);
+                                break;
+                            case "Add users from lock screen":
+                                insert.bind(16, pair[1].equals("yes") ? 1 : 0);
+                                break;
+                            case "Disallow new USB peripherals when locked":
+                                insert.bind(17, pair[1].equals("yes") ? 1 : 0);
+                                break;
+                            case "OEM unlocking allowed":
+                                insert.bind(18, pair[1].equals("yes") ? 1 : 0);
+                                break;
+                            case "Main user account":
+                                insert.bind(19, pair[1].equals("yes") ? 1 : 0);
+                                break;
+                            default:
+                                throw new RuntimeException("unreachable");
+                        }
+                    }
+
+                    insert.step();
+                    insert.reset();
+                }
+                insert.dispose();
+                select.dispose();
+
+                attestationConn.exec("DROP TABLE OldAttestations");
+
+                createAttestationIndices(attestationConn);
+
+                attestationConn.exec("PRAGMA user_version = 10");
+                attestationConn.exec("COMMIT TRANSACTION");
+                userVersion = 10;
+                attestationConn.exec("PRAGMA foreign_keys = ON");
+                logger.info("Migrated to schema version: " + userVersion);
             }
 
             logger.info("Finished database setup");
@@ -1239,8 +1361,13 @@ public class AttestationServer {
         SQLiteStatement history;
         try {
             open(conn, true);
-            history = conn.prepare("SELECT time, strong, teeEnforced, " +
-                "osEnforced, id FROM Attestations INNER JOIN Devices ON " +
+            history = conn.prepare("SELECT id, time, strong, osVersion, osPatchLevel, " +
+                "vendorPatchLevel, bootPatchLevel, Attestations.verifiedBootHash, appVersion, " +
+                "Attestations.userProfileSecure, Attestations.enrolledBiometrics, " +
+                "Attestations.accessibility, Attestations.deviceAdmin, Attestations.adbEnabled, " +
+                "Attestations.addUsersWhenLocked, Attestations.denyNewUsb, " +
+                "Attestations.oemUnlockAllowed, Attestations.systemUser " +
+                "FROM Attestations INNER JOIN Devices ON " +
                 "Attestations.fingerprint = Devices.fingerprint " +
                 "WHERE Devices.fingerprint = ? AND userid = ? " +
                 "AND Attestations.id <= ? ORDER BY id DESC LIMIT " + HISTORY_PER_PAGE);
@@ -1249,12 +1376,32 @@ public class AttestationServer {
             history.bind(3, offsetId);
             int rowCount = 0;
             while (history.step()) {
-                attestations.add(Json.createObjectBuilder()
-                    .add("time", history.columnLong(0))
-                    .add("strong", history.columnInt(1) != 0)
-                    .add("teeEnforced", history.columnString(2))
-                    .add("osEnforced", history.columnString(3))
-                    .add("id", history.columnLong(4)));
+                final JsonObjectBuilder attestation = Json.createObjectBuilder();
+                attestation.add("id", history.columnLong(0));
+                attestation.add("time", history.columnLong(1));
+                attestation.add("strong", history.columnInt(2) != 0);
+                attestation.add("osVersion", history.columnInt(3));
+                attestation.add("osPatchLevel", history.columnInt(4));
+                if (!history.columnNull(5)) {
+                    attestation.add("vendorPatchLevel", history.columnInt(5));
+                }
+                if (!history.columnNull(6)) {
+                    attestation.add("bootPatchLevel", history.columnInt(6));
+                }
+                if (!history.columnNull(7)) {
+                    attestation.add("verifiedBootHash", BaseEncoding.base16().encode(history.columnBlob(7)));
+                }
+                attestation.add("appVersion", history.columnInt(8));
+                attestation.add("userProfileSecure", history.columnInt(9));
+                attestation.add("enrolledBiometrics", history.columnInt(10));
+                attestation.add("accessibility", history.columnInt(11));
+                attestation.add("deviceAdmin", history.columnInt(12));
+                attestation.add("adbEnabled", history.columnInt(13));
+                attestation.add("addUsersWhenLocked", history.columnInt(14));
+                attestation.add("denyNewUsb", history.columnInt(15));
+                attestation.add("oemUnlockAllowed", history.columnInt(16));
+                attestation.add("systemUser", history.columnInt(17));
+                attestations.add(attestation);
                 rowCount += 1;
             }
             history.dispose();

@@ -1302,30 +1302,6 @@ class AttestationProtocol {
                 (s.length() >= 8 ? "-" + s.substring(6, 8) : "");
     }
 
-    private static void appendVerifiedInformation(final StringBuilder builder,
-            final Verified verified) {
-        final String osVersion = String.format(Locale.US, "%06d", verified.osVersion);
-        builder.append(String.format("OS version: %s\n",
-                Integer.parseInt(osVersion.substring(0, 2)) + "." +
-                Integer.parseInt(osVersion.substring(2, 4)) + "." +
-                Integer.parseInt(osVersion.substring(4, 6))));
-
-        builder.append(String.format("OS patch level: %s\n", formatPatchLevel(verified.osPatchLevel)));
-
-        if (verified.vendorPatchLevel != 0) {
-            builder.append(String.format("Vendor patch level: %s\n", formatPatchLevel(verified.vendorPatchLevel)));
-        }
-
-        if (verified.bootPatchLevel != 0) {
-            builder.append(String.format("Boot patch level: %s\n", formatPatchLevel(verified.bootPatchLevel)));
-        }
-
-        if (verified.verifiedBootHash != null) {
-            builder.append(String.format("Verified boot hash: %s\n",
-                    BaseEncoding.base16().encode(verified.verifiedBootHash)));
-        }
-    }
-
     private static void verifySignature(final PublicKey key, final ByteBuffer message,
             final byte[] signature) throws GeneralSecurityException {
         final Signature sig = Signature.getInstance(SIGNATURE_ALGORITHM);
@@ -1408,7 +1384,6 @@ class AttestationProtocol {
                     generateCertificate(new ByteArrayInputStream(GOOGLE_ROOT_CERTIFICATE_2.getBytes())));
             final byte[] verifiedBootKey = BaseEncoding.base16().decode(verified.verifiedBootKey);
 
-            final StringBuilder teeEnforced = new StringBuilder();
             final long now = new Date().getTime();
 
             boolean attestKeyMigration = false;
@@ -1471,8 +1446,6 @@ class AttestationProtocol {
                 if (verified.securityLevel != pinnedSecurityLevel) {
                     throw new GeneralSecurityException("Security level mismatch");
                 }
-
-                appendVerifiedInformation(teeEnforced, verified);
 
                 final SQLiteStatement update = conn.prepare("UPDATE Devices SET " +
                         "pinnedVerifiedBootKey = ?, verifiedBootHash = ?, " +
@@ -1554,51 +1527,37 @@ class AttestationProtocol {
                 insert.bind(23, userId);
                 insert.step();
                 insert.dispose();
-
-                appendVerifiedInformation(teeEnforced, verified);
             }
-
-            final StringBuilder osEnforced = new StringBuilder();
-            osEnforced.append(String.format("Auditor app version: %s\n", verified.appVersion));
-            osEnforced.append(String.format("User profile secure: %s\n",
-                    toYesNoString(userProfileSecure)));
-            osEnforced.append(String.format(verified.appVersion < 26 ? "Enrolled fingerprints: %s\n" : "Enrolled biometrics: %s\n",
-                    toYesNoString(enrolledBiometrics)));
-            osEnforced.append(String.format("Accessibility service(s) enabled: %s\n",
-                    toYesNoString(accessibility)));
-
-            final String deviceAdminState;
-            if (deviceAdminNonSystem) {
-                deviceAdminState = "yes, with non-system apps";
-            } else if (deviceAdmin) {
-                deviceAdminState = "yes, but only system apps";
-            } else {
-                deviceAdminState = "no";
-            }
-            osEnforced.append(String.format("Device administrator(s) enabled: %s\n", deviceAdminState));
-
-            osEnforced.append(String.format("Android Debug Bridge enabled: %s\n",
-                    toYesNoString(adbEnabled)));
-            osEnforced.append(String.format("Add users from lock screen: %s\n",
-                    toYesNoString(addUsersWhenLocked)));
-            osEnforced.append(String.format("Disallow new USB peripherals when locked: %s\n",
-                    toYesNoString(denyNewUsb)));
-            osEnforced.append(String.format("OEM unlocking allowed: %s\n",
-                    toYesNoString(oemUnlockAllowed)));
-            osEnforced.append(String.format("Main user account: %s\n",
-                    toYesNoString(systemUser)));
-
-            final String teeEnforcedString = teeEnforced.toString();
-            final String osEnforcedString = osEnforced.toString();
 
             final SQLiteStatement insert = conn.prepare("INSERT INTO Attestations " +
-                    "(fingerprint, time, strong, teeEnforced, osEnforced)" +
-                    "VALUES (?, ?, ?, ?, ?)");
+                    "(fingerprint, time, strong, osVersion, osPatchLevel, vendorPatchLevel, " +
+                    "bootPatchLevel, verifiedBootHash, appVersion, userProfileSecure, " +
+                    "enrolledBiometrics, accessibility, deviceAdmin, adbEnabled, " +
+                    "addUsersWhenLocked, denyNewUsb, oemUnlockAllowed, systemUser)" +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             insert.bind(1, fingerprint);
             insert.bind(2, now);
             insert.bind(3, hasPersistentKey ? 1 : 0);
-            insert.bind(4, teeEnforcedString);
-            insert.bind(5, osEnforcedString);
+            insert.bind(4, verified.osVersion);
+            insert.bind(5, verified.osPatchLevel);
+            if (verified.vendorPatchLevel != 0) {
+                insert.bind(6, verified.vendorPatchLevel);
+            }
+            if (verified.bootPatchLevel != 0) {
+                insert.bind(7, verified.bootPatchLevel);
+            }
+            insert.bind(8, verified.verifiedBootHash);
+            insert.bind(9, verified.appVersion);
+            insert.bind(10, userProfileSecure ? 1 : 0);
+            insert.bind(11, enrolledBiometrics ? 1 : 0);
+            insert.bind(12, accessibility ? 1 : 0);
+            insert.bind(13, deviceAdmin ? (deviceAdminNonSystem ? 2 : 1) : 0);
+            insert.bind(14, adbEnabled ? 1 : 0);
+            insert.bind(15, addUsersWhenLocked ? 1 : 0);
+            insert.bind(16, denyNewUsb ? 1 : 0);
+            insert.bind(17, oemUnlockAllowed ? 1 : 0);
+            insert.bind(18, systemUser ? 1 : 0);
+
             insert.step();
             insert.dispose();
 
