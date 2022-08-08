@@ -43,6 +43,7 @@ class Maintenance implements Runnable {
                     "AND NOT EXISTS (SELECT 1 FROM Devices WHERE Accounts.userId = Devices.userId)");
         } catch (final SQLiteException e) {
             attestationConn.dispose();
+            samplesConn.dispose();
             throw new RuntimeException(e);
         }
 
