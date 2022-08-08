@@ -267,9 +267,7 @@ function fetchDevices() {
             appendLine(info, "Add users from lock screen: " + toYesNoString(device.addUsersWhenLocked));
             appendLine(info, "Disallow new USB peripherals when locked: " + toYesNoString(device.denyNewUsb));
             appendLine(info, "OEM unlocking allowed: " + toYesNoString(device.oemUnlockAllowed));
-            if (device.systemUser !== undefined) {
-                appendLine(info, "Main user account: " + toYesNoString(device.systemUser));
-            }
+            appendLine(info, "Main user account: " + toYesNoString(device.systemUser));
 
             info.appendChild(create("h3", "Attestation history"));
             appendLine(info, "First verified time: " + new Date(device.verifiedTimeFirst));
