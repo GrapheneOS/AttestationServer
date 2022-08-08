@@ -29,7 +29,12 @@ class AlertDispatcher implements Runnable {
 
     @Override
     public void run() {
-        final SQLiteConnection conn = new SQLiteConnection(AttestationProtocol.ATTESTATION_DATABASE);
+        final SQLiteConnection conn;
+        try {
+            conn = AttestationServer.open(AttestationProtocol.ATTESTATION_DATABASE, false);
+        } catch (final SQLiteException e) {
+            throw new RuntimeException(e);
+        }
         final SQLiteStatement selectConfiguration;
         final SQLiteStatement selectAccounts;
         final SQLiteStatement selectExpired;
@@ -37,7 +42,6 @@ class AlertDispatcher implements Runnable {
         final SQLiteStatement selectFailed;
         final SQLiteStatement selectEmails;
         try {
-            AttestationServer.open(conn, false);
             selectConfiguration = conn.prepare("SELECT " +
                     "(SELECT value FROM Configuration WHERE key = 'emailLocal'), " +
                     "(SELECT value FROM Configuration WHERE key = 'emailUsername'), " +

@@ -96,16 +96,23 @@ public class AttestationServer {
             .maximumSize(1000000)
             .build();
 
-    static void open(final SQLiteConnection conn, final boolean readOnly) throws SQLiteException {
+    static SQLiteConnection open(final File db, final boolean readOnly) throws SQLiteException {
+        final SQLiteConnection conn = new SQLiteConnection(db);
         if (readOnly) {
             conn.openReadonly();
         } else {
             conn.open();
         }
-        conn.setBusyTimeout(BUSY_TIMEOUT);
-        conn.exec("PRAGMA foreign_keys = ON");
-        conn.exec("PRAGMA journal_mode = WAL");
-        conn.exec("PRAGMA trusted_schema = OFF");
+        try {
+            conn.setBusyTimeout(BUSY_TIMEOUT);
+            conn.exec("PRAGMA foreign_keys = ON");
+            conn.exec("PRAGMA journal_mode = WAL");
+            conn.exec("PRAGMA trusted_schema = OFF");
+        } catch (final Exception e) {
+            conn.dispose();
+            throw e;
+        }
+        return conn;
     }
 
     private static void createAttestationTables(final SQLiteConnection conn) throws SQLiteException {
@@ -243,10 +250,8 @@ public class AttestationServer {
     }
 
     public static void main(final String[] args) throws Exception {
-        final SQLiteConnection samplesConn = new SQLiteConnection(SAMPLES_DATABASE);
+        final SQLiteConnection samplesConn = open(SAMPLES_DATABASE, false);
         try {
-            open(samplesConn, false);
-
             final SQLiteStatement selectCreated = samplesConn.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='Samples'");
             if (!selectCreated.step()) {
                 samplesConn.exec("PRAGMA user_version = 1");
@@ -285,10 +290,8 @@ public class AttestationServer {
             samplesConn.dispose();
         }
 
-        final SQLiteConnection attestationConn = new SQLiteConnection(AttestationProtocol.ATTESTATION_DATABASE);
+        final SQLiteConnection attestationConn = open(AttestationProtocol.ATTESTATION_DATABASE, false);
         try {
-            open(attestationConn, false);
-
             final SQLiteStatement selectCreated = attestationConn.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='Configuration'");
             if (!selectCreated.step()) {
                 attestationConn.exec("PRAGMA user_version = 10");
@@ -642,9 +645,8 @@ public class AttestationServer {
         final byte[] passwordHash = hash(password.getBytes(), passwordSalt);
         final byte[] subscribeKey = generateRandomToken();
 
-        final SQLiteConnection conn = new SQLiteConnection(AttestationProtocol.ATTESTATION_DATABASE);
+        final SQLiteConnection conn = open(AttestationProtocol.ATTESTATION_DATABASE, false);
         try {
-            open(conn, false);
             final SQLiteStatement insert = conn.prepare("INSERT INTO Accounts " +
                     "(username, passwordHash, passwordSalt, subscribeKey, creationTime, loginTime, verifyInterval, alertDelay) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
@@ -674,10 +676,8 @@ public class AttestationServer {
         validatePassword(currentPassword);
         validatePassword(newPassword);
 
-        final SQLiteConnection conn = new SQLiteConnection(AttestationProtocol.ATTESTATION_DATABASE);
+        final SQLiteConnection conn = open(AttestationProtocol.ATTESTATION_DATABASE, false);
         try {
-            open(conn, false);
-
             conn.exec("BEGIN IMMEDIATE TRANSACTION");
 
             final SQLiteStatement select = conn.prepare("SELECT passwordHash, passwordSalt " +
@@ -722,10 +722,8 @@ public class AttestationServer {
             throws GeneralSecurityException, SQLiteException {
         validatePassword(password);
 
-        final SQLiteConnection conn = new SQLiteConnection(AttestationProtocol.ATTESTATION_DATABASE);
+        final SQLiteConnection conn = open(AttestationProtocol.ATTESTATION_DATABASE, false);
         try {
-            open(conn, false);
-
             conn.exec("BEGIN IMMEDIATE TRANSACTION");
 
             final SQLiteStatement select = conn.prepare("SELECT userId, passwordHash, " +
@@ -888,10 +886,8 @@ public class AttestationServer {
             if (account == null) {
                 return;
             }
-            final SQLiteConnection conn = new SQLiteConnection(AttestationProtocol.ATTESTATION_DATABASE);
+            final SQLiteConnection conn = open(AttestationProtocol.ATTESTATION_DATABASE, false);
             try {
-                open(conn, false);
-
                 final SQLiteStatement select = conn.prepare("DELETE FROM Sessions WHERE userId = ?");
                 select.bind(1, account.userId);
                 select.step();
@@ -911,10 +907,8 @@ public class AttestationServer {
             if (account == null) {
                 return;
             }
-            final SQLiteConnection conn = new SQLiteConnection(AttestationProtocol.ATTESTATION_DATABASE);
+            final SQLiteConnection conn = open(AttestationProtocol.ATTESTATION_DATABASE, false);
             try {
-                open(conn, false);
-
                 final byte[] subscribeKey = generateRandomToken();
 
                 final SQLiteStatement select = conn.prepare("UPDATE Accounts SET " +
@@ -987,10 +981,8 @@ public class AttestationServer {
         final long sessionId = Long.parseLong(session[0]);
         final byte[] token = Base64.getDecoder().decode(session[1]);
 
-        final SQLiteConnection conn = new SQLiteConnection(AttestationProtocol.ATTESTATION_DATABASE);
+        final SQLiteConnection conn = open(AttestationProtocol.ATTESTATION_DATABASE, !end);
         try {
-            open(conn, !end);
-
             final SQLiteStatement select = conn.prepare("SELECT token, expiryTime, " +
                     "username, subscribeKey, Accounts.userId, verifyInterval, alertDelay " +
                     "FROM Sessions " +
@@ -1036,9 +1028,8 @@ public class AttestationServer {
             accountJson.add("verifyInterval", account.verifyInterval);
             accountJson.add("alertDelay", account.alertDelay);
 
-            final SQLiteConnection conn = new SQLiteConnection(AttestationProtocol.ATTESTATION_DATABASE);
+            final SQLiteConnection conn = open(AttestationProtocol.ATTESTATION_DATABASE, true);
             try {
-                open(conn, true);
                 final SQLiteStatement select = conn.prepare("SELECT address FROM EmailAddresses " +
                         "WHERE userId = ?");
                 select.bind(1, account.userId);
@@ -1138,10 +1129,8 @@ public class AttestationServer {
                 }
             }
 
-            final SQLiteConnection conn = new SQLiteConnection(AttestationProtocol.ATTESTATION_DATABASE);
+            final SQLiteConnection conn = open(AttestationProtocol.ATTESTATION_DATABASE, false);
             try {
-                open(conn, false);
-
                 conn.exec("BEGIN IMMEDIATE TRANSACTION");
 
                 final SQLiteStatement update = conn.prepare("UPDATE Accounts SET " +
@@ -1193,10 +1182,8 @@ public class AttestationServer {
                 return;
             }
 
-            final SQLiteConnection conn = new SQLiteConnection(AttestationProtocol.ATTESTATION_DATABASE);
+            final SQLiteConnection conn = open(AttestationProtocol.ATTESTATION_DATABASE, false);
             try {
-                open(conn, false);
-
                 final SQLiteStatement update = conn.prepare("UPDATE Devices SET " +
                         "deletionTime = ? WHERE userId = ? AND fingerprint = ?");
                 update.bind(1, System.currentTimeMillis());
@@ -1224,11 +1211,9 @@ public class AttestationServer {
 
     private static void writeDevicesJson(final HttpExchange exchange, final long userId)
             throws IOException, SQLiteException {
-        final SQLiteConnection conn = new SQLiteConnection(AttestationProtocol.ATTESTATION_DATABASE);
         final JsonArrayBuilder devices = Json.createArrayBuilder();
+        final SQLiteConnection conn = open(AttestationProtocol.ATTESTATION_DATABASE, true);
         try {
-            open(conn, true);
-
             final SQLiteStatement select = conn.prepare("SELECT fingerprint, " +
                     "pinnedCertificates, attestKey, hex(pinnedVerifiedBootKey), " +
                     "(SELECT hex(verifiedBootHash) WHERE verifiedBootHash IS NOT NULL), " +
@@ -1355,12 +1340,10 @@ public class AttestationServer {
     private static void writeAttestationHistoryJson(final HttpExchange exchange, final String deviceFingerprint,
             final Account userAccount, final long offsetId)
             throws IOException, SQLiteException, GeneralSecurityException {
-        final SQLiteConnection conn = new SQLiteConnection(AttestationProtocol.ATTESTATION_DATABASE);
         final JsonArrayBuilder attestations = Json.createArrayBuilder();
-
         final byte[] fingerprint = BaseEncoding.base16().decode(deviceFingerprint);
+        final SQLiteConnection conn = open(AttestationProtocol.ATTESTATION_DATABASE, true);
         try {
-            open(conn, true);
             final SQLiteStatement history = conn.prepare("SELECT id, time, strong, osVersion, osPatchLevel, " +
                 "vendorPatchLevel, bootPatchLevel, Attestations.verifiedBootHash, appVersion, " +
                 "Attestations.userProfileSecure, Attestations.enrolledBiometrics, " +
@@ -1458,10 +1441,8 @@ public class AttestationServer {
 
             final byte[] currentSubscribeKey;
             final int verifyInterval;
-            final SQLiteConnection conn = new SQLiteConnection(AttestationProtocol.ATTESTATION_DATABASE);
+            final SQLiteConnection conn = open(AttestationProtocol.ATTESTATION_DATABASE, true);
             try {
-                open(conn, true);
-
                 final SQLiteStatement select = conn.prepare("SELECT subscribeKey, verifyInterval " +
                         "FROM Accounts WHERE userId = ?");
                 select.bind(1, userId);
@@ -1541,9 +1522,8 @@ public class AttestationServer {
                 return;
             }
 
-            final SQLiteConnection conn = new SQLiteConnection(SAMPLES_DATABASE);
+            final SQLiteConnection conn = open(SAMPLES_DATABASE, false);
             try {
-                open(conn, false);
                 final SQLiteStatement insert = conn.prepare("INSERT INTO Samples " +
                        "(sample, time) VALUES (?, ?)");
                 insert.bind(1, sample.toByteArray());

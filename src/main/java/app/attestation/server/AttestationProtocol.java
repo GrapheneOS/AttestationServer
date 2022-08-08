@@ -1324,7 +1324,7 @@ class AttestationProtocol {
             final boolean deviceAdminNonSystem, final boolean adbEnabled,
             final boolean addUsersWhenLocked, final boolean enrolledBiometrics,
             final boolean denyNewUsb, final boolean oemUnlockAllowed, final boolean systemUser)
-            throws GeneralSecurityException, IOException {
+            throws GeneralSecurityException, IOException, SQLiteException {
         final String fingerprintHex = BaseEncoding.base16().encode(fingerprint);
         final byte[] currentFingerprint = getFingerprint(attestationCertificates[0]);
         final boolean hasPersistentKey = !Arrays.equals(currentFingerprint, fingerprint);
@@ -1332,9 +1332,8 @@ class AttestationProtocol {
             throw new GeneralSecurityException("must be authenticated with subscribeKey for initial verification");
         }
 
-        final SQLiteConnection conn = new SQLiteConnection(ATTESTATION_DATABASE);
+        final SQLiteConnection conn = AttestationServer.open(ATTESTATION_DATABASE, false);
         try {
-            AttestationServer.open(conn, false);
             conn.exec("BEGIN IMMEDIATE TRANSACTION");
 
             Certificate[] pinnedCertificates = null;
@@ -1562,8 +1561,6 @@ class AttestationProtocol {
             insert.dispose();
 
             conn.exec("COMMIT TRANSACTION");
-        } catch (final SQLiteException e) {
-            throw new IOException(e);
         } finally {
             conn.dispose();
         }
@@ -1624,7 +1621,7 @@ class AttestationProtocol {
 
     static void verifySerialized(final byte[] attestationResult,
             final Cache<ByteBuffer, Boolean> pendingChallenges, final long userId, final boolean paired)
-            throws DataFormatException, GeneralSecurityException, IOException {
+            throws DataFormatException, GeneralSecurityException, IOException, SQLiteException {
         final ByteBuffer deserializer = ByteBuffer.wrap(attestationResult);
         final byte version = deserializer.get();
         if (version > PROTOCOL_VERSION) {
