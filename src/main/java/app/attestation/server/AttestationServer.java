@@ -1254,7 +1254,7 @@ public class AttestationServer {
                     .add("strong", history.columnInt(1) != 0)
                     .add("teeEnforced", history.columnString(2))
                     .add("osEnforced", history.columnString(3))
-                    .add("id", history.columnInt(4)));
+                    .add("id", history.columnLong(4)));
                 rowCount += 1;
             }
             history.dispose();
