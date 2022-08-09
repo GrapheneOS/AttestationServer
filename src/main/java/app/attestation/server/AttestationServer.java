@@ -316,7 +316,7 @@ public class AttestationServer {
             createAttestationIndices(attestationConn);
 
             if (userVersion < 7) {
-                throw new RuntimeException("Database schemas older than version 4 are no longer " +
+                throw new RuntimeException("Database schemas older than version 7 are no longer " +
                         "supported. Use an older AttestationServer revision to upgrade.");
             }
 
