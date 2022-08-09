@@ -22,6 +22,7 @@ ProtectKernelTunables=true
 ProtectProc=invisible
 ProtectSystem=strict
 ReadWritePaths=/var/lib/attestation
+RemoveIPC=true
 RestrictAddressFamilies=AF_INET AF_INET6
 RestrictNamespaces=true
 RestrictRealtime=true
