@@ -27,7 +27,7 @@ class Maintenance implements Runnable {
         final SQLiteConnection attestationConn;
         try {
             samplesConn = AttestationServer.open(AttestationServer.SAMPLES_DATABASE);
-            attestationConn = AttestationServer.open(AttestationProtocol.ATTESTATION_DATABASE);
+            attestationConn = AttestationServer.open(AttestationServer.ATTESTATION_DATABASE);
         } catch (final SQLiteException e) {
             throw new RuntimeException(e);
         }
