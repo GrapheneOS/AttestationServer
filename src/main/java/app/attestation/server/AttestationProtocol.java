@@ -49,8 +49,6 @@ import java.util.zip.Inflater;
 class AttestationProtocol {
     private static final Logger logger = Logger.getLogger(AttestationProtocol.class.getName());
 
-    static final File ATTESTATION_DATABASE = new File("attestation.db");
-
     // Developer previews set osVersion to 0 as a placeholder value.
     private static final int DEVELOPER_PREVIEW_OS_VERSION = 0;
 

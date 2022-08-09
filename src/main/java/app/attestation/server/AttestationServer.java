@@ -66,6 +66,7 @@ import static app.attestation.server.AttestationProtocol.fingerprintsStrongBoxSt
 import static com.almworks.sqlite4java.SQLiteConstants.SQLITE_CONSTRAINT_UNIQUE;
 
 public class AttestationServer {
+    static final File ATTESTATION_DATABASE = new File("attestation.db");
     static final File SAMPLES_DATABASE = new File("samples.db");
     private static final int MAX_SAMPLE_SIZE = 64 * 1024;
 
@@ -118,7 +119,7 @@ public class AttestationServer {
         if (conn != null) {
             return conn;
         }
-        conn = open(AttestationProtocol.ATTESTATION_DATABASE);
+        conn = open(ATTESTATION_DATABASE);
         localAttestationConn.set(conn);
         return conn;
     }
@@ -301,7 +302,7 @@ public class AttestationServer {
             samplesConn.dispose();
         }
 
-        final SQLiteConnection attestationConn = open(AttestationProtocol.ATTESTATION_DATABASE);
+        final SQLiteConnection attestationConn = open(ATTESTATION_DATABASE);
         try {
             final SQLiteStatement selectCreated = attestationConn.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='Configuration'");
             if (!selectCreated.step()) {
