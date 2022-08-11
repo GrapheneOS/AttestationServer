@@ -2,7 +2,7 @@
 
 set -o errexit -o nounset -o pipefail
 
-timestamp=$(date -u +%Y-%m-%dT%H:%m:%SZ)
+timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 rm -rf remote-backup
 mkdir remote-backup
 
