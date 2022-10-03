@@ -378,7 +378,7 @@ public class AttestationServer {
                 logger.info("Migrated to schema version: " + userVersion);
             }
 
-            // remove obsolete backups key from Configuration table
+            // remove obsolete backups key from Configuration table and migrate to structured attestation history
             if (userVersion < 10) {
                 attestationConn.exec("DELETE FROM Configuration WHERE key = 'backups'");
 
