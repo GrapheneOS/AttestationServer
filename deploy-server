@@ -31,7 +31,7 @@ ssh $remote rm -rf $target
 ssh $remote cp -a $active $target
 rsync -rpcv --fsync --chmod=D755,F644 --delete build/libs/ $remote:$target
 ssh $remote ln -snf $target $path/deploy
-ssh $remote sync .
+ssh $remote sync $path/deploy
 ssh $remote systemctl daemon-reload
 ssh $remote systemctl restart attestation
 
