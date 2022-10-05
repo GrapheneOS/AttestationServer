@@ -95,8 +95,7 @@ class AttestationProtocol {
     //
     // Protocol version changes:
     //
-    // 3: replace deflate_dictionary_2 with deflate_dictionary_3
-    // 4: add attest key for existing pairings and offset the pinning cert chain check to accept it
+    // n/a
     //
     // For each audit, the Auditee generates a fresh hardware-backed key with key attestation
     // using the provided challenge. It reports back the certificate chain to be verified by the
@@ -135,7 +134,7 @@ class AttestationProtocol {
     // downgrade protection for the OS version/patch (bootloader/TEE enforced) and app version (OS
     // enforced) by keeping them updated.
     static final byte PROTOCOL_VERSION = 4;
-    private static final byte PROTOCOL_VERSION_MINIMUM = 2;
+    private static final byte PROTOCOL_VERSION_MINIMUM = 4;
     // can become longer in the future, but this is the minimum length
     private static final byte CHALLENGE_MESSAGE_LENGTH = 1 + CHALLENGE_LENGTH * 2;
     private static final int MAX_ENCODED_CHAIN_LENGTH = 5000;
@@ -165,7 +164,7 @@ class AttestationProtocol {
             OS_ENFORCED_FLAGS_SYSTEM_USER;
 
     private static final String ATTESTATION_APP_PACKAGE_NAME = "app.attestation.auditor";
-    private static final int ATTESTATION_APP_MINIMUM_VERSION = 22;
+    private static final int ATTESTATION_APP_MINIMUM_VERSION = 47;
     private static final String ATTESTATION_APP_SIGNATURE_DIGEST_DEBUG =
             "17727D8B61D55A864936B1A7B4A2554A15151F32EBCF44CDAA6E6C3258231890";
     private static final String ATTESTATION_APP_SIGNATURE_DIGEST_RELEASE =
@@ -1643,7 +1642,7 @@ class AttestationProtocol {
         final byte[] compressedChain = new byte[compressedChainLength];
         deserializer.get(compressedChain);
 
-        final byte[] dictionary = version < 3 ? DEFLATE_DICTIONARY_2 : DEFLATE_DICTIONARY_3;
+        final byte[] dictionary = DEFLATE_DICTIONARY_3;
         final Certificate[] certificates = decodeChain(dictionary, compressedChain);
 
         final byte[] fingerprint = new byte[FINGERPRINT_LENGTH];
