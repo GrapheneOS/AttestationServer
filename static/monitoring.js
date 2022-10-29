@@ -169,11 +169,7 @@ function fetchHistory(parent, nextOffset) {
             parent.appendChild(create("h5", "Information provided by the verified OS:"));
             appendLine(parent, "Pinned Auditor app version: " + attestation.appVersion);
             appendLine(parent, "User profile secure: " + toYesNoString(attestation.userProfileSecure));
-            if (attestation.appVersion < 26) {
-                appendLine(parent, "Enrolled fingerprints: " + toYesNoString(attestation.enrolledBiometrics));
-            } else {
-                appendLine(parent, "Enrolled biometrics: " + toYesNoString(attestation.enrolledBiometrics));
-            }
+            appendLine(parent, "Enrolled biometrics: " + toYesNoString(attestation.enrolledBiometrics));
             appendLine(parent, "Accessibility service(s) enabled: " + toYesNoString(attestation.accessibility));
             appendLine(parent, "Device administrator(s) enabled: " + deviceAdminStrings.get(attestation.deviceAdmin));
             appendLine(parent, "Android Debug Bridge enabled: " + toYesNoString(attestation.adbEnabled));
