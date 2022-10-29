@@ -56,6 +56,15 @@ function toYesNoString(value) {
     return value ? "yes" : "no";
 }
 
+function toAppVariantString(appVariant) {
+    if (appVariant == 0) {
+        return "Release build signed by GrapheneOS";
+    } else if (appVariant == 2) {
+        return "Debug build signed by GrapheneOS";
+    }
+    throw new Error("Invalid app variant");
+}
+
 function toSecurityLevelString(securityLevel, attestKey) {
     if (securityLevel == 2) {
         if (attestKey) {
@@ -281,6 +290,7 @@ function fetchDevices() {
 
             info.appendChild(create("h3", "Information provided by the verified OS:"));
             appendLine(info, "Pinned Auditor app version: " + device.pinnedAppVersion);
+            appendLine(info, "Pinned Auditor app variant: " + toAppVariantString(device.pinnedAppVariant));
             appendLine(info, "User profile secure: " + toYesNoString(device.userProfileSecure));
             if (device.pinnedAppVersion < 26) {
                 appendLine(info, "Enrolled fingerprints: " + toYesNoString(device.enrolledBiometrics));

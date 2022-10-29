@@ -169,6 +169,9 @@ class AttestationProtocol {
             "990E04F0864B19F14F84E0E432F7A393F297AB105A22C1E1B10B442A4A62C42C";
     private static final String AUDITOR_APP_SIGNATURE_DIGEST_DEBUG =
             "17727D8B61D55A864936B1A7B4A2554A15151F32EBCF44CDAA6E6C3258231890";
+    private static final byte AUDITOR_APP_VARIANT_RELEASE = 0;
+    private static final byte AUDITOR_APP_VARIANT_DEBUG = 2;
+
     private static final int AUDITOR_APP_MINIMUM_VERSION = 47;
     private static final int OS_VERSION_MINIMUM = 80000;
     private static final int OS_PATCH_LEVEL_MINIMUM = 201801;
@@ -1001,13 +1004,14 @@ class AttestationProtocol {
         final int vendorPatchLevel;
         final int bootPatchLevel;
         final int appVersion;
+        final byte appVariant;
         final int securityLevel;
         final boolean attestKey;
         final boolean enforceStrongBox;
 
         Verified(final String device, final String verifiedBootKey, final byte[] verifiedBootHash,
                 final String osName, final int osVersion, final int osPatchLevel,
-                final int vendorPatchLevel, final int bootPatchLevel, final int appVersion,
+                final int vendorPatchLevel, final int bootPatchLevel, final int appVersion, byte appVariant,
                 final int securityLevel, final boolean attestKey, final boolean enforceStrongBox) {
             this.device = device;
             this.verifiedBootKey = verifiedBootKey;
@@ -1018,6 +1022,7 @@ class AttestationProtocol {
             this.vendorPatchLevel = vendorPatchLevel;
             this.bootPatchLevel = bootPatchLevel;
             this.appVersion = appVersion;
+            this.appVariant = appVariant;
             this.securityLevel = securityLevel;
             this.attestKey = attestKey;
             this.enforceStrongBox = enforceStrongBox;
@@ -1075,10 +1080,12 @@ class AttestationProtocol {
             throw new GeneralSecurityException("invalid number of Auditor app signatures");
         }
         final String signatureDigest = BaseEncoding.base16().encode(signatureDigests.get(0));
+        final byte appVariant;
         if (AUDITOR_APP_PACKAGE_NAME_RELEASE.equals(info.getPackageName())) {
             if (!AUDITOR_APP_SIGNATURE_DIGEST_RELEASE.equals(signatureDigest)) {
                 throw new GeneralSecurityException("invalid Auditor app signing key");
             }
+            appVariant = AUDITOR_APP_VARIANT_RELEASE;
         } else if (AUDITOR_APP_PACKAGE_NAME_DEBUG.equals(info.getPackageName())) {
             if (!BuildConfig.DEBUG) {
                 throw new GeneralSecurityException("debug builds are only trusted by debug builds");
@@ -1086,6 +1093,7 @@ class AttestationProtocol {
             if (!AUDITOR_APP_SIGNATURE_DIGEST_DEBUG.equals(signatureDigest)) {
                 throw new GeneralSecurityException("invalid Auditor app signing key");
             }
+            appVariant = AUDITOR_APP_VARIANT_DEBUG;
         } else {
             throw new GeneralSecurityException("invalid Auditor app package name: " + info.getPackageName());
         }
@@ -1280,7 +1288,7 @@ class AttestationProtocol {
         }
 
         return new Verified(device.name, verifiedBootKey, verifiedBootHash, device.osName,
-                osVersion, osPatchLevel, vendorPatchLevel, bootPatchLevel, appVersion,
+                osVersion, osPatchLevel, vendorPatchLevel, bootPatchLevel, appVersion, appVariant,
                 attestationSecurityLevel, attestKey, device.enforceStrongBox);
     }
 
@@ -1365,11 +1373,12 @@ class AttestationProtocol {
             int pinnedVendorPatchLevel = 0;
             int pinnedBootPatchLevel = 0;
             int pinnedAppVersion = Integer.MAX_VALUE;
+            int pinnedAppVariant = 0;
             int pinnedSecurityLevel = 1;
             if (hasPersistentKey) {
                 final SQLiteStatement st = conn.prepare("SELECT pinnedCertificates, " +
                         "pinnedVerifiedBootKey, pinnedOsVersion, pinnedOsPatchLevel, " +
-                        "pinnedVendorPatchLevel, pinnedBootPatchLevel, pinnedAppVersion, " +
+                        "pinnedVendorPatchLevel, pinnedBootPatchLevel, pinnedAppVersion, pinnedAppVariant, " +
                         "pinnedSecurityLevel, userId " +
                         "FROM Devices WHERE fingerprint = ?");
                 try {
@@ -1386,8 +1395,9 @@ class AttestationProtocol {
                         pinnedVendorPatchLevel = st.columnInt(4);
                         pinnedBootPatchLevel = st.columnInt(5);
                         pinnedAppVersion = st.columnInt(6);
-                        pinnedSecurityLevel = st.columnInt(7);
-                        if (userId != st.columnLong(8)) {
+                        pinnedAppVariant = st.columnInt(7);
+                        pinnedSecurityLevel = st.columnInt(8);
+                        if (userId != st.columnLong(9)) {
                             throw new GeneralSecurityException("wrong userId");
                         }
                     } else {
@@ -1519,11 +1529,11 @@ class AttestationProtocol {
                 final SQLiteStatement insert = conn.prepare("INSERT INTO Devices " +
                         "(fingerprint, pinnedCertificates, attestKey, pinnedVerifiedBootKey, " +
                         "verifiedBootHash, pinnedOsVersion, pinnedOsPatchLevel, " +
-                        "pinnedVendorPatchLevel, pinnedBootPatchLevel, pinnedAppVersion, pinnedSecurityLevel, " +
+                        "pinnedVendorPatchLevel, pinnedBootPatchLevel, pinnedAppVersion, pinnedAppVariant, pinnedSecurityLevel, " +
                         "userProfileSecure, enrolledBiometrics, accessibility, deviceAdmin, " +
                         "adbEnabled, addUsersWhenLocked, denyNewUsb, oemUnlockAllowed, systemUser, " +
                         "verifiedTimeFirst, verifiedTimeLast, userId) " +
-                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 try {
                     insert.bind(1, fingerprint);
                     insert.bind(2, encodeChain(DEFLATE_DICTIONARY_2, attestationCertificates));
@@ -1539,19 +1549,20 @@ class AttestationProtocol {
                         insert.bind(9, verified.bootPatchLevel);
                     }
                     insert.bind(10, verified.appVersion);
-                    insert.bind(11, verified.securityLevel);
-                    insert.bind(12, userProfileSecure ? 1 : 0);
-                    insert.bind(13, enrolledBiometrics ? 1 : 0);
-                    insert.bind(14, accessibility ? 1 : 0);
-                    insert.bind(15, deviceAdmin ? (deviceAdminNonSystem ? 2 : 1) : 0);
-                    insert.bind(16, adbEnabled ? 1 : 0);
-                    insert.bind(17, addUsersWhenLocked ? 1 : 0);
-                    insert.bind(18, denyNewUsb ? 1 : 0);
-                    insert.bind(19, oemUnlockAllowed ? 1 : 0);
-                    insert.bind(20, systemUser ? 1 : 0);
-                    insert.bind(21, now);
+                    insert.bind(11, verified.appVariant);
+                    insert.bind(12, verified.securityLevel);
+                    insert.bind(13, userProfileSecure ? 1 : 0);
+                    insert.bind(14, enrolledBiometrics ? 1 : 0);
+                    insert.bind(15, accessibility ? 1 : 0);
+                    insert.bind(16, deviceAdmin ? (deviceAdminNonSystem ? 2 : 1) : 0);
+                    insert.bind(17, adbEnabled ? 1 : 0);
+                    insert.bind(18, addUsersWhenLocked ? 1 : 0);
+                    insert.bind(19, denyNewUsb ? 1 : 0);
+                    insert.bind(20, oemUnlockAllowed ? 1 : 0);
+                    insert.bind(21, systemUser ? 1 : 0);
                     insert.bind(22, now);
-                    insert.bind(23, userId);
+                    insert.bind(23, now);
+                    insert.bind(24, userId);
                     insert.step();
                 } finally {
                     insert.dispose();
