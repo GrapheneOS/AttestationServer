@@ -275,27 +275,9 @@ public class AttestationServer {
 
             createSamplesTable(samplesConn);
 
-            // migrate to STRICT table
-            if (userVersion == 0) {
-                samplesConn.exec("PRAGMA foreign_keys = OFF");
-                samplesConn.exec("BEGIN IMMEDIATE TRANSACTION");
-
-                samplesConn.exec("ALTER TABLE Samples RENAME TO OldSamples");
-
-                createSamplesTable(samplesConn);
-
-                samplesConn.exec("INSERT INTO Samples " +
-                        "(sample, time) " +
-                        "SELECT " +
-                        "sample, time " +
-                        "FROM OldSamples");
-
-                samplesConn.exec("DROP TABLE OldSamples");
-
-                samplesConn.exec("PRAGMA user_version = 1");
-                samplesConn.exec("COMMIT TRANSACTION");
-                userVersion = 1;
-                samplesConn.exec("PRAGMA foreign_keys = ON");
+            if (userVersion < 1) {
+                throw new RuntimeException("Database schemas older than version 1 are no longer " +
+                        "supported. Use an older AttestationServer revision to upgrade.");
             }
 
             logger.info("New schema version: " + userVersion);
