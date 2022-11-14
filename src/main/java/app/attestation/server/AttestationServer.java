@@ -344,7 +344,7 @@ public class AttestationServer {
         new Thread(new AlertDispatcher()).start();
         new Thread(new Maintenance()).start();
 
-        final ThreadPoolExecutor executor = new ThreadPoolExecutor(128, 128, 0, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(1024));
+        final ThreadPoolExecutor executor = new ThreadPoolExecutor(32, 32, 0, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(1024));
         executor.prestartAllCoreThreads();
 
         System.setProperty("sun.net.httpserver.nodelay", "true");
