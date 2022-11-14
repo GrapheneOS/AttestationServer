@@ -524,6 +524,7 @@ public class AttestationServer {
             }
             throw e;
         }
+        logger.info("created account " + conn.getLastInsertId() + " with username '" + username + "'");
     }
 
     private static void changePassword(final long userId, final String currentPassword, final String newPassword)
