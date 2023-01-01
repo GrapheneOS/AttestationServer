@@ -16,7 +16,7 @@ class Maintenance implements Runnable {
     private static final boolean DELETE_INACTIVE_DEVICES = true;
     private static final long HISTORY_EXPIRY_MS = 180L * 24 * 60 * 60 * 1000;
     private static final boolean DELETE_LEGACY_HISTORY = true;
-    private static final long INACTIVE_ACCOUNT_EXPIRY_MS = 730L * 24 * 60 * 60 * 1000;
+    private static final long INACTIVE_ACCOUNT_EXPIRY_MS = 365L * 24 * 60 * 60 * 1000;
     private static final boolean DELETE_INACTIVE_ACCOUNTS = true;
 
     private static final Logger logger = Logger.getLogger(Maintenance.class.getName());
