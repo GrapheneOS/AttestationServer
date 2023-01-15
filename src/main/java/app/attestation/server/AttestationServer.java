@@ -80,6 +80,7 @@ public class AttestationServer {
     private static final int QR_CODE_PIXEL_SIZE = 300;
     private static final long SESSION_LENGTH = 48 * 60 * 60 * 1000;
     private static final int HISTORY_PER_PAGE = 20;
+    private static final long MMAP_SIZE = 1024 * 1024 * 1024;
 
     private static final String DOMAIN = "attestation.app";
     private static final String ORIGIN = "https://" + DOMAIN;
@@ -105,6 +106,7 @@ public class AttestationServer {
             conn.exec("PRAGMA foreign_keys = ON");
             conn.exec("PRAGMA journal_mode = WAL");
             conn.exec("PRAGMA trusted_schema = OFF");
+            conn.exec("PRAGMA mmap_size = " + MMAP_SIZE);
         } catch (final Exception e) {
             conn.dispose();
             throw e;
