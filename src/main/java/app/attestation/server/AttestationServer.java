@@ -517,6 +517,7 @@ public class AttestationServer {
                 insert.bind(7, DEFAULT_VERIFY_INTERVAL);
                 insert.bind(8, DEFAULT_ALERT_DELAY);
                 insert.step();
+                logger.info("created account " + conn.getLastInsertId() + " with username '" + username + "'");
             } finally {
                 insert.dispose();
             }
@@ -526,7 +527,6 @@ public class AttestationServer {
             }
             throw e;
         }
-        logger.info("created account " + conn.getLastInsertId() + " with username '" + username + "'");
     }
 
     private static void changePassword(final long userId, final String currentPassword, final String newPassword)
@@ -569,6 +569,7 @@ public class AttestationServer {
             }
 
             conn.exec("COMMIT TRANSACTION");
+            logger.info("changed password for account " + userId);
         } finally {
             rollbackIfNeeded(conn);
         }
@@ -645,6 +646,7 @@ public class AttestationServer {
             }
 
             conn.exec("COMMIT TRANSACTION");
+            logger.info("login for account " + userId);
 
             return new Session(conn.getLastInsertId(), token);
         } finally {
