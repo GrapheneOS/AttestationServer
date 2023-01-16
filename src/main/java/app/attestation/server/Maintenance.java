@@ -61,19 +61,19 @@ class Maintenance implements Runnable {
                 if (DELETE_INACTIVE_DEVICES) {
                     deleteInactiveDevices.bind(1, now - INACTIVE_DEVICE_EXPIRY_MS);
                     deleteInactiveDevices.step();
-                    logger.info("cleared " + attestationConn.getChanges() + " inactive devices");
+                    logger.info("deleted " + attestationConn.getChanges() + " inactive devices");
                 }
 
                 if (DELETE_LEGACY_HISTORY) {
                     deleteLegacyHistory.bind(1, now - HISTORY_EXPIRY_MS);
                     deleteLegacyHistory.step();
-                    logger.info("cleared " + attestationConn.getChanges() + " legacy history entries");
+                    logger.info("deleted " + attestationConn.getChanges() + " legacy history entries");
                 }
 
                 if (DELETE_INACTIVE_ACCOUNTS) {
                     deleteInactiveAccounts.bind(1, now - INACTIVE_ACCOUNT_EXPIRY_MS);
                     deleteInactiveAccounts.step();
-                    logger.info("cleared " + attestationConn.getChanges() + " inactive accounts");
+                    logger.info("deleted " + attestationConn.getChanges() + " inactive accounts");
                 }
 
                 attestationConn.exec("ANALYZE");
