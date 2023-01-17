@@ -1090,6 +1090,7 @@ public class AttestationServer {
                 exchange.sendResponseHeaders(400, -1);
                 return;
             }
+            logger.info("scheduled deletion of device " + fingerprint + " from account " + account.userId);
             exchange.sendResponseHeaders(200, -1);
         }
     }
