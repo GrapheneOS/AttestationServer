@@ -798,6 +798,7 @@ public class AttestationServer {
                 select.bind(1, subscribeKey);
                 select.bind(2, account.userId);
                 select.step();
+                logger.info("rotated subscribe key for account " + account.userId);
             } finally {
                 select.dispose();
             }
