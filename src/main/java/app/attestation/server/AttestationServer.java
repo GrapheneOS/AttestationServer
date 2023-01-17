@@ -1237,15 +1237,15 @@ public class AttestationServer {
         final byte[] fingerprint = BaseEncoding.base16().decode(deviceFingerprint);
         final SQLiteConnection conn = getLocalAttestationConn();
         final SQLiteStatement history = conn.prepare("SELECT id, time, strong, osVersion, osPatchLevel, " +
-            "vendorPatchLevel, bootPatchLevel, Attestations.verifiedBootHash, appVersion, " +
-            "Attestations.userProfileSecure, Attestations.enrolledBiometrics, " +
-            "Attestations.accessibility, Attestations.deviceAdmin, Attestations.adbEnabled, " +
-            "Attestations.addUsersWhenLocked, Attestations.denyNewUsb, " +
-            "Attestations.oemUnlockAllowed, Attestations.systemUser " +
-            "FROM Attestations INNER JOIN Devices ON " +
-            "Attestations.fingerprint = Devices.fingerprint " +
-            "WHERE Devices.fingerprint = ? AND userid = ? " +
-            "AND Attestations.id <= ? ORDER BY id DESC LIMIT " + HISTORY_PER_PAGE);
+                "vendorPatchLevel, bootPatchLevel, Attestations.verifiedBootHash, appVersion, " +
+                "Attestations.userProfileSecure, Attestations.enrolledBiometrics, " +
+                "Attestations.accessibility, Attestations.deviceAdmin, Attestations.adbEnabled, " +
+                "Attestations.addUsersWhenLocked, Attestations.denyNewUsb, " +
+                "Attestations.oemUnlockAllowed, Attestations.systemUser " +
+                "FROM Attestations INNER JOIN Devices ON " +
+                "Attestations.fingerprint = Devices.fingerprint " +
+                "WHERE Devices.fingerprint = ? AND userid = ? " +
+                "AND Attestations.id <= ? ORDER BY id DESC LIMIT " + HISTORY_PER_PAGE);
         int rowCount = 0;
         try {
             history.bind(1, fingerprint);
