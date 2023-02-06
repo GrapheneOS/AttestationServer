@@ -3,22 +3,22 @@ Hash: SHA256
 
 Contact: mailto:security@attestation.app
 Canonical: https://attestation.app/.well-known/security.txt
-Encryption: openpgp4fpr:65EEFE022108E2B708CBFCF7F9E712E59AF5F22A
-Expires: 2023-10-19T00:00:00Z
+Encryption: data:application/x-age-public-key,age1dcftzgq00ykgwvxl5te6d5clqgx75h2g54c0u8gjc43mcnea7p7q3ma0yx
+Expires: 2024-02-06T00:00:00Z
 Preferred-Languages: en
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCAAdFiEEZe7+AiEI4rcIy/z3+ecS5Zr18ioFAmNRR2gACgkQ+ecS5Zr1
-8iqv9A//Utbks6RDqo5MxC4a/Ovk/A2XvCF/ybZ5ySiRxByHv1L2cRFV/rt9YTQX
-ZARZ5BvgpKGL07C9XiMyuW2ogpsgvoGbpB1G8iHXMFEgx9fpRKBrj6f21O5T2tpu
-JariyAmEsjTcPRsZA0loVwdATPB5TIG4ZieygLQvFNClAxiU2xcFVpmprQ1B8u6+
-jMxwREiNlZopfQZYn2EF0ykiTCA9xxMeBYsWD0Eyiz3Ta7nP3zTKz+BObUwz6dX2
-hEcm3g/EI25u9bVfEXVB2ORHPXVh5kEsanBtNqrK4Wx6/qNh4E+8AZRNJ+ggoXoK
-3+FxWibnscUNS3WgyHAw2ERJx8ncGPt2iOHXqDNkoWbxC1s6t2BcoxTP7W4yWnVl
-MNTxxG+IsUEQwGs0/DRFd4DjdJUCstKJb23Ih/+651TXrES5mdBdYNJgY3FE0CcT
-sbiQtB73AOKjVX1JhRAhHoywiQm0vHVPJ4N3aNl4d0wcG7EhrbRxFV192+Q2TSRT
-NqddIe2RQ9Ltn2ddILleiqCkPoBUCbvPAsooDHErkMpj4fZ+Kbrpuu3WPY7H9UJH
-rYjEqAFiJ4wHInLlE6YcP3wvP1I/mdXEx3GTg7FmWEre5CR00BUUSqpoEfQ5drQw
-nMHAUTZEFUkqe4TP/7EsrbPvWCVPul/6GpJLad4lNvRQXk15xjM=
-=Zg48
+iQIzBAEBCAAdFiEEZe7+AiEI4rcIy/z3+ecS5Zr18ioFAmPgp4gACgkQ+ecS5Zr1
+8iogAg/+NM0M9UWgacy7dFf0kJgf4XQhVvD8y6Qmj6byPmW3mzkv7DCoEeJa1k3l
+6i5zhhT50lgRvFhNe4nXmWTImFozbYfEYAp1+JMuoxpyY4Vu4yviYa+tjn9VuM67
+dd7/bRo+SNoO6WdJfEefsEJhaN4rtt+o8v06szWxnJeCQiRRwyzqhNly77t6Bi4E
+plg9C3XV7flXG0B7BAHGSnklHq8mLG/blWwct0+lpcBoxMTBIwkUL8xoE3aUg2Y+
+oFxMTbpPo9TxKEd4Tr6S6KLOH9sorVps1RrlJKRCbwrqwQLBR0/s0UTm/v4DniFC
+ID3uOY8J6X0KzcAvTGHSSTnMeYj/2cg1W5Uv766lQsziHr4fM5PULcjToaHaynnt
+UJ6m2Arj9yFvcM3/8pkQIGTuGgTAJ06VVMQ7mkEJaDFJmlnjvNSugPHHgVIMJ0rr
+nTR2rtlhtrqbeZHAfQivqx7Hben9whd9UUUfBa9HVkt0qMMexWGQ5uqVZcYrZr8G
+/s+oGG1ksq/ZagIjBXmbVnEnUnaCLx5iDC8ZT37VrFRULz54BWEWrtegnJGcoSt/
+oDFKD9CyBGe9dxWDfPn2ANK06o2ng+sm4X/PcDGHxvKuWMVT/B/30yytfsLF3bxi
+fN+punL1cOS4NO63QcELiVkgtoRdnaTNuIsM4cjtQpPBf3Aguf4=
+=jEBI
 -----END PGP SIGNATURE-----
