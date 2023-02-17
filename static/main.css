@@ -125,13 +125,6 @@ input {
     text-align: center;
 }
 
-.coin-address > img {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    text-align: center;
-}
-
 /* latin */
 @font-face {
     font-family: Roboto;
