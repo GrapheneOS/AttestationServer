@@ -11,4 +11,5 @@ generate static/donate-bitcoin.png 'bitcoin:bc1quxrwjhgvmx4rnyfzhvlqmjuh9nry7n54
 generate static/donate-bitcoin-taproot.png 'bitcoin:bc1pqpelts7dvuuxqk7gk72wzc9u3xh0nddkk40p0lxkr2gq5ktjm5qsw0rgvn?label=attestation.app&message=Donation%20to%20attestation.app'
 generate static/donate-monero.png 'monero:83Y2VmZ7ZhM6C4pQFg5EPzQZyCk9vjbb6D3R1oT6tjyz5T8evvgpnCc7PHafxV43upMRJmCBn8ZoTXoQMSLoVbApHFub47u?recipient_name=attestation.app&tx_description=Donation%20to%20attestation.app'
 generate static/donate-zcash-transparent.png 'zcash:t1Z8ks4yBsz4B4Nb647kT8cn2C6zuKZBCkB?label=GrapheneOS&message=Donation%20to%20attestation.app'
+generate static/donate-ethereum.png 'ethereum:0x4de3e9Ebcf061a8923d5f41244A8793cF7172b33'
 generate static/donate-cardano.png 'web+cardano:addr1qxst0vhff5hx9n8cds7mzc3yrdtaxrs6kjsevf06urerq8u29gwxlt6f8pavhx2hjuw6494sxny8te7lrs0c6237u9ps25n99g'
