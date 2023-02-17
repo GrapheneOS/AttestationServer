@@ -1,0 +1,13 @@
+#!/bin/bash
+
+generate() {
+    echo $1
+    qrencode -s 1 -o $1 $2
+    gm identify -format '%w×%h\n' $1
+    zopflipng -ym $1 $1
+}
+
+generate static/donate-bitcoin.png 'bitcoin:bc1quxrwjhgvmx4rnyfzhvlqmjuh9nry7n54nhnfn9?label=attestation.app&message=Donation%20to%20attestation.app'
+generate static/donate-bitcoin-taproot.png 'bitcoin:bc1pqpelts7dvuuxqk7gk72wzc9u3xh0nddkk40p0lxkr2gq5ktjm5qsw0rgvn?label=attestation.app&message=Donation%20to%20attestation.app'
+generate static/donate-monero.png 'monero:83Y2VmZ7ZhM6C4pQFg5EPzQZyCk9vjbb6D3R1oT6tjyz5T8evvgpnCc7PHafxV43upMRJmCBn8ZoTXoQMSLoVbApHFub47u?recipient_name=attestation.app&tx_description=Donation%20to%20attestation.app'
+generate static/donate-zcash-transparent.png 'zcash:t1Z8ks4yBsz4B4Nb647kT8cn2C6zuKZBCkB?label=GrapheneOS&message=Donation%20to%20attestation.app'
