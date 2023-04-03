@@ -300,42 +300,9 @@ public class AttestationServer {
             createAttestationTables(attestationConn);
             createAttestationIndices(attestationConn);
 
-            if (userVersion < 10) {
+            if (userVersion < 11) {
                 throw new RuntimeException(ATTESTATION_DATABASE + " database schemas older than version 10 are no longer " +
                         "supported. Use an older AttestationServer revision to upgrade.");
-            }
-
-            // add pinnedAppVariant column to Devices table with default 0 value
-            if (userVersion < 11) {
-                attestationConn.exec("PRAGMA foreign_keys = OFF");
-                attestationConn.exec("BEGIN IMMEDIATE TRANSACTION");
-
-                attestationConn.exec("ALTER TABLE Devices RENAME TO OldDevices");
-                attestationConn.exec("ALTER TABLE Attestations RENAME TO OldAttestations");
-
-                createAttestationTables(attestationConn);
-
-                attestationConn.exec("INSERT INTO Devices " +
-                        "(fingerprint, pinnedCertificates, attestKey, pinnedVerifiedBootKey, verifiedBootHash, pinnedOsVersion, pinnedOsPatchLevel, pinnedVendorPatchLevel, pinnedBootPatchLevel, pinnedAppVersion, pinnedAppVariant, pinnedSecurityLevel, userProfileSecure, enrolledBiometrics, accessibility, deviceAdmin, adbEnabled, addUsersWhenLocked, denyNewUsb, oemUnlockAllowed, systemUser, verifiedTimeFirst, verifiedTimeLast, expiredTimeLast, failureTimeLast, userId, deletionTime) " +
-                        "SELECT " +
-                        "fingerprint, pinnedCertificates, attestKey, pinnedVerifiedBootKey, verifiedBootHash, pinnedOsVersion, pinnedOsPatchLevel, pinnedVendorPatchLevel, pinnedBootPatchLevel, pinnedAppVersion, 0, pinnedSecurityLevel, userProfileSecure, enrolledBiometrics, accessibility, deviceAdmin, adbEnabled, addUsersWhenLocked, denyNewUsb, oemUnlockAllowed, systemUser, verifiedTimeFirst, verifiedTimeLast, expiredTimeLast, failureTimeLast, userId, deletionTime " +
-                        "FROM OldDevices");
-
-                attestationConn.exec("INSERT INTO Attestations " +
-                        "(id, fingerprint, time, strong, osVersion, osPatchLevel, vendorPatchLevel, bootPatchLevel, verifiedBootHash, appVersion, userProfileSecure, enrolledBiometrics, accessibility, deviceAdmin, adbEnabled, addUsersWhenLocked, denyNewUsb, oemUnlockAllowed, systemUser) " +
-                        "SELECT " +
-                        "id, fingerprint, time, strong, osVersion, osPatchLevel, vendorPatchLevel, bootPatchLevel, verifiedBootHash, appVersion, userProfileSecure, enrolledBiometrics, accessibility, deviceAdmin, adbEnabled, addUsersWhenLocked, denyNewUsb, oemUnlockAllowed, systemUser " +
-                        "FROM OldAttestations");
-
-                attestationConn.exec("DROP TABLE OldDevices");
-                attestationConn.exec("DROP TABLE OldAttestations");
-
-                createAttestationIndices(attestationConn);
-                attestationConn.exec("PRAGMA user_version = 11");
-                attestationConn.exec("COMMIT TRANSACTION");
-                userVersion = 11;
-                attestationConn.exec("PRAGMA foreign_keys = ON");
-                logger.info("Migrated to schema version: " + userVersion);
             }
 
             logger.info("Finished database setup for " + ATTESTATION_DATABASE);
