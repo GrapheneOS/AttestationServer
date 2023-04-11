@@ -82,7 +82,7 @@ public class AttestationServer {
     private static final int HISTORY_PER_PAGE = 20;
     private static final long MMAP_SIZE = 1024 * 1024 * 1024;
 
-    private static final String DOMAIN = "attestation.app";
+    static final String DOMAIN = "attestation.app";
     private static final String ORIGIN = "https://" + DOMAIN;
 
     private static final Logger logger = Logger.getLogger(AttestationServer.class.getName());
