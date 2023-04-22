@@ -178,9 +178,9 @@ class AttestationProtocol {
 
     private static final int AUDITOR_APP_MINIMUM_VERSION = 47;
     private static final int OS_VERSION_MINIMUM = 100000;
-    private static final int OS_PATCH_LEVEL_MINIMUM = 201801;
-    private static final int VENDOR_PATCH_LEVEL_MINIMUM = 201808;
-    private static final int BOOT_PATCH_LEVEL_MINIMUM = 201809;
+    private static final int OS_PATCH_LEVEL_MINIMUM = 201909;
+    private static final int VENDOR_PATCH_LEVEL_MINIMUM = 20190905;
+    private static final int BOOT_PATCH_LEVEL_MINIMUM = 20190905;
 
     private static final String DEVICE_HUAWEI = "Huawei Honor 9 lite / Honor 10 / View 10 / Mate 10 / Mate 20 / Mate 20 lite / P smart 2019 / Pro / P20 / P20 Pro / Y9 2019";
     private static final String DEVICE_HUAWEI_HONOR_7A_PRO = "Huawei Honor 7A Pro / Y7 2019";
