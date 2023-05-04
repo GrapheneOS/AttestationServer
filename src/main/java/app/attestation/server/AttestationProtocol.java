@@ -1466,8 +1466,7 @@ class AttestationProtocol {
                 }
 
                 final SQLiteStatement update = conn.prepare("UPDATE Devices SET " +
-                        "verifiedBootHash = ?, " +
-                        "pinnedOsVersion = ?, pinnedOsPatchLevel = ?, " +
+                        "verifiedBootHash = ?, pinnedOsVersion = ?, pinnedOsPatchLevel = ?, " +
                         "pinnedVendorPatchLevel = ?, pinnedBootPatchLevel = ?, " +
                         "pinnedAppVersion = ?, pinnedSecurityLevel = ?, userProfileSecure = ?, enrolledBiometrics = ?, " +
                         "accessibility = ?, deviceAdmin = ?, adbEnabled = ?, " +
