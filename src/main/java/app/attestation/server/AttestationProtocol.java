@@ -198,11 +198,11 @@ class AttestationProtocol {
     private static final String DEVICE_PIXEL_4_GENERIC = "Google Pixel 4 / Pixel 4 XL";
     private static final String DEVICE_PIXEL_4 = "Google Pixel 4";
     private static final String DEVICE_PIXEL_4_XL = "Google Pixel 4 XL";
-    private static final String DEVICE_PIXEL_4a = "Google Pixel 4a";
-    private static final String DEVICE_PIXEL_4a_5G = "Google Pixel 4a (5G)";
+    private static final String DEVICE_PIXEL_4A = "Google Pixel 4a";
+    private static final String DEVICE_PIXEL_4A_5G = "Google Pixel 4a (5G)";
     private static final String DEVICE_PIXEL_5 = "Google Pixel 5";
     private static final String DEVICE_PIXEL_5_GENERIC = "Google Pixel 4a (5G) / Pixel 5";
-    private static final String DEVICE_PIXEL_5a = "Google Pixel 5a";
+    private static final String DEVICE_PIXEL_5A = "Google Pixel 5a";
     private static final String DEVICE_PIXEL_6 = "Google Pixel 6";
     private static final String DEVICE_PIXEL_6_PRO = "Google Pixel 6 Pro";
     private static final String DEVICE_PIXEL_6A = "Google Pixel 6a";
@@ -310,13 +310,13 @@ class AttestationProtocol {
             .put("3F15FDCB82847FED97427CE00563B8F9FF34627070DE5FDB17ACA7849AB98CC8",
                     new DeviceInfo(DEVICE_PIXEL_4_XL, 3, 4, false /* uses new API */, true, true, OS_GRAPHENE))
             .put("9F2454A1657B1B5AD7F2336B39A2611F7A40B2E0DDFD0D6553A359605928DF29",
-                    new DeviceInfo(DEVICE_PIXEL_4a, 3, 4, false /* uses new API */, true, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_4A, 3, 4, false /* uses new API */, true, true, OS_GRAPHENE))
             .put("DCEC2D053D3EC4F1C9BE414AA07E4D7D7CBD12040AD2F8831C994A83A0536866",
-                    new DeviceInfo(DEVICE_PIXEL_4a_5G, 3, 4, false /* uses new API */, true, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_4A_5G, 3, 4, false /* uses new API */, true, true, OS_GRAPHENE))
             .put("36A99EAB7907E4FB12A70E3C41C456BCBE46C13413FBFE2436ADEE2B2B61120F",
                     new DeviceInfo(DEVICE_PIXEL_5, 3, 4, false /* uses new API */, true, true, OS_GRAPHENE))
             .put("0ABDDEDA03B6CE10548C95E0BEA196FAA539866F929BCDF7ECA84B4203952514",
-                    new DeviceInfo(DEVICE_PIXEL_5a, 3, 4, false /* uses new API */, true, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_5A, 3, 4, false /* uses new API */, true, true, OS_GRAPHENE))
             .put("F0A890375D1405E62EBFD87E8D3F475F948EF031BBF9DDD516D5F600A23677E8",
                     new DeviceInfo(DEVICE_PIXEL_6, 100, 100, false /* uses new API */, true, true, OS_GRAPHENE))
             .put("439B76524D94C40652CE1BF0D8243773C634D2F99BA3160D8D02AA5E29FF925C",
@@ -357,11 +357,11 @@ class AttestationProtocol {
             .put("AE6316B4753C61F5855B95B9B98484AF784F2E83648D0FCC8107FCA752CAEA34",
                     new DeviceInfo(DEVICE_PIXEL_4_GENERIC, 3, 4, false /* uses new API */, true, true, OS_STOCK))
             .put("879CD3F18EA76E244D4D4AC3BCB9C337C13B4667190B19035AFE2536550050F1",
-                    new DeviceInfo(DEVICE_PIXEL_4a, 3, 4, false /* uses new API */, true, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_4A, 3, 4, false /* uses new API */, true, true, OS_STOCK))
             .put("88265D85BA9E1E2F6036A259D880D2741031ACA445840137395B6D541C0FC7FC",
                     new DeviceInfo(DEVICE_PIXEL_5_GENERIC, 3, 4, false /* uses new API */, true, true, OS_STOCK))
             .put("1DD694CE00BF131AD61CEB576B7DCC41CF7F9B2C418F4C12B2B8F3E9A1EA911D",
-                    new DeviceInfo(DEVICE_PIXEL_5a, 3, 4, false /* uses new API */, true, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_5A, 3, 4, false /* uses new API */, true, true, OS_STOCK))
             .put("0F6E75C80183B5DEC074B0054D4271E99389EBE4B136B0819DE1F150BA0FF9D7",
                     new DeviceInfo(DEVICE_PIXEL_6, 100, 100, false /* uses new API */, true, true, OS_STOCK))
             .put("42ED1BCA352FABD428F34E8FCEE62776F4CB2C66E06F82E5A59FF4495267BFC2",
@@ -478,13 +478,13 @@ class AttestationProtocol {
             .put("3F15FDCB82847FED97427CE00563B8F9FF34627070DE5FDB17ACA7849AB98CC8",
                     new DeviceInfo(DEVICE_PIXEL_4_XL, 3, 4, false /* uses new API */, true, true, OS_GRAPHENE))
             .put("9F2454A1657B1B5AD7F2336B39A2611F7A40B2E0DDFD0D6553A359605928DF29",
-                    new DeviceInfo(DEVICE_PIXEL_4a, 3, 4, false /* uses new API */, true, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_4A, 3, 4, false /* uses new API */, true, true, OS_GRAPHENE))
             .put("DCEC2D053D3EC4F1C9BE414AA07E4D7D7CBD12040AD2F8831C994A83A0536866",
-                    new DeviceInfo(DEVICE_PIXEL_4a_5G, 4, 41, false /* uses new API */, true, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_4A_5G, 4, 41, false /* uses new API */, true, true, OS_GRAPHENE))
             .put("36A99EAB7907E4FB12A70E3C41C456BCBE46C13413FBFE2436ADEE2B2B61120F",
                     new DeviceInfo(DEVICE_PIXEL_5, 4, 41, false /* uses new API */, true, true, OS_GRAPHENE))
             .put("0ABDDEDA03B6CE10548C95E0BEA196FAA539866F929BCDF7ECA84B4203952514",
-                    new DeviceInfo(DEVICE_PIXEL_5a, 4, 41, false /* uses new API */, true, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_5A, 4, 41, false /* uses new API */, true, true, OS_GRAPHENE))
             .put("F0A890375D1405E62EBFD87E8D3F475F948EF031BBF9DDD516D5F600A23677E8",
                     new DeviceInfo(DEVICE_PIXEL_6, 100, 100, false /* uses new API */, true, true, OS_GRAPHENE))
             .put("439B76524D94C40652CE1BF0D8243773C634D2F99BA3160D8D02AA5E29FF925C",
@@ -505,11 +505,11 @@ class AttestationProtocol {
             .put("AE6316B4753C61F5855B95B9B98484AF784F2E83648D0FCC8107FCA752CAEA34",
                     new DeviceInfo(DEVICE_PIXEL_4_GENERIC, 3, 4, false /* uses new API */, true, true, OS_STOCK))
             .put("879CD3F18EA76E244D4D4AC3BCB9C337C13B4667190B19035AFE2536550050F1",
-                    new DeviceInfo(DEVICE_PIXEL_4a, 3, 4, false /* uses new API */, true, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_4A, 3, 4, false /* uses new API */, true, true, OS_STOCK))
             .put("88265D85BA9E1E2F6036A259D880D2741031ACA445840137395B6D541C0FC7FC",
                     new DeviceInfo(DEVICE_PIXEL_5_GENERIC, 4, 41, false /* uses new API */, true, true, OS_STOCK))
             .put("1DD694CE00BF131AD61CEB576B7DCC41CF7F9B2C418F4C12B2B8F3E9A1EA911D",
-                    new DeviceInfo(DEVICE_PIXEL_5a, 4, 41, false /* uses new API */, true, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_5A, 4, 41, false /* uses new API */, true, true, OS_STOCK))
             .put("0F6E75C80183B5DEC074B0054D4271E99389EBE4B136B0819DE1F150BA0FF9D7",
                     new DeviceInfo(DEVICE_PIXEL_6, 100, 100, false /* uses new API */, true, true, OS_STOCK))
             .put("42ED1BCA352FABD428F34E8FCEE62776F4CB2C66E06F82E5A59FF4495267BFC2",
