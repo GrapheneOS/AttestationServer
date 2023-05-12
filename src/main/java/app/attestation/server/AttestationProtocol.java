@@ -57,7 +57,7 @@ class AttestationProtocol {
     private static final HashFunction FINGERPRINT_HASH_FUNCTION = Hashing.sha256();
     private static final int FINGERPRINT_LENGTH = FINGERPRINT_HASH_FUNCTION.bits() / 8;
 
-    private static final boolean ALLOW_ATTEST_KEY_DOWNGRADE = true;
+    private static final boolean ALLOW_ATTEST_KEY_DOWNGRADE = false;
 
     // Challenge message:
     //
