@@ -1022,12 +1022,11 @@ class AttestationProtocol {
         final byte appVariant;
         final int securityLevel;
         final boolean attestKey;
-        final boolean enforceStrongBox;
 
         Verified(final String device, final String verifiedBootKey, final byte[] verifiedBootHash,
                 final String osName, final int osVersion, final int osPatchLevel,
                 final int vendorPatchLevel, final int bootPatchLevel, final int appVersion, byte appVariant,
-                final int securityLevel, final boolean attestKey, final boolean enforceStrongBox) {
+                final int securityLevel, final boolean attestKey) {
             this.device = device;
             this.verifiedBootKey = verifiedBootKey;
             this.verifiedBootHash = verifiedBootHash;
@@ -1040,7 +1039,6 @@ class AttestationProtocol {
             this.appVariant = appVariant;
             this.securityLevel = securityLevel;
             this.attestKey = attestKey;
-            this.enforceStrongBox = enforceStrongBox;
         }
     }
 
@@ -1152,6 +1150,12 @@ class AttestationProtocol {
 
         if (device == null) {
             throw new GeneralSecurityException("invalid verified boot key fingerprint: " + verifiedBootKey);
+        }
+
+        // enforce StrongBox for new pairings with devices supporting it
+        if (!hasPersistentKey && device.enforceStrongBox &&
+                attestationSecurityLevel != Attestation.KM_SECURITY_LEVEL_STRONG_BOX) {
+            throw new GeneralSecurityException("non-StrongBox security level for device supporting it");
         }
 
         // OS version sanity checks
@@ -1307,7 +1311,7 @@ class AttestationProtocol {
 
         return new Verified(device.name, verifiedBootKey, verifiedBootHash, device.osName,
                 osVersion, osPatchLevel, vendorPatchLevel, bootPatchLevel, appVersion, appVariant,
-                attestationSecurityLevel, attestKey, device.enforceStrongBox);
+                attestationSecurityLevel, attestKey);
     }
 
     // Only checks expiry beyond the initial certificate for the initial pairing since the
@@ -1530,10 +1534,6 @@ class AttestationProtocol {
                 }
             } else {
                 verifySignature(attestationCertificates[0].getPublicKey(), signedMessage, signature);
-
-                if (verified.enforceStrongBox && verified.securityLevel != Attestation.KM_SECURITY_LEVEL_STRONG_BOX) {
-                    throw new GeneralSecurityException("non-StrongBox security level for device supporting it");
-                }
 
                 final SQLiteStatement insert = conn.prepare("INSERT INTO Devices " +
                         "(fingerprint, pinnedCertificates, attestKey, pinnedVerifiedBootKey, " +
