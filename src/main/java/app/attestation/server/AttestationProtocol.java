@@ -535,7 +535,7 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_SM_N975U, 3, 4, false /* uses new API */, true, true, OS_STOCK))
             .build();
 
-    static final byte[] GOOGLE_ROOT_CERTIFICATE_0 = BaseEncoding.base64().decode(
+    private static final byte[] GOOGLE_ROOT_CERTIFICATE_0 = BaseEncoding.base64().decode(
             "MIIFYDCCA0igAwIBAgIJAOj6GWMU0voYMA0GCSqGSIb3DQEBCwUAMBsxGTAXBgNV" +
             "BAUTEGY5MjAwOWU4NTNiNmIwNDUwHhcNMTYwNTI2MTYyODUyWhcNMjYwNTI0MTYy" +
             "ODUyWjAbMRkwFwYDVQQFExBmOTIwMDllODUzYjZiMDQ1MIICIjANBgkqhkiG9w0B" +
@@ -566,7 +566,7 @@ class AttestationProtocol {
             "MDSXYrB4I4WHXPGjxhZuCuPBLTdOLU8YRvMYdEvYebWHMpvwGCF6bAx3JBpIeOQ1" +
             "wDB5y0USicV3YgYGmi+NZfhA4URSh77Yd6uuJOJENRaNVTzk");
 
-    static final byte[] GOOGLE_ROOT_CERTIFICATE_1 = BaseEncoding.base64().decode(
+    private static final byte[] GOOGLE_ROOT_CERTIFICATE_1 = BaseEncoding.base64().decode(
             "MIIFHDCCAwSgAwIBAgIJANUP8luj8tazMA0GCSqGSIb3DQEBCwUAMBsxGTAXBgNV" +
             "BAUTEGY5MjAwOWU4NTNiNmIwNDUwHhcNMTkxMTIyMjAzNzU4WhcNMzQxMTE4MjAz" +
             "NzU4WjAbMRkwFwYDVQQFExBmOTIwMDllODUzYjZiMDQ1MIICIjANBgkqhkiG9w0B" +
@@ -596,7 +596,7 @@ class AttestationProtocol {
             "ZutL8VuFkERQGt6vQ2OCw0sV47VMkuYbacK/xyZFiRcrPJPb41zgbQj9XAEyLKCH" +
             "ex0SdDrx+tWUDqG8At2JHA==");
 
-    static final byte[] GOOGLE_ROOT_CERTIFICATE_2 = BaseEncoding.base64().decode(
+    private static final byte[] GOOGLE_ROOT_CERTIFICATE_2 = BaseEncoding.base64().decode(
             "MIIFHDCCAwSgAwIBAgIJAMNrfES5rhgxMA0GCSqGSIb3DQEBCwUAMBsxGTAXBgNV" +
             "BAUTEGY5MjAwOWU4NTNiNmIwNDUwHhcNMjExMTE3MjMxMDQyWhcNMzYxMTEzMjMx" +
             "MDQyWjAbMRkwFwYDVQQFExBmOTIwMDllODUzYjZiMDQ1MIICIjANBgkqhkiG9w0B" +
@@ -626,7 +626,7 @@ class AttestationProtocol {
             "Ob3bKOwwIWdEFle/YF/h6zWgdeoaNGDqVBrLr2+0DtWoiB1aDEjLWl9FmyIUyUm7" +
             "mD/vFDkzF+wm7cyWpQpCVQ==");
 
-    static final byte[] GOOGLE_ROOT_CERTIFICATE_3 = BaseEncoding.base64().decode(
+    private static final byte[] GOOGLE_ROOT_CERTIFICATE_3 = BaseEncoding.base64().decode(
             "MIIFHDCCAwSgAwIBAgIJAPHBcqaZ6vUdMA0GCSqGSIb3DQEBCwUAMBsxGTAXBgNV" +
             "BAUTEGY5MjAwOWU4NTNiNmIwNDUwHhcNMjIwMzIwMTgwNzQ4WhcNNDIwMzE1MTgw" +
             "NzQ4WjAbMRkwFwYDVQQFExBmOTIwMDllODUzYjZiMDQ1MIICIjANBgkqhkiG9w0B" +
@@ -1047,7 +1047,7 @@ class AttestationProtocol {
         }
     }
 
-    static X509Certificate generateCertificate(final InputStream in)
+    private static X509Certificate generateCertificate(final InputStream in)
             throws CertificateException {
         return (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate(in);
     }
