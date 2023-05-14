@@ -46,9 +46,6 @@ import java.util.zip.Inflater;
 class AttestationProtocol {
     private static final Logger logger = Logger.getLogger(AttestationProtocol.class.getName());
 
-    // Developer previews set osVersion to 0 as a placeholder value.
-    private static final int DEVELOPER_PREVIEW_OS_VERSION = 0;
-
     static final int CHALLENGE_LENGTH = 32;
     private static final String SIGNATURE_ALGORITHM = "SHA256WithECDSA";
     private static final HashFunction FINGERPRINT_HASH_FUNCTION = Hashing.sha256();
@@ -1156,9 +1153,7 @@ class AttestationProtocol {
 
         // OS version sanity checks
         final int osVersion = teeEnforced.getOsVersion();
-        if (osVersion == DEVELOPER_PREVIEW_OS_VERSION) {
-            throw new GeneralSecurityException("OS version is not a production release");
-        } else if (osVersion < OS_VERSION_MINIMUM) {
+        if (osVersion < OS_VERSION_MINIMUM) {
             throw new GeneralSecurityException("OS version too old: " + osVersion);
         }
         final int osPatchLevel = teeEnforced.getOsPatchLevel();
