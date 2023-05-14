@@ -1532,7 +1532,7 @@ class AttestationProtocol {
                 verifySignature(attestationCertificates[0].getPublicKey(), signedMessage, signature);
 
                 if (verified.enforceStrongBox && verified.securityLevel != Attestation.KM_SECURITY_LEVEL_STRONG_BOX) {
-                    throw new GeneralSecurityException("non-StrongBox security level for initial pairing with StrongBox device");
+                    throw new GeneralSecurityException("non-StrongBox security level for device supporting it");
                 }
 
                 final SQLiteStatement insert = conn.prepare("INSERT INTO Devices " +
