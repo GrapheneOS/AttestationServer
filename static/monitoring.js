@@ -599,6 +599,4 @@ configuration.onsubmit = event => {
     });
 };
 
-localStorage.removeItem("requestToken");
-
 // @license-end
