@@ -354,12 +354,10 @@ public class AttestationServer {
         protected abstract void handlePost(final HttpExchange exchange) throws IOException, SQLiteException;
 
         public void checkRequestHeaders(final HttpExchange exchange) throws GeneralSecurityException {
-            final String origin = getRequestHeaderValue(exchange, "Origin");
-            if (origin == null || !origin.equals(ORIGIN)) {
+            if (!ORIGIN.equals(getRequestHeaderValue(exchange, "Origin"))) {
                 throw new GeneralSecurityException();
             }
-            final String contentType = getRequestHeaderValue(exchange, "Content-Type");
-            if (contentType == null || !contentType.equals("application/json")) {
+            if (!"application/json".equals(getRequestHeaderValue(exchange, "Content-Type"))) {
                 throw new GeneralSecurityException();
             }
             final String fetchMode = getRequestHeaderValue(exchange, "Sec-Fetch-Mode");
