@@ -127,6 +127,9 @@ input {
 
 .coin-address img {
     image-rendering: pixelated;
+    width: 180px;
+    height: 180px;
+    border-radius: 16px;
 }
 
 /* latin */
