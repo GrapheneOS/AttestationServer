@@ -1,6 +1,7 @@
 package app.attestation.server;
 
 import app.attestation.server.AttestationProtocol.DeviceInfo;
+import app.attestation.server.attestation.ParsedAttestationRecord;
 import com.almworks.sqlite4java.SQLiteConnection;
 import com.almworks.sqlite4java.SQLiteException;
 import com.almworks.sqlite4java.SQLiteStatement;
@@ -58,7 +59,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.DataFormatException;
 
-import static app.attestation.server.attestation.Attestation.KM_SECURITY_LEVEL_STRONG_BOX;
 import static app.attestation.server.AttestationProtocol.fingerprintsCustomOS;
 import static app.attestation.server.AttestationProtocol.fingerprintsStock;
 import static app.attestation.server.AttestationProtocol.fingerprintsStrongBoxCustomOS;
@@ -1108,7 +1108,7 @@ public class AttestationServer {
                 device.add("verifiedBootKey", verifiedBootKey);
                 DeviceInfo info;
                 final int pinnedSecurityLevel = select.columnInt(11);
-                if (pinnedSecurityLevel == KM_SECURITY_LEVEL_STRONG_BOX) {
+                if (pinnedSecurityLevel == ParsedAttestationRecord.securityLevelToInt(ParsedAttestationRecord.SecurityLevel.STRONG_BOX)) {
                     info = fingerprintsStrongBoxCustomOS.get(verifiedBootKey);
                     if (info == null) {
                         info = fingerprintsStrongBoxStock.get(verifiedBootKey);
