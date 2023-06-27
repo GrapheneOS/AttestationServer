@@ -271,7 +271,7 @@ function fetchDevices() {
                     label = " (persistent Auditor key)";
                 } else if (length == 5 && i == 1) {
                     label = " (persistent Auditor attest key)";
-                } else if (i == length - 3) {
+                } else if (length == 4 && i == length - 3) {
                     label = " (batch)";
                 } else if (i == length - 2) {
                     label = " (intermediate)";
