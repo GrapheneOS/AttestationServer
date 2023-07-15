@@ -411,10 +411,14 @@ public class AttestationServer {
     private static class StatusHandler extends AppPostHandler {
         @Override
         public final void handlePost(final HttpExchange exchange) throws IOException {
-            final byte[] response = "success\n".getBytes();
-            exchange.sendResponseHeaders(200, response.length);
-            try (final OutputStream output = exchange.getResponseBody()) {
-                output.write(response);
+            final JsonObjectBuilder status = Json.createObjectBuilder();
+            status.add("health", true);
+
+            exchange.getResponseHeaders().set("Content-Type", "application/json");
+            exchange.sendResponseHeaders(200, 0);
+            try (final OutputStream output = exchange.getResponseBody();
+                    final JsonWriter writer = Json.createWriter(output)) {
+                writer.write(status.build());
             }
         }
     }
