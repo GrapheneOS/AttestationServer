@@ -269,7 +269,7 @@ function fetchDevices() {
                 let label = "";
                 if (i == 0) {
                     label = " (persistent Auditor key)";
-                } else if (length == 5 && i == 1) {
+                } else if (device.attestKey && i == 1) {
                     label = " (persistent Auditor attest key)";
                 } else if (length == 4 && i == length - 3) {
                     label = " (batch)";
