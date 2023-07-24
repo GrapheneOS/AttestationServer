@@ -271,8 +271,8 @@ function fetchDevices() {
                     label = " (persistent Auditor key)";
                 } else if (device.attestKey && i == 1) {
                     label = " (persistent Auditor attest key)";
-                } else if (length == 4 + device.attestKey && i == length - 3) {
-                    label = " (batch)";
+                } else if (i == 1 + device.attestKey) {
+                    label = length > 4 + device.attestKey ? " (remotely provisioned)" : " (batch)";
                 } else if (i == length - 2) {
                     label = " (intermediate)";
                 } else if (i == length - 1) {
