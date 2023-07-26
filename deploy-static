@@ -25,14 +25,14 @@ echo target is $target
 echo
 
 ssh $remote "rm -rf $target && cp -a $active $target"
-rsync -rptcv --fsync --chmod=D755,F644 --delete static-tmp/ $remote:$target
+rsync -rptcv --chmod=D755,F644 --delete --fsync --preallocate static-tmp/ $remote:$target
 ssh $remote "ln -snf $target /srv/attestation.app && sync /srv/attestation.app"
 
 echo "root $target;" > nginx-tmp/root_attestation.app.conf
-rsync -rptcv --fsync --chmod=D755,F644 --delete nginx-tmp/{nginx.conf,mime.types,root_attestation.app.conf,snippets} $remote:/etc/nginx/
-rsync -ptcv --fsync --chmod=755 {local-backup,remote-backup} $remote:/usr/local/bin/
-rsync -ptcv --fsync --chmod=644 systemd/system/remote-backup.timer $remote:/etc/systemd/system/remote-backup.timer
-rsync -ptcv --fsync --chmod=644 systemd/system/remote-backup.service $remote:/etc/systemd/system/remote-backup.service
+rsync -rptcv --chmod=D755,F644 --delete --fsync --preallocate nginx-tmp/{nginx.conf,mime.types,root_attestation.app.conf,snippets} $remote:/etc/nginx/
+rsync -ptcv --chmod=755 --fsync --preallocate {local-backup,remote-backup} $remote:/usr/local/bin/
+rsync -ptcv --chmod=644 --fsync --preallocate systemd/system/remote-backup.timer $remote:/etc/systemd/system/remote-backup.timer
+rsync -ptcv --chmod=644 --fsync --preallocate systemd/system/remote-backup.service $remote:/etc/systemd/system/remote-backup.service
 ssh $remote nginx -s reload
 
 echo
