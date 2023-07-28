@@ -1113,7 +1113,7 @@ public class AttestationServer {
                     if (info == null) {
                         info = fingerprintsStrongBoxStock.get(verifiedBootKey);
                         if (info == null) {
-                            throw new RuntimeException("invalid fingerprint");
+                            info = AttestationProtocol.GENERIC_DEVICE_STRONGBOX_STOCK;
                         }
                     }
                 } else {
@@ -1121,7 +1121,7 @@ public class AttestationServer {
                     if (info == null) {
                         info = fingerprintsStock.get(verifiedBootKey);
                         if (info == null) {
-                            throw new RuntimeException("invalid fingerprint");
+                            info = AttestationProtocol.GENERIC_DEVICE_STOCK;
                         }
                     }
                 }

@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.PublicKey;
 import java.security.SecureRandom;
@@ -34,6 +35,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
@@ -1408,6 +1410,25 @@ class AttestationProtocol {
             throw new GeneralSecurityException("non-StrongBox security level for device supporting it");
         }
 
+        // Device info checks
+        final String manufacturer = new String(teeEnforced.attestationIdManufacturer.orElse(new byte[0]), StandardCharsets.UTF_8);
+        final String model = new String(teeEnforced.attestationIdModel.orElse(new byte[0]), StandardCharsets.UTF_8);
+        final String deviceNameTee = manufacturer.isEmpty() && model.isEmpty() ? "" : manufacturer + " " + model;
+        final String deviceName;
+        if (device.isGeneric()) {
+            deviceName = deviceNameTee.isBlank() ? DEVICE_GENERIC_UNKNOWN : deviceNameTee;
+        } else {
+            final String deviceNameRes = device.name;
+            if (!deviceNameRes.startsWith(manufacturer)) {
+                throw new GeneralSecurityException("pinned device name must start with manufacturer name");
+            }
+            if (Stream.of(deviceNameRes.substring(manufacturer.length() + 1)
+                    .split(" / ")).noneMatch(str -> str.startsWith(model))) {
+                throw new GeneralSecurityException("model device name not found");
+            }
+            deviceName = deviceNameTee.isBlank() ? deviceNameRes : deviceNameTee;
+        }
+
         // OS version sanity checks
         final int osVersion = teeEnforced.osVersion.orElse(0);
         if (osVersion < OS_VERSION_MINIMUM) {
@@ -1556,7 +1577,7 @@ class AttestationProtocol {
             throw new GeneralSecurityException("only initial key and attest key should have attestation extension");
         }
 
-        return new Verified(device.name, verifiedBootKey, verifiedBootHash, device.osName,
+        return new Verified(deviceName, verifiedBootKey, verifiedBootHash, device.osName,
                 osVersion, osPatchLevel, vendorPatchLevel, bootPatchLevel, appVersion, appVariant,
                 ParsedAttestationRecord.securityLevelToInt(attestationSecurityLevelEnum), attestKey);
     }
