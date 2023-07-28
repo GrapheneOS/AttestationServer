@@ -250,9 +250,18 @@ class AttestationProtocol {
     private static final String DEVICE_LM_Q720 = "LG Stylo 5 (LM-Q720)";
     private static final String DEVICE_LG_Q710AL = "LG Q Stylo 4 (LG-Q710AL)";
     private static final String DEVICE_RMX1941 = "Realme C2 (RMX1941)";
+    static final String DEVICE_GENERIC_UNKNOWN = "Unknown non-Pixel device";
 
     private static final String OS_STOCK = "Stock";
     private static final String OS_GRAPHENE = "GrapheneOS";
+    private static final String OS_STOCK_GENERIC = "Stock (Generic)";
+
+    // Some Android 10 devices, including past supported devices above, has attestationVersion, keymasterVersion of 1.
+    // TODO: Remove non-generic device support past EoL with latest Android version lower than Android 10.
+    static final DeviceInfo GENERIC_DEVICE_STOCK =
+            new DeviceInfo(DEVICE_GENERIC_UNKNOWN, 1, 1, false, false, OS_STOCK_GENERIC);
+    static final DeviceInfo GENERIC_DEVICE_STRONGBOX_STOCK =
+            new DeviceInfo(DEVICE_GENERIC_UNKNOWN, 1, 1, false, true, OS_STOCK_GENERIC);
 
     static class DeviceInfo {
         final String name;
@@ -272,6 +281,11 @@ class AttestationProtocol {
             this.rollbackResistant = rollbackResistant;
             this.enforceStrongBox = enforceStrongBox;
             this.osName = osName;
+        }
+
+        // Generic device info always have false rollback resistance, and skips boot and vendor patch level checks.
+        boolean isGeneric() {
+            return GENERIC_DEVICE_STOCK.equals(this) || GENERIC_DEVICE_STRONGBOX_STOCK.equals(this);
         }
     }
 
@@ -1376,16 +1390,16 @@ class AttestationProtocol {
             }
         } else if (verifiedBootState == RootOfTrust.VerifiedBootState.VERIFIED) {
             if (attestationSecurityLevelEnum == ParsedAttestationRecord.SecurityLevel.STRONG_BOX) {
-                device = fingerprintsStrongBoxStock.get(verifiedBootKey);
+                device = fingerprintsStrongBoxStock.getOrDefault(verifiedBootKey, GENERIC_DEVICE_STRONGBOX_STOCK);
             } else {
-                device = fingerprintsStock.get(verifiedBootKey);
+                device = fingerprintsStock.getOrDefault(verifiedBootKey, GENERIC_DEVICE_STOCK);
             }
         } else {
             throw new GeneralSecurityException("verified boot state is not verified or self signed");
         }
 
         if (device == null) {
-            throw new GeneralSecurityException("invalid verified boot key fingerprint: " + verifiedBootKey);
+            throw new GeneralSecurityException("invalid self-signed verified boot key fingerprint: " + verifiedBootKey);
         }
 
         // enforce StrongBox for new pairings with devices supporting it
@@ -1404,11 +1418,13 @@ class AttestationProtocol {
             throw new GeneralSecurityException("OS patch level too old: " + osPatchLevel);
         }
         final int vendorPatchLevel = teeEnforced.vendorPatchLevel.orElse(0);
-        if (vendorPatchLevel < VENDOR_PATCH_LEVEL_MINIMUM && !extraPatchLevelMissing.contains(device.name)) {
+        if (vendorPatchLevel < VENDOR_PATCH_LEVEL_MINIMUM && !extraPatchLevelMissing.contains(device.name)
+                && !device.isGeneric()) {
             throw new GeneralSecurityException("Vendor patch level too old: " + vendorPatchLevel);
         }
         final int bootPatchLevel = teeEnforced.bootPatchLevel.orElse(0);
-        if (bootPatchLevel < BOOT_PATCH_LEVEL_MINIMUM && !extraPatchLevelMissing.contains(device.name)) {
+        if (bootPatchLevel < BOOT_PATCH_LEVEL_MINIMUM && !extraPatchLevelMissing.contains(device.name)
+                && !device.isGeneric()) {
             throw new GeneralSecurityException("Boot patch level too old: " + bootPatchLevel);
         }
 
