@@ -12,9 +12,9 @@ cached-property==1.5.2 \
     --hash=sha256:9fa5755838eecbb2d234c3aa390bd80fbd3ac6b6869109bfc1b499f7bd89a130 \
     --hash=sha256:df4f613cf7ad9a588cc381aaf4a512d26265ecebd5eb9e1ba12f1319eb85a6a0
     # via gixy
-configargparse==1.5.5 \
-    --hash=sha256:363d80a6d35614bd446e2f2b1b216f3b33741d03ac6d0a92803306f40e555b58 \
-    --hash=sha256:541360ddc1b15c517f95c0d02d1fca4591266628f3667acdc5d13dccc78884ca
+configargparse==1.7 \
+    --hash=sha256:d249da6591465c6c26df64a9f73d2536e743be2f244eb3ebe61114af2f94f86b \
+    --hash=sha256:e7067471884de5478c58a511e529f0f9bd1c66bfef1dea90935438d6c23306d1
     # via gixy
 gixy==0.1.20 \
     --hash=sha256:0ad96e4a75e6c89fe2f03f496d0fee3bfe958beb2933c6fe9ff72d3c2e222bb4 \
