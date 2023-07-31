@@ -1683,6 +1683,8 @@ class AttestationProtocol {
 
             Certificate[] pinnedCertificates = null;
             byte[] pinnedVerifiedBootKey = null;
+            String pinnedDeviceManufacturer = null;
+            String pinnedDeviceModel = null;
             int pinnedOsVersion = Integer.MAX_VALUE;
             int pinnedOsPatchLevel = Integer.MAX_VALUE;
             int pinnedVendorPatchLevel = 0;
@@ -1692,7 +1694,8 @@ class AttestationProtocol {
             int pinnedSecurityLevel = 1;
             if (hasPersistentKey) {
                 final SQLiteStatement st = conn.prepare("SELECT pinnedCertificates, " +
-                        "pinnedVerifiedBootKey, pinnedOsVersion, pinnedOsPatchLevel, " +
+                        "pinnedVerifiedBootKey, pinnedDeviceManufacturer, pinnedDeviceModel, " +
+                        "pinnedOsVersion, pinnedOsPatchLevel, " +
                         "pinnedVendorPatchLevel, pinnedBootPatchLevel, pinnedAppVersion, pinnedAppVariant, " +
                         "pinnedSecurityLevel, userId " +
                         "FROM Devices WHERE fingerprint = ?");
@@ -1705,14 +1708,16 @@ class AttestationProtocol {
                             throw new IOException(e);
                         }
                         pinnedVerifiedBootKey = st.columnBlob(1);
-                        pinnedOsVersion = st.columnInt(2);
-                        pinnedOsPatchLevel = st.columnInt(3);
-                        pinnedVendorPatchLevel = st.columnInt(4);
-                        pinnedBootPatchLevel = st.columnInt(5);
-                        pinnedAppVersion = st.columnInt(6);
-                        pinnedAppVariant = st.columnInt(7);
-                        pinnedSecurityLevel = st.columnInt(8);
-                        if (userId != st.columnLong(9)) {
+                        pinnedDeviceManufacturer = st.columnString(2);
+                        pinnedDeviceModel = st.columnString(3);
+                        pinnedOsVersion = st.columnInt(4);
+                        pinnedOsPatchLevel = st.columnInt(5);
+                        pinnedVendorPatchLevel = st.columnInt(6);
+                        pinnedBootPatchLevel = st.columnInt(7);
+                        pinnedAppVersion = st.columnInt(8);
+                        pinnedAppVariant = st.columnInt(9);
+                        pinnedSecurityLevel = st.columnInt(10);
+                        if (userId != st.columnLong(11)) {
                             throw new GeneralSecurityException("wrong userId");
                         }
                     } else {
@@ -1821,41 +1826,50 @@ class AttestationProtocol {
 
                 final SQLiteStatement insert = conn.prepare("INSERT INTO Devices " +
                         "(fingerprint, pinnedCertificates, attestKey, pinnedVerifiedBootKey, " +
-                        "verifiedBootHash, pinnedOsVersion, pinnedOsPatchLevel, " +
+                        "verifiedBootHash, pinnedDeviceManufacturer, pinnedDeviceModel, " +
+                        "pinnedOsVersion, pinnedOsPatchLevel, " +
                         "pinnedVendorPatchLevel, pinnedBootPatchLevel, pinnedAppVersion, pinnedAppVariant, pinnedSecurityLevel, " +
                         "userProfileSecure, enrolledBiometrics, accessibility, deviceAdmin, " +
                         "adbEnabled, addUsersWhenLocked, denyNewUsb, oemUnlockAllowed, systemUser, " +
                         "verifiedTimeFirst, verifiedTimeLast, userId) " +
-                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 try {
                     insert.bind(1, fingerprint);
+                    if (!verified.device.startsWith(DEVICE_GENERIC_UNKNOWN)) {
+                        String[] deviceInfo = verified.device.split(" ", 2);
+                        if (deviceInfo.length != 2) {
+                            throw new GeneralSecurityException("device name must contain both manufacturer and model");
+                        }
+                        insert.bind(6, deviceInfo[0]);
+                        insert.bind(7, deviceInfo[1]);
+                    }
                     insert.bind(2, encodeChain(DEFLATE_DICTIONARY_2, attestationCertificates));
                     insert.bind(3, verified.attestKey ? 1 : 0);
                     insert.bind(4, verifiedBootKey);
                     insert.bind(5, verified.verifiedBootHash);
-                    insert.bind(6, verified.osVersion);
-                    insert.bind(7, verified.osPatchLevel);
+                    insert.bind(8, verified.osVersion);
+                    insert.bind(9, verified.osPatchLevel);
                     if (verified.vendorPatchLevel != 0) {
-                        insert.bind(8, verified.vendorPatchLevel);
+                        insert.bind(10, verified.vendorPatchLevel);
                     }
                     if (verified.bootPatchLevel != 0) {
-                        insert.bind(9, verified.bootPatchLevel);
+                        insert.bind(11, verified.bootPatchLevel);
                     }
-                    insert.bind(10, verified.appVersion);
-                    insert.bind(11, verified.appVariant);
-                    insert.bind(12, verified.securityLevel);
-                    insert.bind(13, userProfileSecure ? 1 : 0);
-                    insert.bind(14, enrolledBiometrics ? 1 : 0);
-                    insert.bind(15, accessibility ? 1 : 0);
-                    insert.bind(16, deviceAdmin ? (deviceAdminNonSystem ? 2 : 1) : 0);
-                    insert.bind(17, adbEnabled ? 1 : 0);
-                    insert.bind(18, addUsersWhenLocked ? 1 : 0);
-                    insert.bind(19, denyNewUsb ? 1 : 0);
-                    insert.bind(20, oemUnlockAllowed ? 1 : 0);
-                    insert.bind(21, systemUser ? 1 : 0);
-                    insert.bind(22, now);
-                    insert.bind(23, now);
-                    insert.bind(24, userId);
+                    insert.bind(12, verified.appVersion);
+                    insert.bind(13, verified.appVariant);
+                    insert.bind(14, verified.securityLevel);
+                    insert.bind(15, userProfileSecure ? 1 : 0);
+                    insert.bind(16, enrolledBiometrics ? 1 : 0);
+                    insert.bind(17, accessibility ? 1 : 0);
+                    insert.bind(18, deviceAdmin ? (deviceAdminNonSystem ? 2 : 1) : 0);
+                    insert.bind(19, adbEnabled ? 1 : 0);
+                    insert.bind(20, addUsersWhenLocked ? 1 : 0);
+                    insert.bind(21, denyNewUsb ? 1 : 0);
+                    insert.bind(22, oemUnlockAllowed ? 1 : 0);
+                    insert.bind(23, systemUser ? 1 : 0);
+                    insert.bind(24, now);
+                    insert.bind(25, now);
+                    insert.bind(26, userId);
                     insert.step();
                 } finally {
                     insert.dispose();

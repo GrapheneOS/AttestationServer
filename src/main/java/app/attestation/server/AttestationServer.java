@@ -174,6 +174,8 @@ public class AttestationServer {
                 "attestKey INTEGER NOT NULL CHECK (attestKey in (0, 1)),\n" +
                 "pinnedVerifiedBootKey BLOB NOT NULL,\n" +
                 "verifiedBootHash BLOB,\n" +
+                "pinnedDeviceManufacturer TEXT,\n" +
+                "pinnedDeviceModel TEXT,\n" +
                 "pinnedOsVersion INTEGER NOT NULL,\n" +
                 "pinnedOsPatchLevel INTEGER NOT NULL,\n" +
                 "pinnedVendorPatchLevel INTEGER,\n" +
@@ -291,7 +293,7 @@ public class AttestationServer {
         try {
             final SQLiteStatement selectCreated = attestationConn.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='Configuration'");
             if (!selectCreated.step()) {
-                attestationConn.exec("PRAGMA user_version = 11");
+                attestationConn.exec("PRAGMA user_version = 12");
             }
             selectCreated.dispose();
 
@@ -303,6 +305,50 @@ public class AttestationServer {
             if (userVersion < 11) {
                 throw new RuntimeException(ATTESTATION_DATABASE + " database schemas older than version 10 are no longer " +
                         "supported. Use an older AttestationServer revision to upgrade.");
+            }
+
+            if (userVersion < 12) {
+                attestationConn.exec("PRAGMA foreign_keys = OFF");
+                attestationConn.exec("BEGIN IMMEDIATE TRANSACTION");
+
+                attestationConn.exec("ALTER TABLE Devices RENAME TO OldDevices");
+                attestationConn.exec("ALTER TABLE Attestations RENAME TO OldAttestations");
+                createAttestationTables(attestationConn);
+
+                attestationConn.exec("INSERT INTO Devices " +
+                        "(fingerprint, pinnedCertificates, attestKey, pinnedVerifiedBootKey, verifiedBootHash, pinnedDeviceManufacturer, pinnedDeviceModel, " +
+                        "pinnedOsVersion, pinnedOsPatchLevel, pinnedVendorPatchLevel, pinnedBootPatchLevel, pinnedAppVersion, " +
+                        "pinnedAppVariant, pinnedSecurityLevel, userProfileSecure, enrolledBiometrics, accessibility, " +
+                        "deviceAdmin, adbEnabled, addUsersWhenLocked, denyNewUsb, oemUnlockAllowed, systemUser, verifiedTimeFirst, " +
+                        "verifiedTimeLast, expiredTimeLast, failureTimeLast, userId, deletionTime) " +
+                        "SELECT " +
+                        "fingerprint, pinnedCertificates, attestKey, pinnedVerifiedBootKey, verifiedBootHash, " +
+                        "NULL, NULL, " +
+                        "pinnedOsVersion, pinnedOsPatchLevel, pinnedVendorPatchLevel, pinnedBootPatchLevel, pinnedAppVersion, " +
+                        "pinnedAppVariant, pinnedSecurityLevel, userProfileSecure, enrolledBiometrics, accessibility, deviceAdmin, adbEnabled, " +
+                        "addUsersWhenLocked, denyNewUsb, oemUnlockAllowed, systemUser, verifiedTimeFirst, verifiedTimeLast, " +
+                        "expiredTimeLast, failureTimeLast, userId, deletionTime " +
+                        "FROM OldDevices");
+
+                attestationConn.exec("INSERT INTO Attestations " +
+                        "(id, fingerprint, time, strong, osVersion, osPatchLevel, vendorPatchLevel, " +
+                        "bootPatchLevel, verifiedBootHash, appVersion, userProfileSecure, enrolledBiometrics, " +
+                        "accessibility, deviceAdmin, adbEnabled, addUsersWhenLocked, denyNewUsb, oemUnlockAllowed, systemUser) " +
+                        "SELECT " +
+                        "id, fingerprint, time, strong, osVersion, osPatchLevel, vendorPatchLevel, " +
+                        "bootPatchLevel, verifiedBootHash, appVersion, userProfileSecure, enrolledBiometrics," +
+                        " accessibility, deviceAdmin, adbEnabled, addUsersWhenLocked, denyNewUsb, oemUnlockAllowed, systemUser " +
+                        "FROM OldAttestations");
+
+                attestationConn.exec("DROP TABLE OldDevices");
+                attestationConn.exec("DROP TABLE OldAttestations");
+
+                createAttestationIndices(attestationConn);
+                attestationConn.exec("PRAGMA user_version = 12");
+                attestationConn.exec("COMMIT TRANSACTION");
+                userVersion = 12;
+                attestationConn.exec("PRAGMA foreign_keys = ON");
+                logger.info("Migrated to schema version: " + userVersion);
             }
 
             logger.info("Finished database setup for " + ATTESTATION_DATABASE);
@@ -1078,6 +1124,7 @@ public class AttestationServer {
         final SQLiteStatement select = conn.prepare("SELECT fingerprint, " +
                 "pinnedCertificates, attestKey, hex(pinnedVerifiedBootKey), " +
                 "(SELECT hex(verifiedBootHash) WHERE verifiedBootHash IS NOT NULL), " +
+                "pinnedDeviceManufacturer, pinnedDeviceModel , " +
                 "pinnedOsVersion, pinnedOsPatchLevel, pinnedVendorPatchLevel, " +
                 "pinnedBootPatchLevel, pinnedAppVersion, pinnedAppVariant, pinnedSecurityLevel, " +
                 "userProfileSecure, enrolledBiometrics, accessibility, deviceAdmin, " +
@@ -1107,7 +1154,7 @@ public class AttestationServer {
                 final String verifiedBootKey = select.columnString(3);
                 device.add("verifiedBootKey", verifiedBootKey);
                 DeviceInfo info;
-                final int pinnedSecurityLevel = select.columnInt(11);
+                final int pinnedSecurityLevel = select.columnInt(13);
                 if (pinnedSecurityLevel == ParsedAttestationRecord.securityLevelToInt(ParsedAttestationRecord.SecurityLevel.STRONG_BOX)) {
                     info = fingerprintsStrongBoxCustomOS.get(verifiedBootKey);
                     if (info == null) {
@@ -1126,34 +1173,40 @@ public class AttestationServer {
                     }
                 }
                 device.add("osName", info.osName);
-                device.add("name", info.name);
+                if (!select.columnNull(5) && !select.columnNull(6)) {
+                    device.add("name", select.columnString(5) + " " + select.columnString(6));
+                } else if (info.isGeneric()) {
+                    device.add("name", AttestationProtocol.DEVICE_GENERIC_UNKNOWN);
+                } else {
+                    device.add("name", info.name);
+                }
                 if (!select.columnNull(4)) {
                     device.add("verifiedBootHash", select.columnString(4));
                 }
-                device.add("pinnedOsVersion", select.columnInt(5));
-                device.add("pinnedOsPatchLevel", select.columnInt(6));
-                if (!select.columnNull(7)) {
-                    device.add("pinnedVendorPatchLevel", select.columnInt(7));
+                device.add("pinnedOsVersion", select.columnInt(7));
+                device.add("pinnedOsPatchLevel", select.columnInt(8));
+                if (!select.columnNull(9)) {
+                    device.add("pinnedVendorPatchLevel", select.columnInt(9));
                 }
-                if (!select.columnNull(8)) {
-                    device.add("pinnedBootPatchLevel", select.columnInt(8));
+                if (!select.columnNull(10)) {
+                    device.add("pinnedBootPatchLevel", select.columnInt(10));
                 }
-                device.add("pinnedAppVersion", select.columnInt(9));
-                device.add("pinnedAppVariant", select.columnInt(10));
+                device.add("pinnedAppVersion", select.columnInt(11));
+                device.add("pinnedAppVariant", select.columnInt(12));
                 device.add("pinnedSecurityLevel", pinnedSecurityLevel);
-                device.add("userProfileSecure", select.columnInt(12));
-                device.add("enrolledBiometrics", select.columnInt(13));
-                device.add("accessibility", select.columnInt(14));
-                device.add("deviceAdmin", select.columnInt(15));
-                device.add("adbEnabled", select.columnInt(16));
-                device.add("addUsersWhenLocked", select.columnInt(17));
-                device.add("denyNewUsb", select.columnInt(18));
-                device.add("oemUnlockAllowed", select.columnInt(19));
-                device.add("systemUser", select.columnInt(20));
-                device.add("verifiedTimeFirst", select.columnLong(21));
-                device.add("verifiedTimeLast", select.columnLong(22));
-                device.add("minId", select.columnLong(23));
-                device.add("maxId", select.columnLong(24));
+                device.add("userProfileSecure", select.columnInt(14));
+                device.add("enrolledBiometrics", select.columnInt(15));
+                device.add("accessibility", select.columnInt(16));
+                device.add("deviceAdmin", select.columnInt(17));
+                device.add("adbEnabled", select.columnInt(18));
+                device.add("addUsersWhenLocked", select.columnInt(19));
+                device.add("denyNewUsb", select.columnInt(20));
+                device.add("oemUnlockAllowed", select.columnInt(21));
+                device.add("systemUser", select.columnInt(22));
+                device.add("verifiedTimeFirst", select.columnLong(23));
+                device.add("verifiedTimeLast", select.columnLong(24));
+                device.add("minId", select.columnLong(25));
+                device.add("maxId", select.columnLong(26));
                 devices.add(device);
             }
         } finally {
