@@ -1529,14 +1529,12 @@ class AttestationProtocol {
     // certificates are short lived when remote provisioning is in use and we prevent rotation by
     // using the attest key feature to provide permanent pairing-specific certificate chains in
     // order to pin them.
-    private static void verifyCertificateSignatures(Certificate[] certChain, final boolean hasPersistentKey)
+    private static void verifyCertificateSignatures(final Certificate[] certChain, final boolean hasPersistentKey)
             throws GeneralSecurityException {
         for (int i = 1; i < certChain.length; ++i) {
             try {
-                if (i != 1) {
-                    if (i == 1 || !hasPersistentKey) {
-                        ((X509Certificate) certChain[i - 1]).checkValidity();
-                    }
+                if (i == 1 || !hasPersistentKey) {
+                    ((X509Certificate) certChain[i - 1]).checkValidity();
                 }
                 certChain[i - 1].verify(certChain[i].getPublicKey());
             } catch (final GeneralSecurityException e) {
