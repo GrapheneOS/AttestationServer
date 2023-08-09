@@ -116,6 +116,7 @@ class AttestationProtocol {
     private static final int FINGERPRINT_LENGTH = FINGERPRINT_HASH_FUNCTION.bits() / 8;
 
     private static final boolean PREFER_STRONGBOX = true;
+    private static final boolean PREFER_CHECK_VALIDITY_LEAF_CERT = true;
 
     // Challenge message:
     //
@@ -912,7 +913,7 @@ class AttestationProtocol {
             throws GeneralSecurityException {
         for (int i = 1; i < certChain.length; ++i) {
             try {
-                if (i == 1 || !hasPersistentKey) {
+                if ((i == 1 && PREFER_CHECK_VALIDITY_LEAF_CERT) || !hasPersistentKey) {
                     ((X509Certificate) certChain[i - 1]).checkValidity();
                 }
                 certChain[i - 1].verify(certChain[i].getPublicKey());
