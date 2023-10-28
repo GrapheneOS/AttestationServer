@@ -128,7 +128,7 @@ class AttestationProtocol {
     private static final int MAX_ENCODED_CHAIN_LENGTH = 5000;
     static final int MAX_MESSAGE_SIZE = 2953;
 
-    private static final boolean PREFER_CHECK_LEAF_VALIDITY_CERT = true;
+    private static final boolean PREFER_CHECK_LEAF_VALIDITY_CERT = false;
 
     private static final int OS_ENFORCED_FLAGS_NONE = 0;
     private static final int OS_ENFORCED_FLAGS_USER_PROFILE_SECURE = 1;
