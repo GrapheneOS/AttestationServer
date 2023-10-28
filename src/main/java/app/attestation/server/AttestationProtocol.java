@@ -128,6 +128,8 @@ class AttestationProtocol {
     private static final int MAX_ENCODED_CHAIN_LENGTH = 5000;
     static final int MAX_MESSAGE_SIZE = 2953;
 
+    private static final boolean PREFER_CHECK_LEAF_VALIDITY_CERT = true;
+
     private static final int OS_ENFORCED_FLAGS_NONE = 0;
     private static final int OS_ENFORCED_FLAGS_USER_PROFILE_SECURE = 1;
     private static final int OS_ENFORCED_FLAGS_ACCESSIBILITY = 1 << 1;
@@ -1551,8 +1553,10 @@ class AttestationProtocol {
             throws GeneralSecurityException {
         for (int i = 1; i < certChain.length; ++i) {
             try {
-                if (i == 1 || !hasPersistentKey) {
-                    ((X509Certificate) certChain[i - 1]).checkValidity();
+                if (i != 1 || PREFER_CHECK_LEAF_VALIDITY_CERT) {
+                    if (i == 1 || !hasPersistentKey) {
+                        ((X509Certificate) certChain[i - 1]).checkValidity();
+                    }
                 }
                 certChain[i - 1].verify(certChain[i].getPublicKey());
             } catch (final GeneralSecurityException e) {
