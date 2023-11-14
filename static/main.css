@@ -88,6 +88,10 @@ main {
     text-align: center;
 }
 
+button, input, select, textarea {
+    font-family: inherit;
+}
+
 button {
     color: white;
     font-size: 0.9em;
