@@ -2,6 +2,7 @@
 
 const fingerprintSplitInterval = 4;
 const createForm = document.getElementById("create_form");
+const createFormContent = document.getElementById("create_form_content");
 const createUsername = document.getElementById("create_username");
 const createPassword = document.getElementById("create_password");
 const createPasswordConfirm = document.getElementById("create_password_confirm");
@@ -354,7 +355,7 @@ post("/api/account").then(response => {
 
 document.getElementById("create").onclick = () => {
     loggedOutButtons.hidden = true;
-    createForm.hidden = false;
+    createFormContent.hidden = false;
 };
 
 createPasswordConfirm.oninput = () => {
@@ -444,7 +445,7 @@ createForm.onsubmit = event => {
             }
             return Promise.reject(new Error(response.status));
         }
-        createForm.hidden = true;
+        createFormContent.hidden = true;
         createForm.reset();
         createForm.submit.disabled = false;
         loggedOutButtons.hidden = false;
@@ -469,7 +470,11 @@ loginForm.onsubmit = event => {
 
 for (const cancel of document.getElementsByClassName("cancel")) {
     cancel.onclick = function() {
-        this.parentElement.hidden = true;
+        if (createFormContent.contains(this.parentElement)) {
+            createFormContent.hidden = true;
+        } else {
+            this.parentElement.hidden = true;
+        }
         this.parentElement.reset();
         loggedOutButtons.hidden = false;
     };

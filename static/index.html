@@ -44,8 +44,13 @@
             </nav>
         </header>
         <main>
+            <h1 id="device-integrity-monitoring">
+                <a href="#device-integrity-monitoring">Device integrity monitoring</a>
+            </h1>
+            <p>Hardware-based remote attestation service for monitoring the security of Android devices using <a href="https://play.google.com/store/apps/details?id=app.attestation.auditor.play">the Auditor app</a>. For more details, see the <a href="/about">detailed description of the app and service</a> and the <a href="/tutorial">usage instructions</a>.</p>
+            <hr/>
             <noscript><p><strong>JavaScript is required to use the device integrity monitoring application.</strong></p></noscript>
-            <span id="login_status" hidden="">Logged in as <strong id="username"></strong>.</span>
+            <span id="login_status" hidden="">You are logged in as <strong id="username"></strong>.<br/><br/></span>
             <span id="logged_out_buttons" hidden="">
                 <button id="create">Create account</button>
                 <button id="login">Log in</button>
@@ -55,49 +60,53 @@
                 <button id="logout_everywhere" class="logout">Log out everywhere</button>
                 <button id="change_password">Change password</button>
             </span>
-            <form id="create_form" hidden="">
-                <h3>Create account:</h3>
-                <label>Username: <input id="create_username" type="text" autocomplete="username" maxlength="32" pattern="[a-zA-Z0-9]+" required="required"/></label><br/>
-                <label>Password: <input id="create_password" type="password" autocomplete="new-password" maxlength="256" minlength="8" required="required"/></label><br/>
-                <label>Confirm password: <input id="create_password_confirm" type="password" autocomplete="new-password" maxlength="256" minlength="8" required="required"/></label><br/>
-                <p>For security reasons, accounts are not tied to email addresses. Adding an alert email to your account does not provide a recovery method. If you forget your password, you'll need to make a new account and move your devices over to it.</p>
-                <p>Accounts with no paired devices are deleted after 365 days without a successful login. Paired devices expire after 90 days without submitting a valid attestation.</p>
-                <button name="submit">Create account</button>
-                <button type="button" class="cancel">Cancel</button>
-            </form>
-            <form id="login_form" hidden="">
-                <h3>Login:</h3>
-                <label>Username: <input id="login_username" type="text" autocomplete="username" maxlength="32" pattern="[a-zA-Z0-9]+" required="required"/></label><br/>
-                <label>Password: <input id="login_password" type="password" autocomplete="current-password" maxlength="256" minlength="8" required="required"/></label><br/>
+            <div id="create_form_content" hidden="">
+                <form id="create_form" class="centered-box">
+                    <h2>Create account</h2>
+                    <label>Username<br/><input id="create_username" type="text" autocomplete="username" maxlength="32" pattern="[a-zA-Z0-9]+" required="required"/></label><br/>
+                    <label>Password<br/><input id="create_password" type="password" autocomplete="new-password" maxlength="256" minlength="8" required="required"/></label><br/>
+                    <label>Confirm password<br/><input id="create_password_confirm" type="password" autocomplete="new-password" maxlength="256" minlength="8" required="required"/></label><br/><br/>
+                    <button name="submit">Create account</button>
+                    <button type="button" class="cancel">Cancel</button>
+                </form><br/>
+                <details>
+                    <summary class="centered-text">Further information about accounts</summary>
+                    <div>
+                        <p>For security reasons, accounts are not tied to email addresses. Adding an alert email to your account does not provide a recovery method. If you forget your password, you'll need to make a new account and move your devices over to it.</p>
+                        <p>Accounts with no paired devices are deleted after 365 days without a successful login. Paired devices expire after 90 days without submitting a valid attestation.</p>
+                    </div>
+                </details>
+            </div>
+            <form id="login_form" class="centered-box" hidden="">
+                <h2>Login</h2>
+                <label>Username<br/><input id="login_username" type="text" autocomplete="username" maxlength="32" pattern="[a-zA-Z0-9]+" required="required"/></label><br/>
+                <label>Password<br/><input id="login_password" type="password" autocomplete="current-password" maxlength="256" minlength="8" required="required"/></label><br/><br/>
                 <button name="submit">Log in</button>
                 <button type="button" class="cancel">Cancel</button>
             </form>
-            <form id="change_password_form" hidden="">
-                <h3>Change password:</h3>
+            <form id="change_password_form" class="centered-box" hidden="">
+                <h2>Change password</h2>
                 <!-- hint for password managers per https://www.chromium.org/developers/design-documents/create-amazing-password-forms -->
                 <input hidden="" id="current_username" type="text" autocomplete="username"/>
-                <label>Current password: <input id="current_password" type="password" autocomplete="current-password" maxlength="256" minlength="8" required="required"/></label><br/>
-                <label>New Password: <input id="new_password" type="password" autocomplete="new-password" maxlength="256" minlength="8" required="required"/></label><br/>
-                <label>Confirm new password: <input id="new_password_confirm" type="password" autocomplete="new-password" maxlength="256" minlength="8" required="required"/></label><br/>
+                <label>Current password<br/><input id="current_password" type="password" autocomplete="current-password" maxlength="256" minlength="8" required="required"/></label><br/>
+                <label>New Password<br/><input id="new_password" type="password" autocomplete="new-password" maxlength="256" minlength="8" required="required"/></label><br/>
+                <label>Confirm new password<br/><input id="new_password_confirm" type="password" autocomplete="new-password" maxlength="256" minlength="8" required="required"/></label><br/><br/>
                 <button name="submit">Change password</button>
                 <button type="button" class="cancel_account">Cancel</button>
             </form>
-            <h1 id="device-integrity-monitoring">
-                <a href="#device-integrity-monitoring">Device integrity monitoring</a>
-            </h1>
-            <p>Hardware-based remote attestation service for monitoring the security of Android devices using <a href="https://play.google.com/store/apps/details?id=app.attestation.auditor.play">the Auditor app</a>. For more details, see the <a href="/about">detailed description of the app and service</a> and the <a href="/tutorial">usage instructions</a>.</p>
             <div id="account_content" hidden="">
-                <p>Subscribe a device to regularly submitting attestations to this account by pressing 'Enable remote verification' in the Auditor app menu and scanning the QR code for this account:</p>
-                <section id="pairing">
+                <p>Subscribe a device to regularly submitting attestations to this account by pressing "Enable remote verification" in the Auditor app menu and scanning the QR code for this account.</p>
+                <section id="pairing" class="centered-box">
                     <h2><a href="#pairing">Pair devices</a></h2>
-                    <img id="qr" height="300" width="300" alt="" src="/placeholder.gif"/>
+                    <img id="qr" height="300" width="300" alt="" src="/placeholder.gif"/><br/>
                     <button id="rotate">Rotate device subscription key</button>
                 </section>
-                <form id="configuration">
+                <br/>
+                <form id="configuration" class="centered-box">
                     <h2><a href="#configuration">Configuration</a></h2>
-                    <label>Verify interval (hours): <input name="verify_interval" type="number" min="1" max="168" required="required"/></label><br/>
-                    <label>Permitted delay until alerts (hours): <input name="alert_delay" type="number" min="32" max="336" required="required"/></label><br/>
-                    <label>Alert email: <input name="email" type="email"/></label><br/>
+                    <label>Verify interval (hours)<br/><input name="verify_interval" type="number" min="1" max="168" required="required"/></label><br/>
+                    <label>Permitted delay until alerts (hours)<br/><input name="alert_delay" type="number" min="32" max="336" required="required"/></label><br/>
+                    <label>Alert email<br/><input name="email" type="email"/></label><br/><br/>
                     <button name="submit">Set configuration</button>
                 </form>
                 <div id="devices"></div>
