@@ -26,14 +26,18 @@ class ASN1Parsing {
   private ASN1Parsing() {}
 
   static boolean getBooleanFromAsn1(ASN1Encodable asn1Value) {
+    // AttestationServer-change START [1/2]: Provide a strict-by-default parsing of ASN1Encodable for boolean.
     return getBooleanFromAsn1(asn1Value, true);
   }
 
   static boolean getBooleanFromAsn1(ASN1Encodable asn1Value, boolean strict) {
+    // AttestationServer-change END [1/2]: Provide a strict-by-default parsing of ASN1Encodable for boolean.
     if (asn1Value instanceof ASN1Boolean) {
+      // AttestationServer-change START [2/2]: Provide a strict-by-default parsing of ASN1Encodable for boolean.
       if (strict) {
         return Utils.getBooleanFromAsn1Strict((ASN1Boolean) asn1Value);
       }
+      // AttestationServer-change END [2/2]: Provide a strict-by-default parsing of ASN1Encodable for boolean.
       return ((ASN1Boolean) asn1Value).isTrue();
     } else {
       throw new IllegalArgumentException(
@@ -42,19 +46,25 @@ class ASN1Parsing {
   }
 
   static int getIntegerFromAsn1(ASN1Encodable asn1Value) {
+    // AttestationServer-change START [1/3]: Provide a strict-by-default parsing of ASN1Encodable for integer.
     return getIntegerFromAsn1(asn1Value, true);
+    // AttestationServer-change END [1/3]: Provide a strict-by-default parsing of ASN1Encodable for integer.
   }
 
   static int getIntegerFromAsn1(ASN1Encodable asn1Value, boolean strict) {
     if (asn1Value instanceof ASN1Integer) {
+      // AttestationServer-change START [2/3]: Provide a strict-by-default parsing of ASN1Encodable for integer.
       if (strict) {
         return Utils.intValueFromBigIntegerStrict(((ASN1Integer) asn1Value).getValue());
       }
+      // AttestationServer-change END [2/3]: Provide a strict-by-default parsing of ASN1Encodable for integer.
       return ((ASN1Integer) asn1Value).getValue().intValueExact();
     } else if (asn1Value instanceof ASN1Enumerated) {
+      // AttestationServer-change START [3/3]: Provide a strict-by-default parsing of ASN1Encodable for integer.
       if (strict) {
         return Utils.intValueFromBigIntegerStrict(((ASN1Enumerated) asn1Value).getValue());
       }
+      // AttestationServer-change END [3/3]: Provide a strict-by-default parsing of ASN1Encodable for integer.
       return ((ASN1Enumerated) asn1Value).getValue().intValueExact();
     } else {
       throw new IllegalArgumentException(
