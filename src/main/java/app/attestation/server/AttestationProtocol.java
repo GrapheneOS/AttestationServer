@@ -9,11 +9,13 @@ import com.almworks.sqlite4java.SQLiteConnection;
 import com.almworks.sqlite4java.SQLiteException;
 import com.almworks.sqlite4java.SQLiteStatement;
 import com.github.benmanes.caffeine.cache.Cache;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import com.google.common.io.BaseEncoding;
+import com.google.protobuf.ByteString;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -1314,7 +1316,7 @@ class AttestationProtocol {
         }
 
         // prevent replay attacks
-        final byte[] challenge = attestation.attestationChallenge;
+        final byte[] challenge = attestation.attestationChallenge.toByteArray();
         if (pendingChallenges.asMap().remove(ByteBuffer.wrap(challenge)) == null) {
             throw new GeneralSecurityException("challenge not pending");
         }
@@ -1328,11 +1330,11 @@ class AttestationProtocol {
             throw new GeneralSecurityException("invalid number of attestation packages");
         }
         final AttestationPackageInfo info = infos.get(0);
-        final List<byte[]> signatureDigests = attestationApplicationId.signatureDigests;
+        final ImmutableList<ByteString> signatureDigests = attestationApplicationId.signatureDigests;
         if (signatureDigests.size() != 1) {
             throw new GeneralSecurityException("invalid number of Auditor app signatures");
         }
-        final String signatureDigest = BaseEncoding.base16().encode(signatureDigests.get(0));
+        final String signatureDigest = BaseEncoding.base16().encode(signatureDigests.get(0).toByteArray());
         final byte appVariant;
         final String packageName = info.packageName;
         if (AUDITOR_APP_PACKAGE_NAME_RELEASE.equals(packageName)) {
@@ -1373,7 +1375,7 @@ class AttestationProtocol {
         }
 
         final RootOfTrust.VerifiedBootState verifiedBootState = rootOfTrust.verifiedBootState;
-        final String verifiedBootKey = BaseEncoding.base16().encode(rootOfTrust.verifiedBootKey);
+        final String verifiedBootKey = BaseEncoding.base16().encode(rootOfTrust.verifiedBootKey.toByteArray());
         final DeviceInfo device;
         if (verifiedBootState == RootOfTrust.VerifiedBootState.SELF_SIGNED) {
             if (attestationSecurityLevelEnum == ParsedAttestationRecord.SecurityLevel.STRONG_BOX) {
@@ -1444,8 +1446,8 @@ class AttestationProtocol {
             throw new GeneralSecurityException("keymaster version " + keymasterVersion + " below " + device.keymasterVersion);
         }
 
-        final byte[] verifiedBootHash = rootOfTrust.verifiedBootHash.orElse(null);
-        if (attestationVersion >= 3 && verifiedBootHash == null) {
+        final byte[] verifiedBootHash = rootOfTrust.verifiedBootHash.orElse(ByteString.EMPTY).toByteArray();
+        if (attestationVersion >= 3 && verifiedBootHash.length == 0) {
             throw new GeneralSecurityException("verifiedBootHash expected for attestation version >= 3");
         }
 
@@ -1475,7 +1477,7 @@ class AttestationProtocol {
             if (rootOfTrust1.verifiedBootState != rootOfTrust.verifiedBootState) {
                 throw new GeneralSecurityException("attest key verified boot state does not match");
             }
-            if (!Arrays.equals(rootOfTrust1.verifiedBootKey, rootOfTrust.verifiedBootKey)) {
+            if (!Arrays.equals(rootOfTrust1.verifiedBootKey.toByteArray(), rootOfTrust.verifiedBootKey.toByteArray())) {
                 throw new GeneralSecurityException("attest key verified boot key does not match");
             }
 
@@ -1494,7 +1496,7 @@ class AttestationProtocol {
             }
 
             if (!hasPersistentKey) {
-                if (!Arrays.equals(attestation1.attestationChallenge, attestation.attestationChallenge)) {
+                if (!Arrays.equals(attestation1.attestationChallenge.toByteArray(), attestation.attestationChallenge.toByteArray())) {
                     throw new GeneralSecurityException("attest key challenge does not match");
                 }
 
@@ -1525,7 +1527,8 @@ class AttestationProtocol {
                     throw new GeneralSecurityException("attest key boot patch level does not match");
                 }
 
-                if (!Arrays.equals(rootOfTrust1.verifiedBootHash.orElse(new byte[0]), rootOfTrust.verifiedBootHash.orElse(new byte[0]))) {
+                if (!Arrays.equals(rootOfTrust1.verifiedBootHash.orElse(ByteString.EMPTY).toByteArray(),
+                        rootOfTrust.verifiedBootHash.orElse(ByteString.EMPTY).toByteArray())) {
                     throw new GeneralSecurityException("attest key verified boot hash does not match");
                 }
             }
