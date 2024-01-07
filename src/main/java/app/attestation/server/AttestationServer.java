@@ -360,16 +360,13 @@ public class AttestationServer {
             if (!"application/json".equals(getRequestHeaderValue(exchange, "Content-Type"))) {
                 throw new GeneralSecurityException();
             }
-            final String fetchMode = getRequestHeaderValue(exchange, "Sec-Fetch-Mode");
-            if (fetchMode != null && !fetchMode.equals("same-origin")) {
+            if (!"same-origin".equals(getRequestHeaderValue(exchange, "Sec-Fetch-Mode"))) {
                 throw new GeneralSecurityException();
             }
-            final String fetchSite = getRequestHeaderValue(exchange, "Sec-Fetch-Site");
-            if (fetchSite != null && !fetchSite.equals("same-origin")) {
+            if (!"same-origin".equals(getRequestHeaderValue(exchange, "Sec-Fetch-Site"))) {
                 throw new GeneralSecurityException();
             }
-            final String fetchDest = getRequestHeaderValue(exchange, "Sec-Fetch-Dest");
-            if (fetchDest != null && !fetchDest.equals("empty")) {
+            if (!"empty".equals(getRequestHeaderValue(exchange, "Sec-Fetch-Dest"))) {
                 throw new GeneralSecurityException();
             }
         }
