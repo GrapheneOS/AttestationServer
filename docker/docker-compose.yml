@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  attestation-server:
+    build: 
+      context: ..
+      dockerfile: docker/attestation-server.dockerfile
+    container_name: attestation-server
+    volumes:
+      - ./data:/data
+  attestation-proxy:
+    build:
+      context: ..
+      dockerfile: docker/nginx-server.dockerfile
+    container_name: nginx
+    ports:
+      - 5000:80
