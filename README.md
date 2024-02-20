@@ -41,11 +41,11 @@ Copy `attestation.service` to `/etc/systemd/system/attestation.service`.
 
 On your development machine, you will need to change the `remote` variable in the deploy scripts
 to your server. You'll also need to change the
-[DOMAIN](https://github.com/GrapheneOS/AttestationServer/blob/main/src/main/java/app/attestation/server/AttestationServer.java#L83)
+[DOMAIN](https://github.com/GrapheneOS/AttestationServer/blob/df53e39706fdc6247ce497cb0776bf77fe931085/src/main/java/app/attestation/server/AttestationServer.java#L85)
 in AttestationServer.java to your server and the [app signing
-key](https://github.com/GrapheneOS/AttestationServer/blob/main/src/main/java/app/attestation/server/AttestationProtocol.java#L173-L174)
+key](https://github.com/GrapheneOS/AttestationServer/blob/df53e39706fdc6247ce497cb0776bf77fe931085/src/main/java/app/attestation/server/AttestationProtocol.java#L157-L162)
 and [app
-ID](https://github.com/GrapheneOS/AttestationServer/blob/main/src/main/java/app/attestation/server/AttestationProtocol.java#L169).
+ID](https://github.com/GrapheneOS/AttestationServer/blob/df53e39706fdc6247ce497cb0776bf77fe931085/src/main/java/app/attestation/server/AttestationProtocol.java#L154-L156).
 Then deploy the attestation server and static content:
 
     npm i
@@ -60,7 +60,7 @@ As root on the server, enable and start the attestation server:
     systemctl enable attestation
     systemctl start attestation
 
-The server will be listening on `[::1]:8080` by default which [can be changed](https://github.com/GrapheneOS/AttestationServer/blob/main/src/main/java/app/attestation/server/AttestationServer.java#L371).
+The server will be listening on `[::1]:8080` by default which [can be changed](https://github.com/GrapheneOS/AttestationServer/blob/df53e39706fdc6247ce497cb0776bf77fe931085/src/main/java/app/attestation/server/AttestationServer.java#L320).
 
 ## Email alert configuration
 
@@ -84,7 +84,7 @@ include your DNS server and mail server IP addresses when using a remote mail se
 ### Handling abuse
 
 The `emailBlacklistPatterns` array in
-[`src/main/java/app/attestation/server/AttestationServer.java`](https://github.com/GrapheneOS/AttestationServer/blob/main/src/main/java/app/attestation/server/AttestationServer.java#L90-L92) can be used to blacklist email
+[`src/main/java/app/attestation/server/AttestationServer.java`](https://github.com/GrapheneOS/AttestationServer/blob/df53e39706fdc6247ce497cb0776bf77fe931085/src/main/java/app/attestation/server/AttestationServer.java#L92-L94) can be used to blacklist email
 addresses using regular expressions. We plan to move this to a table in the database so that it
 can be configured dynamically without modifying the sources, rebuilding and redeploying. For now,
 this was added to quickly provide a way to counter abuse.
