@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.PublicKey;
 import java.security.SecureRandom;
@@ -34,6 +35,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
@@ -127,6 +129,8 @@ class AttestationProtocol {
     private static final byte CHALLENGE_MESSAGE_LENGTH = 1 + CHALLENGE_LENGTH * 2;
     private static final int MAX_ENCODED_CHAIN_LENGTH = 5000;
     static final int MAX_MESSAGE_SIZE = 2953;
+
+    private static final boolean PREFER_CHECK_LEAF_VALIDITY_CERT = false;
 
     private static final int OS_ENFORCED_FLAGS_NONE = 0;
     private static final int OS_ENFORCED_FLAGS_USER_PROFILE_SECURE = 1;
@@ -248,9 +252,18 @@ class AttestationProtocol {
     private static final String DEVICE_LM_Q720 = "LG Stylo 5 (LM-Q720)";
     private static final String DEVICE_LG_Q710AL = "LG Q Stylo 4 (LG-Q710AL)";
     private static final String DEVICE_RMX1941 = "Realme C2 (RMX1941)";
+    static final String DEVICE_GENERIC_UNKNOWN = "Unknown non-Pixel device";
 
     private static final String OS_STOCK = "Stock";
     private static final String OS_GRAPHENE = "GrapheneOS";
+    private static final String OS_STOCK_GENERIC = "Stock (Generic)";
+
+    // Some Android 10 devices, including past supported devices above, has attestationVersion, keymasterVersion of 1.
+    // TODO: Remove non-generic device support past EoL with latest Android version lower than Android 10.
+    static final DeviceInfo GENERIC_DEVICE_STOCK =
+            new DeviceInfo(DEVICE_GENERIC_UNKNOWN, 1, 1, false, false, OS_STOCK_GENERIC);
+    static final DeviceInfo GENERIC_DEVICE_STRONGBOX_STOCK =
+            new DeviceInfo(DEVICE_GENERIC_UNKNOWN, 1, 1, false, true, OS_STOCK_GENERIC);
 
     static class DeviceInfo {
         final String name;
@@ -270,6 +283,11 @@ class AttestationProtocol {
             this.rollbackResistant = rollbackResistant;
             this.enforceStrongBox = enforceStrongBox;
             this.osName = osName;
+        }
+
+        // Generic device info always have false rollback resistance, and skips boot and vendor patch level checks.
+        boolean isGeneric() {
+            return GENERIC_DEVICE_STOCK.equals(this) || GENERIC_DEVICE_STRONGBOX_STOCK.equals(this);
         }
     }
 
@@ -1374,22 +1392,41 @@ class AttestationProtocol {
             }
         } else if (verifiedBootState == RootOfTrust.VerifiedBootState.VERIFIED) {
             if (attestationSecurityLevelEnum == ParsedAttestationRecord.SecurityLevel.STRONG_BOX) {
-                device = fingerprintsStrongBoxStock.get(verifiedBootKey);
+                device = fingerprintsStrongBoxStock.getOrDefault(verifiedBootKey, GENERIC_DEVICE_STRONGBOX_STOCK);
             } else {
-                device = fingerprintsStock.get(verifiedBootKey);
+                device = fingerprintsStock.getOrDefault(verifiedBootKey, GENERIC_DEVICE_STOCK);
             }
         } else {
             throw new GeneralSecurityException("verified boot state is not verified or self signed");
         }
 
         if (device == null) {
-            throw new GeneralSecurityException("invalid verified boot key fingerprint: " + verifiedBootKey);
+            throw new GeneralSecurityException("invalid self-signed verified boot key fingerprint: " + verifiedBootKey);
         }
 
         // enforce StrongBox for new pairings with devices supporting it
         if (!hasPersistentKey && device.enforceStrongBox &&
                 attestationSecurityLevelEnum != ParsedAttestationRecord.SecurityLevel.STRONG_BOX) {
             throw new GeneralSecurityException("non-StrongBox security level for device supporting it");
+        }
+
+        // Device info checks
+        final String manufacturer = new String(teeEnforced.attestationIdManufacturer.orElse(new byte[0]), StandardCharsets.UTF_8);
+        final String model = new String(teeEnforced.attestationIdModel.orElse(new byte[0]), StandardCharsets.UTF_8);
+        final String deviceNameTee = manufacturer.isEmpty() && model.isEmpty() ? "" : manufacturer + " " + model;
+        final String deviceName;
+        if (device.isGeneric()) {
+            deviceName = deviceNameTee.isBlank() ? DEVICE_GENERIC_UNKNOWN : deviceNameTee;
+        } else {
+            final String deviceNameRes = device.name;
+            if (!deviceNameRes.startsWith(manufacturer)) {
+                throw new GeneralSecurityException("pinned device name must start with manufacturer name");
+            }
+            if (Stream.of(deviceNameRes.substring(manufacturer.length() + 1)
+                    .split(" / ")).noneMatch(str -> str.startsWith(model))) {
+                throw new GeneralSecurityException("model device name not found");
+            }
+            deviceName = deviceNameTee.isBlank() ? deviceNameRes : deviceNameTee;
         }
 
         // OS version sanity checks
@@ -1402,11 +1439,13 @@ class AttestationProtocol {
             throw new GeneralSecurityException("OS patch level too old: " + osPatchLevel);
         }
         final int vendorPatchLevel = teeEnforced.vendorPatchLevel.orElse(0);
-        if (vendorPatchLevel < VENDOR_PATCH_LEVEL_MINIMUM && !extraPatchLevelMissing.contains(device.name)) {
+        if (vendorPatchLevel < VENDOR_PATCH_LEVEL_MINIMUM && !extraPatchLevelMissing.contains(device.name)
+                && !device.isGeneric()) {
             throw new GeneralSecurityException("Vendor patch level too old: " + vendorPatchLevel);
         }
         final int bootPatchLevel = teeEnforced.bootPatchLevel.orElse(0);
-        if (bootPatchLevel < BOOT_PATCH_LEVEL_MINIMUM && !extraPatchLevelMissing.contains(device.name)) {
+        if (bootPatchLevel < BOOT_PATCH_LEVEL_MINIMUM && !extraPatchLevelMissing.contains(device.name)
+                && !device.isGeneric()) {
             throw new GeneralSecurityException("Boot patch level too old: " + bootPatchLevel);
         }
 
@@ -1502,6 +1541,32 @@ class AttestationProtocol {
                     throw new GeneralSecurityException("attest key keymaster version does not match");
                 }
 
+                // device info sanity checks
+                if (!Arrays.equals(teeEnforced1.attestationIdManufacturer.orElse(new byte[0]),
+                        teeEnforced.attestationIdManufacturer.orElse(new byte[0]))) {
+                    throw new GeneralSecurityException("attest key manufacturer info does not match");
+                }
+
+                if (!Arrays.equals(teeEnforced1.attestationIdModel.orElse(new byte[0]),
+                        teeEnforced.attestationIdModel.orElse(new byte[0]))) {
+                    throw new GeneralSecurityException("attest key model info does not match");
+                }
+
+                if (!Arrays.equals(teeEnforced1.attestationIdBrand.orElse(new byte[0]),
+                        teeEnforced.attestationIdBrand.orElse(new byte[0]))) {
+                    throw new GeneralSecurityException("attest key brand info does not match");
+                }
+
+                if (!Arrays.equals(teeEnforced1.attestationIdDevice.orElse(new byte[0]),
+                        teeEnforced.attestationIdDevice.orElse(new byte[0]))) {
+                    throw new GeneralSecurityException("attest key brand device info does not match");
+                }
+
+                if (!Arrays.equals(teeEnforced1.attestationIdProduct.orElse(new byte[0]),
+                        teeEnforced.attestationIdProduct.orElse(new byte[0]))) {
+                    throw new GeneralSecurityException("attest key product info does not match");
+                }
+
                 // OS version sanity checks
                 if (!teeEnforced1.osVersion.equals(teeEnforced.osVersion)) {
                     throw new GeneralSecurityException("attest key OS version does not match");
@@ -1538,7 +1603,7 @@ class AttestationProtocol {
             throw new GeneralSecurityException("only initial key and attest key should have attestation extension");
         }
 
-        return new Verified(device.name, verifiedBootKey, verifiedBootHash, device.osName,
+        return new Verified(deviceName, verifiedBootKey, verifiedBootHash, device.osName,
                 osVersion, osPatchLevel, vendorPatchLevel, bootPatchLevel, appVersion, appVariant,
                 ParsedAttestationRecord.securityLevelToInt(attestationSecurityLevelEnum), attestKey);
     }
@@ -1551,8 +1616,10 @@ class AttestationProtocol {
             throws GeneralSecurityException {
         for (int i = 1; i < certChain.length; ++i) {
             try {
-                if (i == 1 || !hasPersistentKey) {
-                    ((X509Certificate) certChain[i - 1]).checkValidity();
+                if (i != 1 || PREFER_CHECK_LEAF_VALIDITY_CERT) {
+                    if (i == 1 || !hasPersistentKey) {
+                        ((X509Certificate) certChain[i - 1]).checkValidity();
+                    }
                 }
                 certChain[i - 1].verify(certChain[i].getPublicKey());
             } catch (final GeneralSecurityException e) {
@@ -1616,6 +1683,8 @@ class AttestationProtocol {
 
             Certificate[] pinnedCertificates = null;
             byte[] pinnedVerifiedBootKey = null;
+            String pinnedDeviceManufacturer = null;
+            String pinnedDeviceModel = null;
             int pinnedOsVersion = Integer.MAX_VALUE;
             int pinnedOsPatchLevel = Integer.MAX_VALUE;
             int pinnedVendorPatchLevel = 0;
@@ -1625,7 +1694,8 @@ class AttestationProtocol {
             int pinnedSecurityLevel = 1;
             if (hasPersistentKey) {
                 final SQLiteStatement st = conn.prepare("SELECT pinnedCertificates, " +
-                        "pinnedVerifiedBootKey, pinnedOsVersion, pinnedOsPatchLevel, " +
+                        "pinnedVerifiedBootKey, pinnedDeviceManufacturer, pinnedDeviceModel, " +
+                        "pinnedOsVersion, pinnedOsPatchLevel, " +
                         "pinnedVendorPatchLevel, pinnedBootPatchLevel, pinnedAppVersion, pinnedAppVariant, " +
                         "pinnedSecurityLevel, userId " +
                         "FROM Devices WHERE fingerprint = ?");
@@ -1638,14 +1708,16 @@ class AttestationProtocol {
                             throw new IOException(e);
                         }
                         pinnedVerifiedBootKey = st.columnBlob(1);
-                        pinnedOsVersion = st.columnInt(2);
-                        pinnedOsPatchLevel = st.columnInt(3);
-                        pinnedVendorPatchLevel = st.columnInt(4);
-                        pinnedBootPatchLevel = st.columnInt(5);
-                        pinnedAppVersion = st.columnInt(6);
-                        pinnedAppVariant = st.columnInt(7);
-                        pinnedSecurityLevel = st.columnInt(8);
-                        if (userId != st.columnLong(9)) {
+                        pinnedDeviceManufacturer = st.columnString(2);
+                        pinnedDeviceModel = st.columnString(3);
+                        pinnedOsVersion = st.columnInt(4);
+                        pinnedOsPatchLevel = st.columnInt(5);
+                        pinnedVendorPatchLevel = st.columnInt(6);
+                        pinnedBootPatchLevel = st.columnInt(7);
+                        pinnedAppVersion = st.columnInt(8);
+                        pinnedAppVariant = st.columnInt(9);
+                        pinnedSecurityLevel = st.columnInt(10);
+                        if (userId != st.columnLong(11)) {
                             throw new GeneralSecurityException("wrong userId");
                         }
                     } else {
@@ -1754,41 +1826,50 @@ class AttestationProtocol {
 
                 final SQLiteStatement insert = conn.prepare("INSERT INTO Devices " +
                         "(fingerprint, pinnedCertificates, attestKey, pinnedVerifiedBootKey, " +
-                        "verifiedBootHash, pinnedOsVersion, pinnedOsPatchLevel, " +
+                        "verifiedBootHash, pinnedDeviceManufacturer, pinnedDeviceModel, " +
+                        "pinnedOsVersion, pinnedOsPatchLevel, " +
                         "pinnedVendorPatchLevel, pinnedBootPatchLevel, pinnedAppVersion, pinnedAppVariant, pinnedSecurityLevel, " +
                         "userProfileSecure, enrolledBiometrics, accessibility, deviceAdmin, " +
                         "adbEnabled, addUsersWhenLocked, denyNewUsb, oemUnlockAllowed, systemUser, " +
                         "verifiedTimeFirst, verifiedTimeLast, userId) " +
-                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 try {
                     insert.bind(1, fingerprint);
+                    if (!verified.device.startsWith(DEVICE_GENERIC_UNKNOWN)) {
+                        String[] deviceInfo = verified.device.split(" ", 2);
+                        if (deviceInfo.length != 2) {
+                            throw new GeneralSecurityException("device name must contain both manufacturer and model");
+                        }
+                        insert.bind(6, deviceInfo[0]);
+                        insert.bind(7, deviceInfo[1]);
+                    }
                     insert.bind(2, encodeChain(DEFLATE_DICTIONARY_2, attestationCertificates));
                     insert.bind(3, verified.attestKey ? 1 : 0);
                     insert.bind(4, verifiedBootKey);
                     insert.bind(5, verified.verifiedBootHash);
-                    insert.bind(6, verified.osVersion);
-                    insert.bind(7, verified.osPatchLevel);
+                    insert.bind(8, verified.osVersion);
+                    insert.bind(9, verified.osPatchLevel);
                     if (verified.vendorPatchLevel != 0) {
-                        insert.bind(8, verified.vendorPatchLevel);
+                        insert.bind(10, verified.vendorPatchLevel);
                     }
                     if (verified.bootPatchLevel != 0) {
-                        insert.bind(9, verified.bootPatchLevel);
+                        insert.bind(11, verified.bootPatchLevel);
                     }
-                    insert.bind(10, verified.appVersion);
-                    insert.bind(11, verified.appVariant);
-                    insert.bind(12, verified.securityLevel);
-                    insert.bind(13, userProfileSecure ? 1 : 0);
-                    insert.bind(14, enrolledBiometrics ? 1 : 0);
-                    insert.bind(15, accessibility ? 1 : 0);
-                    insert.bind(16, deviceAdmin ? (deviceAdminNonSystem ? 2 : 1) : 0);
-                    insert.bind(17, adbEnabled ? 1 : 0);
-                    insert.bind(18, addUsersWhenLocked ? 1 : 0);
-                    insert.bind(19, denyNewUsb ? 1 : 0);
-                    insert.bind(20, oemUnlockAllowed ? 1 : 0);
-                    insert.bind(21, systemUser ? 1 : 0);
-                    insert.bind(22, now);
-                    insert.bind(23, now);
-                    insert.bind(24, userId);
+                    insert.bind(12, verified.appVersion);
+                    insert.bind(13, verified.appVariant);
+                    insert.bind(14, verified.securityLevel);
+                    insert.bind(15, userProfileSecure ? 1 : 0);
+                    insert.bind(16, enrolledBiometrics ? 1 : 0);
+                    insert.bind(17, accessibility ? 1 : 0);
+                    insert.bind(18, deviceAdmin ? (deviceAdminNonSystem ? 2 : 1) : 0);
+                    insert.bind(19, adbEnabled ? 1 : 0);
+                    insert.bind(20, addUsersWhenLocked ? 1 : 0);
+                    insert.bind(21, denyNewUsb ? 1 : 0);
+                    insert.bind(22, oemUnlockAllowed ? 1 : 0);
+                    insert.bind(23, systemUser ? 1 : 0);
+                    insert.bind(24, now);
+                    insert.bind(25, now);
+                    insert.bind(26, userId);
                     insert.step();
                 } finally {
                     insert.dispose();
