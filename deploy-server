@@ -28,8 +28,8 @@ echo target is $target
 echo
 
 ssh $remote "rm -rf $target && cp -a $active $target"
-rsync -prctv --chmod=D755,F644 --fsync --preallocate systemd/system/ $remote:/etc/systemd/system
-rsync -prctv --chmod=D755,F644 --delete --fsync --preallocate build/libs/ $remote:$target
+rsync -prcv --chmod=D755,F644 --fsync --preallocate systemd/system/ $remote:/etc/systemd/system
+rsync -prcv --chmod=D755,F644 --delete --fsync --preallocate build/libs/ $remote:$target
 ssh $remote "ln -snf $target $path/deploy && sync $path/deploy && systemctl daemon-reload && systemctl restart attestation"
 
 echo
