@@ -71,11 +71,5 @@ find static-tmp -name '*.html' -exec html-minifier-terser --collapse-whitespace 
 
 find static-tmp -name '*.xml' -exec xmllint --noblanks {} --output {} \;
 
-zopfli_preserve_time() {
-    zopfli "$1"
-    touch -r "$1" "$1.gz"
-}
-export -f zopfli_preserve_time
-
 find static-tmp -regex '.+\.\(css\|html\|ico\|js\|json\|svg\|txt\|webmanifest\|xml\)' |
-    parallel -q ::: brotli zopfli_preserve_time :::: -
+    parallel -q ::: brotli zopfli :::: -
