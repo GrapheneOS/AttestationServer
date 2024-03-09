@@ -8,6 +8,7 @@
 /lock-server
 /nginx-tmp/
 /node_modules/
-/static-deploy/
+/static-production/
+/static-staging/
 /static-tmp/
 /venv/
