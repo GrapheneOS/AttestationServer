@@ -71,5 +71,7 @@ find static-tmp -name '*.html' -exec html-minifier-terser --collapse-whitespace 
 
 find static-tmp -name '*.xml' -exec xmllint --noblanks {} --output {} \;
 
+[[ -f indexnow-key.txt ]] && index_now_key="$(cat indexnow-key.txt)" && echo "$index_now_key" > "static-tmp/$index_now_key.txt"
+
 find static-tmp -regex '.+\.\(css\|html\|ico\|js\|json\|svg\|txt\|webmanifest\|xml\)' |
     parallel -q ::: brotli zopfli :::: -
