@@ -7,20 +7,16 @@
         <priority>1.0</priority>
     </url>
     <url>
+        <loc>https://attestation.app/.well-known/security.txt</loc>
+        <priority>0.0</priority>
+    </url>
+    <url>
+        <loc>https://attestation.app/LICENSE.txt</loc>
+        <priority>0.0</priority>
+    </url>
+    <url>
         <loc>https://attestation.app/about</loc>
         <priority>1.0</priority>
-    </url>
-    <url>
-        <loc>https://attestation.app/tutorial</loc>
-        <priority>1.0</priority>
-    </url>
-    <url>
-        <loc>https://attestation.app/source</loc>
-        <priority>0.1</priority>
-    </url>
-    <url>
-        <loc>https://attestation.app/privacy-policy</loc>
-        <priority>0.2</priority>
     </url>
     <url>
         <loc>https://attestation.app/donate</loc>
@@ -31,11 +27,15 @@
         <priority>0.1</priority>
     </url>
     <url>
-        <loc>https://attestation.app/LICENSE.txt</loc>
-        <priority>0.0</priority>
+        <loc>https://attestation.app/privacy-policy</loc>
+        <priority>0.2</priority>
     </url>
     <url>
-        <loc>https://attestation.app/.well-known/security.txt</loc>
-        <priority>0.0</priority>
+        <loc>https://attestation.app/source</loc>
+        <priority>0.1</priority>
+    </url>
+    <url>
+        <loc>https://attestation.app/tutorial</loc>
+        <priority>1.0</priority>
     </url>
 </urlset>
