@@ -4,7 +4,7 @@
 /backup-public-key.txt
 /backup/
 /build/
-/cloud-archive-password.txt
+/cloud-archive.sh
 /lock
 /lock-server
 /nginx-tmp/
