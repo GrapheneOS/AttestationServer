@@ -5,6 +5,7 @@
 /backup/
 /build/
 /cloud-archive.sh
+/cloud-archive-admin.sh
 /lock
 /lock-server
 /nginx-tmp/
