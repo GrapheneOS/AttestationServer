@@ -30,7 +30,7 @@ class ASN1Parsing {
   static boolean getBooleanFromAsn1(ASN1Encodable asn1Value, boolean strict) {
     if (asn1Value instanceof ASN1Boolean) {
       if (strict) {
-        Utils.getBooleanFromAsn1Strict((ASN1Boolean) asn1Value);
+        return Utils.getBooleanFromAsn1Strict((ASN1Boolean) asn1Value);
       }
       return ((ASN1Boolean) asn1Value).isTrue();
     } else {
