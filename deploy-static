@@ -16,10 +16,16 @@ remote=root@attestation.app
 
 # use last modified timestamps from attestation.app
 rsync -rptcv --chmod=D755,F644 --delete --fsync --preallocate $remote:/srv/attestation.app/ static-production
+rsync -pcv --chmod=D755,F644 --fsync --preallocate static-production/sitemap.xml{,.gz,.br} static-tmp/
 rsync -rpcv --chmod=D755,F644 --delete --fsync --preallocate static-tmp/ static-production
 for f in static-production/**.*(br|gz); do
     touch -r "${f%.*}" "$f"
 done
+changed="$(./generate-sitemap)"
+xmllint --noblanks static-tmp/sitemap.xml --output static-tmp/sitemap.xml
+brotli -f static-tmp/sitemap.xml
+zopfli static-tmp/sitemap.xml
+rsync -pcv --chmod=D755,F644 --fsync --preallocate static-tmp/sitemap.xml{,.gz,.br} static-production/
 
 active=$(ssh $remote readlink /srv/attestation.app)
 
@@ -48,3 +54,7 @@ rsync -pcv --chmod=755 --fsync --preallocate remote-backup $remote:/usr/local/bi
 rsync -pcv --chmod=644 --fsync --preallocate systemd/system/remote-backup.timer $remote:/etc/systemd/system/remote-backup.timer
 rsync -pcv --chmod=644 --fsync --preallocate systemd/system/remote-backup.service $remote:/etc/systemd/system/remote-backup.service
 rsync -pcv --chmod=644 --chown attestation:attestation --fsync --preallocate backup-public-key.txt cloud-archive.sh $remote:/var/lib/attestation/
+
+if [[ -n "$changed" ]]; then
+    ./indexnow <<< "$changed"
+fi
