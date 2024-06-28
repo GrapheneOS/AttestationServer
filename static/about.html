@@ -46,44 +46,45 @@
             <h1><a href="#about">About</a></h1>
             <p>The <a href="https://play.google.com/store/apps/details?id=app.attestation.auditor.play">Auditor
             app</a> uses hardware-based security features to validate the identity of a device,
-            along with the authenticity and integrity of the operating system. It ensures the
-            device is running a verified operating system with a locked bootloader and that no
-            tampering has occurred. Auditor will also detect a downgrade to a previous operating
-            system, patch, or app version. Auditor extends the hardware-based operating system
-            verification by chaining verification to the app, performing software-based sanity
-            checks, and gathering additional information about the device state and configuration
-            beyond what hardware attestation directly provides.</p>
+            along with the authenticity and integrity of the operating system. It ensures the device
+            is running a verified operating system with a locked bootloader and that no tampering
+            has occurred. Auditor will also detect a downgrade to a previous operating system,
+            patch, or app version. Auditor extends the hardware-based operating system verification
+            by chaining verification to the app, performing software-based sanity checks, and
+            gathering additional information about the device state and configuration beyond what
+            hardware attestation directly provides.</p>
 
             <p>The foundation of the Auditor app is generating a persistent key in the <a
-            href="https://source.android.com/security/keystore/">hardware-backed keystore</a>
-            for verifying the identity of the device and providing assurance that the operating
-            system hasn't been tampered with or downgraded via verified boot. It performs a
-            pairing process between the device performing verification (Auditor) and the device
-            being verified (Auditee) to implement a Trust On First Use (TOFU) model. The device
-            performing verification can either be another Android device running the app in the
-            Auditor mode or the <a href="https://attestation.app/">https://attestation.app/</a>
-            service for automated verification on a regular schedule with support for email
-            alerts. See <a href="/tutorial">the tutorial</a> for usage instructions. The protocol
-            used for both local and remote attestation is
-            <a href="https://github.com/GrapheneOS/Auditor/blob/76/app/src/main/java/app/attestation/auditor/AttestationProtocol.java#L120-L193">documented in the source code</a>.</p>
+            href="https://source.android.com/security/keystore/">hardware-backed keystore</a> for
+            verifying the identity of the device and providing assurance that the operating system
+            hasn't been tampered with or downgraded via verified boot. It performs a pairing process
+            between the device performing verification (Auditor) and the device being verified
+            (Auditee) to implement a Trust On First Use (TOFU) model. The device performing
+            verification can either be another Android device running the app in the Auditor mode or
+            the <a href="https://attestation.app/">https://attestation.app/</a> service for
+            automated verification on a regular schedule with support for email alerts. See <a
+            href="/tutorial">the tutorial</a> for usage instructions. The protocol used for both
+            local and remote attestation is
+            <a href="https://github.com/GrapheneOS/Auditor/blob/76/app/src/main/java/app/attestation/auditor/AttestationProtocol.java#L120-L193">documented
+            in the source code</a>.</p>
 
             <p><a href="https://source.android.com/security/verifiedboot/">Verified boot</a>
             validates the integrity and authenticity of firmware and the entire operating system
             (both the kernel and userspace) from an immutable hardware root of trust. The results
             are passed along to the hardware-backed keystore and used to protect the keys.</p>
 
-            <p>The <a href="https://source.android.com/security/keystore/attestation">key attestation</a>
-            feature provided by the hardware-backed keystore provides direct support for attesting
-            to device properties and bootstrapping the Trust On First Use model of the Auditor app
-            with a basic initial verification chained up to a known root certificate. The latest
-            version of key attestation provides a signed result with the verified boot state,
-            verified boot key, a hash of all data protected by verified boot and the version of
-            the operating system partitions among other properties. It also has support for
+            <p>The <a href="https://source.android.com/security/keystore/attestation">key
+            attestation</a> feature provided by the hardware-backed keystore provides direct support
+            for attesting to device properties and bootstrapping the Trust On First Use model of the
+            Auditor app with a basic initial verification chained up to a known root certificate.
+            The latest version of key attestation provides a signed result with the verified boot
+            state, verified boot key, a hash of all data protected by verified boot and the version
+            of the operating system partitions among other properties. It also has support for
             chaining trust to the application performing the attestation checks, which is used by
             the Auditor app for bootstrapping checks at the software layer.</p>
 
-            <p>Devices shipping with Android 9 or later <em>may</em> ship a
-            <a href="https://developer.android.com/training/articles/keystore#HardwareSecurityModule">
+            <p>Devices shipping with Android 9 or later <em>may</em> ship a <a
+            href="https://developer.android.com/training/articles/keystore#HardwareSecurityModule">
             StrongBox Keymaster</a> implementation, allowing the Auditor app to keep the keys used
             by the attestation protocol in the dedicated Hardware Security Module (HSM) (such as
             the <a href="https://android-developers.googleblog.com/2018/10/building-titan-better-security-through.html">
@@ -91,8 +92,8 @@
             on the main processor. This can provide substantial attack surface reduction.</p>
 
             <p>Security enhancements offered by future generations of hardware and future Android
-            releases will be closely tracked by these projects. The core workflow and feature set
-            is already implemented but the foundation will be regularly improved along with major
+            releases will be closely tracked by these projects. The core workflow and feature set is
+            already implemented but the foundation will be regularly improved along with major
             improvements to the user interface and documentation. The app and service are designed
             to be forwards and backwards compatible via a versioned protocol to permit substantial
             changes down the road.</p>
@@ -103,10 +104,10 @@
                 </h2>
 
                 <p>Any device with Android 10 or higher can run the Auditor app and use it to verify
-                other devices. However, only devices <em>launched</em> with Android 8.0 or later have
-                the necessary hardware support for being verified. Each device model also needs to be
-                explicitly integrated into the app. The following devices are currently supported by
-                the most recent stable release:</p>
+                other devices. However, only devices <em>launched</em> with Android 8.0 or later
+                have the necessary hardware support for being verified. Each device model also needs
+                to be explicitly integrated into the app. The following devices are currently
+                supported by the most recent stable release:</p>
 
                 <ul>
                     <li>BlackBerry Key2 (BBF100-1 and BBF100-6 models)</li>
@@ -274,12 +275,12 @@
                 with a custom key. The app also depends on the OS preserving the core security model
                 for extensions beyond the baseline hardware-based attestation support.</p>
 
-                <p>GrapheneOS is a hardened mobile OS with Android app compatibility focused on
-                the research and development of privacy and security technology including
-                substantial improvements to sandboxing, exploit mitigations and the permission
-                model. GrapheneOS also maintains all the standard baseline security features.
-                Releases are <a href="https://grapheneos.org/releases">available on the GrapheneOS
-                releases page</a> and can be used with the Auditor app and server.</p>
+                <p>GrapheneOS is a hardened mobile OS with Android app compatibility focused on the
+                research and development of privacy and security technology including substantial
+                improvements to sandboxing, exploit mitigations and the permission model. GrapheneOS
+                also maintains all the standard baseline security features. Releases are <a
+                href="https://grapheneos.org/releases">available on the GrapheneOS releases page</a>
+                and can be used with the Auditor app and server.</p>
             </section>
         </main>
     </body>
