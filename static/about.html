@@ -45,14 +45,14 @@
         <main id="about">
             <h1><a href="#about">About</a></h1>
             <p>The <a href="https://play.google.com/store/apps/details?id=app.attestation.auditor.play">Auditor
-            app</a> uses hardware-based security features to validate the identity of a device
-            along with authenticity and integrity of the operating system. It will verify that the
-            device is running the stock operating system with the bootloader locked and that no
-            tampering with the operating system has occurred.  A downgrade to a previous version
-            will also be detected. It builds upon the hardware-based verification of the operating
-            system by chaining verification to the app to perform software-based sanity checks and
-            gather additional information about device state and configuration beyond what the
-            hardware can attest to directly.</p>
+            app</a> uses hardware-based security features to validate the identity of a device,
+            along with the authenticity and integrity of the operating system. It ensures the
+            device is running a verified operating system with a locked bootloader and that no
+            tampering has occurred. Auditor will also detect a downgrade to a previous operating
+            system, patch, or app version. Auditor extends the hardware-based operating system
+            verification by chaining verification to the app, performing software-based sanity
+            checks, and gathering additional information about the device state and configuration
+            beyond what hardware attestation directly provides.</p>
 
             <p>The foundation of the Auditor app is generating a persistent key in the <a
             href="https://source.android.com/security/keystore/">hardware-backed keystore</a>
