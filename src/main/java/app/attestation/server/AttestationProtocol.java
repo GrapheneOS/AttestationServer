@@ -1329,8 +1329,10 @@ class AttestationProtocol {
         }
         final AttestationPackageInfo info = infos.get(0);
         final List<byte[]> signatureDigests = attestationApplicationId.signatureDigests;
-        if (signatureDigests.size() != 1) {
-            throw new GeneralSecurityException("invalid number of Auditor app signatures");
+        if (signatureDigests.size() == 0) {
+            throw new GeneralSecurityException("Auditor signing keys are missing from the attestation data.\n\nThis is known to happen after a system_server crash causes a soft reboot, which can be resolved by a full reboot of the device.");
+        } else if (signatureDigests.size() != 1) {
+            throw new GeneralSecurityException("invalid number of Auditor app signing keys: " + signatureDigests.size());
         }
         final String signatureDigest = BaseEncoding.base16().encode(signatureDigests.get(0));
         final byte appVariant;
@@ -1347,7 +1349,7 @@ class AttestationProtocol {
             appVariant = AUDITOR_APP_VARIANT_PLAY;
         } else if (AUDITOR_APP_PACKAGE_NAME_DEBUG.equals(packageName)) {
             if (!BuildConfig.DEBUG) {
-                throw new GeneralSecurityException("Auditor debug builds are only trusted by AttestationServer debug builds");
+                throw new GeneralSecurityException("Auditor debug builds are only trusted by other Auditor debug builds");
             }
             if (!AUDITOR_APP_SIGNATURE_DIGEST_DEBUG.equals(signatureDigest)) {
                 throw new GeneralSecurityException("invalid Auditor app signing key");
@@ -1371,7 +1373,6 @@ class AttestationProtocol {
         if (!rootOfTrust.deviceLocked) {
             throw new GeneralSecurityException("device is not locked");
         }
-
         final RootOfTrust.VerifiedBootState verifiedBootState = rootOfTrust.verifiedBootState;
         final String verifiedBootKey = BaseEncoding.base16().encode(rootOfTrust.verifiedBootKey);
         final DeviceInfo device;
