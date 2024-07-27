@@ -170,13 +170,6 @@ class AttestationProtocol {
     private static final int VENDOR_PATCH_LEVEL_MINIMUM = 20211005;
     private static final int BOOT_PATCH_LEVEL_MINIMUM = 20211005;
 
-    private static final String DEVICE_HUAWEI = "Huawei Honor 9 lite / Honor 10 / View 10 / Mate 10 / Mate 20 / Mate 20 lite / P smart 2019 / Pro / P20 / P20 Pro / Y9 2019";
-    private static final String DEVICE_HUAWEI_HONOR_7A_PRO = "Huawei Honor 7A Pro / Y7 2019";
-    private static final String DEVICE_NOKIA = "Nokia (6.1, 6.1 Plus, 7 Plus)";
-    private static final String DEVICE_NOKIA_3_1 = "Nokia 3.1";
-    private static final String DEVICE_NOKIA_7_1 = "Nokia 7.1";
-    private static final String DEVICE_PIXEL_2 = "Google Pixel 2";
-    private static final String DEVICE_PIXEL_2_XL = "Google Pixel 2 XL";
     private static final String DEVICE_PIXEL_3_GENERIC = "Google Pixel 3 / Pixel 3 XL";
     private static final String DEVICE_PIXEL_3 = "Google Pixel 3";
     private static final String DEVICE_PIXEL_3_XL = "Google Pixel 3 XL";
@@ -202,53 +195,12 @@ class AttestationProtocol {
     private static final String DEVICE_PIXEL_8 = "Google Pixel 8";
     private static final String DEVICE_PIXEL_8_PRO = "Google Pixel 8 Pro";
     private static final String DEVICE_PIXEL_8A = "Google Pixel 8a";
-    private static final String DEVICE_SM_A705FN = "Samsung Galaxy A70 (SM-A705FN)";
-    private static final String DEVICE_SM_G960F = "Samsung Galaxy S9 (SM-G960F)";
-    private static final String DEVICE_SM_G960_NA = "Samsung Galaxy S9 USA/Canada (SM-G960U/SM-G960U1/SM-G960W)";
-    private static final String DEVICE_SM_G9600 = "Samsung Galaxy S9 China (G9600)";
-    private static final String DEVICE_SM_G965F = "Samsung Galaxy S9+ (SM-G965F)";
-    private static final String DEVICE_SM_G965_MSM = "Samsung Galaxy S9+ (Snapdragon)";
     private static final String DEVICE_SM_G970F = "Samsung Galaxy S10e (SM-G970F)";
     private static final String DEVICE_SM_G975F = "Samsung Galaxy S10+ (SM-G975F)";
-    private static final String DEVICE_SM_J260A = "Samsung Galaxy J2 Core (SM-J260A)";
-    private static final String DEVICE_SM_J260T1 = "Samsung Galaxy J2 Core (SM-J260T1)";
-    private static final String DEVICE_SM_J260F = "Samsung Galaxy J2 Core (SM-J260F)";
-    private static final String DEVICE_SM_J337A = "Samsung Galaxy J3 2018 (SM-J337A) / Galaxy Amp Prime 3 (SM-J337AZ)";
-    private static final String DEVICE_SM_J337T = "Samsung Galaxy J3 (SM-J337T)";
-    private static final String DEVICE_SM_J720F = "Samsung Galaxy J7 Duo (SM-J720F)";
-    private static final String DEVICE_SM_M205F = "Samsung Galaxy M20 (SM-M205F)";
-    private static final String DEVICE_SM_N960F = "Samsung Galaxy Note 9 (SM-N960F)";
-    private static final String DEVICE_SM_N960U = "Samsung Galaxy Note 9 (SM-N960U)";
     private static final String DEVICE_SM_N970F = "Samsung Galaxy Note 10 (SM-N970F)";
     private static final String DEVICE_SM_N970U = "Samsung Galaxy Note 10 (SM-N970U)";
     private static final String DEVICE_SM_N975U = "Samsung Galaxy Note 10+ (SM-N975U)";
-    private static final String DEVICE_SM_T510 = "Samsung Galaxy Tab A 10.1 (2019)";
-    private static final String DEVICE_SM_T835 = "Samsung Galaxy Tab S4";
-    private static final String DEVICE_SM_J737T1 = "Samsung Galaxy J7 (SM-J737T1)";
-    private static final String DEVICE_SM_S367VL = "Samsung Galaxy J3 (SM-S367VL)";
-    private static final String DEVICE_SONY_XPERIA_XA2 = "Sony Xperia XA2";
-    private static final String DEVICE_SONY_XPERIA_XZ1 = "Sony Xperia XZ1 / Xperia XZ1 Compact";
-    private static final String DEVICE_SONY_XPERIA_XZ2 = "Sony Xperia XZ2 (H8216)";
-    private static final String DEVICE_SONY_XPERIA_XZ2_COMPACT = "Sony Xperia XZ2 Compact";
-    private static final String DEVICE_ONEPLUS_6_A6003 = "OnePlus 6 A6003";
-    private static final String DEVICE_ONEPLUS_6T_A6013 = "OnePlus 6T A6013";
     private static final String DEVICE_ONEPLUS_7_PRO_GM1913 = "OnePlus 7 Pro GM1913";
-    private static final String DEVICE_BLACKBERRY_KEY2 = "BlackBerry Key2";
-    private static final String DEVICE_BQ_AQUARIS_X2_PRO = "BQ Aquaris X2 Pro";
-    private static final String DEVICE_XIAOMI_MI_A2 = "Xiaomi Mi A2 / POCOPHONE F1";
-    private static final String DEVICE_XIAOMI_MI_A2_LITE = "Xiaomi Mi A2 Lite";
-    private static final String DEVICE_XIAOMI_MI_9 = "Xiaomi Mi 9";
-    private static final String DEVICE_HTC = "HTC EXODUS 1 / U12+";
-    private static final String DEVICE_MOTO_G7 = "Motorola moto g⁷";
-    private static final String DEVICE_MOTOROLA_ONE_VISION = "Motorola One Vision";
-    private static final String DEVICE_VIVO_1807 = "Vivo 1807";
-    private static final String DEVICE_REVVL_2 = "T-Mobile REVVL 2";
-    private static final String DEVICE_OPPO_CPH1831 = "Oppo R15 Pro (CPH1831)";
-    private static final String DEVICE_OPPO_CPH1903 = "Oppo A7 (CPH1903)";
-    private static final String DEVICE_OPPO_CPH1909 = "Oppo A5s (CPH1909)";
-    private static final String DEVICE_LM_Q720 = "LG Stylo 5 (LM-Q720)";
-    private static final String DEVICE_LG_Q710AL = "LG Q Stylo 4 (LG-Q710AL)";
-    private static final String DEVICE_RMX1941 = "Realme C2 (RMX1941)";
 
     private static final String OS_STOCK = "Stock";
     private static final String OS_GRAPHENE = "GrapheneOS";
@@ -275,20 +227,14 @@ class AttestationProtocol {
     }
 
     private static final ImmutableSet<String> extraPatchLevelMissing = ImmutableSet.of(
-            DEVICE_SM_A705FN,
             DEVICE_SM_G970F,
             DEVICE_SM_G975F,
             DEVICE_SM_N970F,
             DEVICE_SM_N970U,
-            DEVICE_SM_N975U,
-            DEVICE_SM_T510);
+            DEVICE_SM_N975U);
 
     static final ImmutableMap<String, DeviceInfo> fingerprintsCustomOS = ImmutableMap
             .<String, DeviceInfo>builder()
-            .put("B094E48B27C6E15661223CEFF539CF35E481DEB4E3250331E973AC2C15CAD6CD",
-                    new DeviceInfo(DEVICE_PIXEL_2, 2, 3, true, false, OS_GRAPHENE))
-            .put("B6851E9B9C0EBB7185420BD0E79D20A84CB15AB0B018505EFFAA4A72B9D9DAC7",
-                    new DeviceInfo(DEVICE_PIXEL_2_XL, 2, 3, true, false, OS_GRAPHENE))
             .put("0F9A9CC8ADE73064A54A35C5509E77994E3AA37B6FB889DD53AF82C3C570C5CF",
                     new DeviceInfo(DEVICE_PIXEL_3, 3, 4, false, true, OS_GRAPHENE))
             .put("06DD526EE9B1CB92AA19D9835B68B4FF1A48A3AD31D813F27C9A7D6C271E9451",
@@ -334,26 +280,8 @@ class AttestationProtocol {
             .build();
     static final ImmutableMap<String, DeviceInfo> fingerprintsStock = ImmutableMap
             .<String, DeviceInfo>builder()
-            .put("5341E6B2646979A70E57653007A1F310169421EC9BDD9F1A5648F75ADE005AF1",
-                    new DeviceInfo(DEVICE_HUAWEI, 2, 3, false, false, OS_STOCK))
-            .put("7E2E8CC82A77CA74554457E5DF3A3ED82E7032B3182D17FE17919BC6E989FF09",
-                    new DeviceInfo(DEVICE_HUAWEI_HONOR_7A_PRO, 2, 3, false, false, OS_STOCK))
-            .put("DFC2920C81E136FDD2A510478FDA137B262DC51D449EDD7D0BDB554745725CFE",
-                    new DeviceInfo(DEVICE_NOKIA, 2, 3, true, false, OS_STOCK))
-            .put("4D790FA0A5FE81D6B352B90AFE430684D9BC817518CD24C50E6343395F7C51F2",
-                    new DeviceInfo(DEVICE_NOKIA_3_1, 2, 3, false, false, OS_STOCK))
-            .put("893A17FD918235DB2865F7F6439EB0134A45B766AA452E0675BAC6CFB5A773AA",
-                    new DeviceInfo(DEVICE_NOKIA_7_1, 2, 3, true, false, OS_STOCK))
-            .put("6101853DFF451FAE5B137DF914D5E6C15C659337F2C405AC50B513A159071958",
-                    new DeviceInfo(DEVICE_ONEPLUS_6_A6003, 2, 3, true, false, OS_STOCK))
-            .put("1B90B7D1449D697FB2732A7D2DFA405D587254593F5137F7B6E64F7A0CE03BFD",
-                    new DeviceInfo(DEVICE_ONEPLUS_6T_A6013, 3, 4, false, false, OS_STOCK))
             .put("4B9201B11685BE6710E2B2BA8482F444E237E0C8A3D1F7F447FE29C37CECC559",
                     new DeviceInfo(DEVICE_ONEPLUS_7_PRO_GM1913, 3, 4, false, false, OS_STOCK))
-            .put("1962B0538579FFCE9AC9F507C46AFE3B92055BAC7146462283C85C500BE78D82",
-                    new DeviceInfo(DEVICE_PIXEL_2, 2, 3, true, false, OS_STOCK))
-            .put("171616EAEF26009FC46DC6D89F3D24217E926C81A67CE65D2E3A9DC27040C7AB",
-                    new DeviceInfo(DEVICE_PIXEL_2_XL, 2, 3, true, false, OS_STOCK))
             .put("61FDA12B32ED84214A9CF13D1AFFB7AA80BD8A268A861ED4BB7A15170F1AB00C",
                     new DeviceInfo(DEVICE_PIXEL_3_GENERIC, 3, 4, false, true, OS_STOCK))
             .put("E75B86C52C7496255A95FB1E2B1C044BFA9D5FE34DD1E4EEBD752EEF0EA89875",
@@ -388,94 +316,16 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_PIXEL_8_PRO, 300, 300, false, true, OS_STOCK))
             .put("9DE25FB02BB5530D44149D148437C82E267E557322530AA6F03B0AC2E92931DA",
                     new DeviceInfo(DEVICE_PIXEL_8A, 300, 300, false, true, OS_STOCK))
-            .put("72376CAACF11726D4922585732429FB97D0D1DD69F0D2E0770B9E61D14ADDE65",
-                    new DeviceInfo(DEVICE_SM_A705FN, 3, 4, false, false, OS_STOCK))
-            .put("33D9484FD512E610BCF00C502827F3D55A415088F276C6506657215E622FA770",
-                    new DeviceInfo(DEVICE_SM_G960F, 1, 2, false, false, OS_STOCK))
-            .put("266869F7CF2FB56008EFC4BE8946C8F84190577F9CA688F59C72DD585E696488",
-                    new DeviceInfo(DEVICE_SM_G960_NA, 1, 2, false, false, OS_STOCK))
-            .put("12E8460A7BAF709F3B6CF41C7E5A37C6EB4D11CB36CF7F61F7793C8DCDC3C2E4",
-                    new DeviceInfo(DEVICE_SM_G9600, 1, 2, false, false, OS_STOCK))
-            .put("D1C53B7A931909EC37F1939B14621C6E4FD19BF9079D195F86B3CEA47CD1F92D",
-                    new DeviceInfo(DEVICE_SM_G965F, 1, 2, false, false, OS_STOCK))
-            .put("A4A544C2CFBAEAA88C12360C2E4B44C29722FC8DBB81392A6C1FAEDB7BF63010",
-                    new DeviceInfo(DEVICE_SM_G965_MSM, 1, 2, false, false, OS_STOCK))
             .put("9D77474FA4FEA6F0B28636222FBCEE2BB1E6FF9856C736C85B8EA6E3467F2BBA",
                     new DeviceInfo(DEVICE_SM_G970F, 3, 4, false, false, OS_STOCK))
             .put("08B2B5C6EC8F54C00C505756E1EF516BB4537B2F02D640410D287A43FCF92E3F",
                     new DeviceInfo(DEVICE_SM_G975F, 3, 4, false, false, OS_STOCK))
-            .put("F0FC0AF47D3FE4F27D79CF629AD6AC42AA1EEDE0A29C0AE109A91BBD1E7CD76D",
-                    new DeviceInfo(DEVICE_SM_J260A, 1, 2, false, false, OS_STOCK))
-            .put("410102030405060708090001020304050607080900010203040506070809005A",
-                    new DeviceInfo(DEVICE_SM_J260F, 1, 2, false, false, OS_STOCK))
-            .put("D6B902D9E77DFC0FB3627FFEFA6D05405932EBB3A6ED077874B5E2A0CCBDB632",
-                    new DeviceInfo(DEVICE_SM_J260T1, 1, 2, false, false, OS_STOCK))
-            .put("4558C1AFB30D1B46CB93F85462BC7D7FCF70B0103B9DBB0FE96DD828F43F29FC",
-                    new DeviceInfo(DEVICE_SM_J337A, 1, 2, false, false, OS_STOCK))
-            .put("45E3AB5D61A03915AE10BF0465B186CB5D9A2FB6A46BEFAA76E4483BBA5A358D",
-                    new DeviceInfo(DEVICE_SM_J337T, 1, 2, false, false, OS_STOCK))
-            .put("D95279A8F2E832FD68D919DBF33CFE159D5A1179686DB0BD2D7BBBF2382C4DD3",
-                    new DeviceInfo(DEVICE_SM_J720F, 1, 2, false, false, OS_STOCK))
-            .put("BB053A5F64D3E3F17C4611340FF2BBE2F605B832A9FA412B2C87F2A163ECE2FB",
-                    new DeviceInfo(DEVICE_SM_J737T1, 1, 2, false, false, OS_STOCK))
-            .put("4E0570011025D01386D057B2B382969F804DCD19E001344535CF0CFDB8AD7CFE",
-                    new DeviceInfo(DEVICE_SM_M205F, 1, 2, false, false, OS_STOCK))
-            .put("2A7E4954C9F703F3AC805AC660EA1727B981DB39B1E0F41E4013FA2586D3DF7F",
-                    new DeviceInfo(DEVICE_SM_N960F, 1, 2, false, false, OS_STOCK))
-            .put("173ACFA8AE9EDE7BBD998F45A49231F3A4BDDF0779345732E309446B46B5641B",
-                    new DeviceInfo(DEVICE_SM_N960U, 1, 2, false, false, OS_STOCK))
             .put("E94BC43B97F98CD10C22CD9D8469DBE621116ECFA624FE291A1D53CF3CD685D1",
                     new DeviceInfo(DEVICE_SM_N970F, 3, 4, false, false, OS_STOCK))
             .put("466011C44BBF883DB38CF96617ED35C796CE2552C5357F9230258329E943DB70",
                     new DeviceInfo(DEVICE_SM_N970U, 3, 4, false, true, OS_STOCK))
             .put("52946676088007755EB586B3E3F3E8D3821BE5DF73513E6C13640507976420E6",
                     new DeviceInfo(DEVICE_SM_N975U, 3, 4, false, true, OS_STOCK))
-            .put("F3688C02D9676DEDB6909CADE364C271901FD66EA4F691AEB8B8921195E469C5",
-                    new DeviceInfo(DEVICE_SM_S367VL, 1, 2, false, false, OS_STOCK))
-            .put("106592D051E54388C6E601DFD61D59EB1674A8B93216C65C5B3E1830B73D3B82",
-                    new DeviceInfo(DEVICE_SM_T510, 3, 4, false, false, OS_STOCK))
-            .put("87790149AED63553B768456AAB6DAAD5678CD87BDEB2BF3649467085349C34E0",
-                    new DeviceInfo(DEVICE_SM_T835, 1, 2, false, false, OS_STOCK))
-            .put("4285AD64745CC79B4499817F264DC16BF2AF5163AF6C328964F39E61EC84693E",
-                    new DeviceInfo(DEVICE_SONY_XPERIA_XA2, 2, 3, true, false, OS_STOCK))
-            .put("54A9F21E9CFAD3A2D028517EF333A658302417DB7FB75E0A109A019646CC5F39",
-                    new DeviceInfo(DEVICE_SONY_XPERIA_XZ1, 2, 3, true, false, OS_STOCK))
-            .put("BC3B5E121974113939B8A2FE758F9B923F1D195F038D2FD1C04929F886E83BB5",
-                    new DeviceInfo(DEVICE_SONY_XPERIA_XZ2, 2, 3, false, false, OS_STOCK))
-            .put("94B8B4E3260B4BF8211A02CF2F3DE257A127CFFB2E4047D5580A752A5E253DE0",
-                    new DeviceInfo(DEVICE_SONY_XPERIA_XZ2_COMPACT, 2, 3, true, false, OS_STOCK))
-            .put("728800FEBB119ADD74519618AFEDB715E1C39FE08A4DE37D249BF54ACF1CE00F",
-                    new DeviceInfo(DEVICE_BLACKBERRY_KEY2, 2, 3, true, false, OS_STOCK))
-            .put("1194659B40EA291245E54A3C4EC4AA5B7077BD244D65C7DD8C0A2DBB9DB1FB35",
-                    new DeviceInfo(DEVICE_BQ_AQUARIS_X2_PRO, 2, 3, true, false, OS_STOCK))
-            .put("A9C6758D509600D0EB94FA8D2BF6EE7A6A6097F0CCEF94A755DDE065AA1AA1B0",
-                    new DeviceInfo(DEVICE_XIAOMI_MI_A2, 2, 3, true, false, OS_STOCK))
-            .put("6FA710B639848C9D47378937A1AFB1B6A52DDA738BEB6657E2AE70A15B40541A",
-                    new DeviceInfo(DEVICE_XIAOMI_MI_A2_LITE, 2, 3, true, false, OS_STOCK))
-            .put("84BC8445A29B5444A2D1629C9774C8626DAFF3574D865EC5067A78FAEC96B013",
-                    new DeviceInfo(DEVICE_XIAOMI_MI_9, 3, 4, false, false, OS_STOCK))
-            .put("1CC39488D2F85DEE0A8E0903CDC4124CFDF2BE2531ED6060B678057ED2CB89B4",
-                    new DeviceInfo(DEVICE_HTC, 2, 3, true, false, OS_STOCK))
-            .put("80BAB060807CFFA45D4747DF1AD706FEE3AE3F645F80CF14871DDBE27E14C30B",
-                    new DeviceInfo(DEVICE_MOTO_G7, 3, 4, false, false, OS_STOCK))
-            .put("C2224571C9CD5C89200A7311B1E37AA9CF751E2E19753E8D3702BCA00BE1D42C",
-                    new DeviceInfo(DEVICE_MOTOROLA_ONE_VISION, 2, 3, false, false, OS_STOCK))
-            .put("1F6D98D1B0E1F1CE1C872BD36C668F9DFDBE0D47594789E1540DF4E6198F657D",
-                    new DeviceInfo(DEVICE_VIVO_1807, 2, 3, true, false, OS_STOCK))
-            .put("C55635636999E9D0A0588D24402256B7F9F3AEE07B4F7E4E003F09FF0190AFAE",
-                    new DeviceInfo(DEVICE_REVVL_2, 2, 3, false, false, OS_STOCK))
-            .put("341C50D577DC5F3D5B46E8BFA22C22D1E5FC7D86D4D860E70B89222A7CBFC893",
-                    new DeviceInfo(DEVICE_OPPO_CPH1831, 2, 3, true, false, OS_STOCK))
-            .put("41BF0A26BB3AFDCCCC40F7B685083522EB5BF1C492F0EC4847F351265313CB07",
-                    new DeviceInfo(DEVICE_OPPO_CPH1903, 2, 3, true, false, OS_STOCK))
-            .put("7E19E217072BE6CB7A4C6F673FD3FB62DC51B3E204E7475838747947A3920DD8",
-                    new DeviceInfo(DEVICE_OPPO_CPH1909, 2, 3, false, false, OS_STOCK))
-            .put("0D5F986943D0CE0D4F9783C27EEBE175BE359927DB8B6546B667279A81133C3C",
-                    new DeviceInfo(DEVICE_LG_Q710AL, 2, 3, false, false, OS_STOCK))
-            .put("D20078F2AF2A7D3ECA3064018CB8BD47FBCA6EE61ABB41BA909D3C529CB802F4",
-                    new DeviceInfo(DEVICE_LM_Q720, 3, 4, false, false, OS_STOCK))
-            .put("54EC644C21FD8229E3B0066513337A8E2C8EF3098A3F974B6A1CFE456A683DAE",
-                    new DeviceInfo(DEVICE_RMX1941, 2, 3, false, false, OS_STOCK))
             .build();
 
     static final ImmutableMap<String, DeviceInfo> fingerprintsStrongBoxCustomOS = ImmutableMap
