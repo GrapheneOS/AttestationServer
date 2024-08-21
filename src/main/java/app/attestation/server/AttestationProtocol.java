@@ -195,6 +195,9 @@ class AttestationProtocol {
     private static final String DEVICE_PIXEL_8 = "Google Pixel 8";
     private static final String DEVICE_PIXEL_8_PRO = "Google Pixel 8 Pro";
     private static final String DEVICE_PIXEL_8A = "Google Pixel 8a";
+    private static final String DEVICE_PIXEL_9 = "Google Pixel 9";
+    private static final String DEVICE_PIXEL_9_PRO = "Google Pixel 9 Pro";
+    private static final String DEVICE_PIXEL_9_PRO_XL = "Google Pixel 9 Pro XL";
     private static final String DEVICE_SM_G970F = "Samsung Galaxy S10e (SM-G970F)";
     private static final String DEVICE_SM_G975F = "Samsung Galaxy S10+ (SM-G975F)";
     private static final String DEVICE_SM_N970F = "Samsung Galaxy Note 10 (SM-N970F)";
@@ -277,6 +280,12 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_PIXEL_8_PRO, 300, 300, false, true, OS_GRAPHENE))
             .put("096B8BD6D44527A24AC1564B308839F67E78202185CBFF9CFDCB10E63250BC5E",
                     new DeviceInfo(DEVICE_PIXEL_8A, 300, 300, false, true, OS_GRAPHENE))
+            .put("9E6A8F3E0D761A780179F93ACD5721BA1AB7C8C537C7761073C0A754B0E932DE",
+                    new DeviceInfo(DEVICE_PIXEL_9, 300, 300, false, true, OS_GRAPHENE))
+            .put("F729CAB861DA1B83FDFAB402FC9480758F2AE78EE0B61C1F2137DD1AB7076E86",
+                    new DeviceInfo(DEVICE_PIXEL_9_PRO, 300, 300, false, true, OS_GRAPHENE))
+            .put("55D3C2323DB91BB91F20D38D015E85112D038F6B6B5738FE352C1A80DBA57023",
+                    new DeviceInfo(DEVICE_PIXEL_9_PRO_XL, 300, 300, false, true, OS_GRAPHENE))
             .build();
     static final ImmutableMap<String, DeviceInfo> fingerprintsStock = ImmutableMap
             .<String, DeviceInfo>builder()
@@ -316,6 +325,12 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_PIXEL_8_PRO, 300, 300, false, true, OS_STOCK))
             .put("9DE25FB02BB5530D44149D148437C82E267E557322530AA6F03B0AC2E92931DA",
                     new DeviceInfo(DEVICE_PIXEL_8A, 300, 300, false, true, OS_STOCK))
+            .put("ACB5A4DD184E2C44CFA6A53D2D5C5E8674C9498A59F8AE8019942AC1FCEB1E6C",
+                    new DeviceInfo(DEVICE_PIXEL_9, 300, 300, false, true, OS_STOCK))
+            .put("06035F636BDB7F299A94B51C7D5645A913551327FFC5452B00C5830476D3208E",
+                    new DeviceInfo(DEVICE_PIXEL_9_PRO, 300, 300, false, true, OS_STOCK))
+            .put("D05975CFD778082E3D1623C91419F6D8634E579A786592118CCEA057537579B7",
+                    new DeviceInfo(DEVICE_PIXEL_9_PRO_XL, 300, 300, false, true, OS_STOCK))
             .put("9D77474FA4FEA6F0B28636222FBCEE2BB1E6FF9856C736C85B8EA6E3467F2BBA",
                     new DeviceInfo(DEVICE_SM_G970F, 3, 4, false, false, OS_STOCK))
             .put("08B2B5C6EC8F54C00C505756E1EF516BB4537B2F02D640410D287A43FCF92E3F",
@@ -373,6 +388,12 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_PIXEL_8_PRO, 300, 300, false, true, OS_GRAPHENE))
             .put("096B8BD6D44527A24AC1564B308839F67E78202185CBFF9CFDCB10E63250BC5E",
                     new DeviceInfo(DEVICE_PIXEL_8A, 300, 300, false, true, OS_GRAPHENE))
+            .put("9E6A8F3E0D761A780179F93ACD5721BA1AB7C8C537C7761073C0A754B0E932DE",
+                    new DeviceInfo(DEVICE_PIXEL_9, 300, 300, false, true, OS_GRAPHENE))
+            .put("F729CAB861DA1B83FDFAB402FC9480758F2AE78EE0B61C1F2137DD1AB7076E86",
+                    new DeviceInfo(DEVICE_PIXEL_9_PRO, 300, 300, false, true, OS_GRAPHENE))
+            .put("55D3C2323DB91BB91F20D38D015E85112D038F6B6B5738FE352C1A80DBA57023",
+                    new DeviceInfo(DEVICE_PIXEL_9_PRO_XL, 300, 300, false, true, OS_GRAPHENE))
             .build();
     static final ImmutableMap<String, DeviceInfo> fingerprintsStrongBoxStock = ImmutableMap
             .<String, DeviceInfo>builder()
@@ -410,6 +431,12 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_PIXEL_8_PRO, 300, 300, false, true, OS_STOCK))
             .put("9DE25FB02BB5530D44149D148437C82E267E557322530AA6F03B0AC2E92931DA",
                     new DeviceInfo(DEVICE_PIXEL_8A, 300, 300, false, true, OS_STOCK))
+            .put("ACB5A4DD184E2C44CFA6A53D2D5C5E8674C9498A59F8AE8019942AC1FCEB1E6C",
+                    new DeviceInfo(DEVICE_PIXEL_9, 300, 300, false, true, OS_STOCK))
+            .put("06035F636BDB7F299A94B51C7D5645A913551327FFC5452B00C5830476D3208E",
+                    new DeviceInfo(DEVICE_PIXEL_9_PRO, 300, 300, false, true, OS_STOCK))
+            .put("D05975CFD778082E3D1623C91419F6D8634E579A786592118CCEA057537579B7",
+                    new DeviceInfo(DEVICE_PIXEL_9_PRO_XL, 300, 300, false, true, OS_STOCK))
             .put("3D3DEB132A89551D0A700D230BABAE4E3E80E3C7926ACDD7BAEDF9B57AD316D0",
                     new DeviceInfo(DEVICE_SM_N970U, 3, 4, false, true, OS_STOCK))
             .put("9AC63842137D92C119A1B1BE2C9270B9EBB6083BBE6350B7823571942B5869F0",
