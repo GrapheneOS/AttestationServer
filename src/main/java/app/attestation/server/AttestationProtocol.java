@@ -211,8 +211,8 @@ class AttestationProtocol {
     static class DeviceInfo {
         final String name;
         final int attestationVersion;
-        // API for detecting this was replaced in keymaster v3 but the new one isn't used yet
         final int keymasterVersion;
+        // API for detecting this was replaced in keymaster v3 but the new one isn't used yet
         final boolean rollbackResistant;
         // enforce using StrongBox for new pairings
         final boolean enforceStrongBox;
