@@ -387,6 +387,13 @@ public class AttestationServer {
                     return;
                 }
                 handlePost(exchange);
+            } catch (final IOException e) {
+                if ("Broken pipe".equals(e.getMessage())) {
+                    logger.info("client abort");
+                } else {
+                    logger.log(Level.SEVERE, "unhandled error handling request", e);
+                }
+                exchange.sendResponseHeaders(500, -1);
             } catch (final Exception e) {
                 logger.log(Level.SEVERE, "unhandled error handling request", e);
                 exchange.sendResponseHeaders(500, -1);
