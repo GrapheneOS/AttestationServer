@@ -355,19 +355,19 @@ public class AttestationServer {
 
         public void checkRequestHeaders(final HttpExchange exchange) throws GeneralSecurityException {
             if (!ORIGIN.equals(getRequestHeaderValue(exchange, "Origin"))) {
-                throw new GeneralSecurityException();
+                throw new GeneralSecurityException("missing or invalid Origin header");
             }
             if (!"application/json".equals(getRequestHeaderValue(exchange, "Content-Type"))) {
-                throw new GeneralSecurityException();
+                throw new GeneralSecurityException("missing or invalid Content-Type header");
             }
             if (!"same-origin".equals(getRequestHeaderValue(exchange, "Sec-Fetch-Mode"))) {
-                throw new GeneralSecurityException();
+                throw new GeneralSecurityException("missing or invalid Sec-Fetch-Mode header");
             }
             if (!"same-origin".equals(getRequestHeaderValue(exchange, "Sec-Fetch-Site"))) {
-                throw new GeneralSecurityException();
+                throw new GeneralSecurityException("missing or invalid Sec-Fetch-Site header");
             }
             if (!"empty".equals(getRequestHeaderValue(exchange, "Sec-Fetch-Dest"))) {
-                throw new GeneralSecurityException();
+                throw new GeneralSecurityException("missing or invalid Sec-Fetch-Dest header");
             }
         }
 
@@ -382,7 +382,7 @@ public class AttestationServer {
                 try {
                     checkRequestHeaders(exchange);
                 } catch (final GeneralSecurityException e) {
-                    logger.log(Level.INFO, "invalid request headers", e);
+                    logger.info(e.getMessage());
                     exchange.sendResponseHeaders(403, -1);
                     return;
                 }
@@ -400,7 +400,7 @@ public class AttestationServer {
         @Override
         public void checkRequestHeaders(final HttpExchange exchange) throws GeneralSecurityException {
             if (getRequestHeaderValue(exchange, "Origin") != null) {
-                throw new GeneralSecurityException();
+                throw new GeneralSecurityException("expected no Origin header");
             }
         }
     }
