@@ -55,6 +55,8 @@ import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.DataFormatException;
@@ -266,6 +268,11 @@ public class AttestationServer {
 
     public static void main(final String[] args) throws Exception {
         Logger.getLogger("com.almworks.sqlite4java").setLevel(Level.OFF);
+
+        Logger.getLogger("app.attestation").setUseParentHandlers(false);
+        final ConsoleHandler handler = new ConsoleHandler();
+        handler.setFormatter(new JournaldFormatter());
+        Logger.getLogger("app.attestation").addHandler(handler);
 
         final SQLiteConnection samplesConn = open(SAMPLES_DATABASE);
         try {
