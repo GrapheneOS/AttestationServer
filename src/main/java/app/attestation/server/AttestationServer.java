@@ -448,13 +448,13 @@ public class AttestationServer {
 
     private static void validatePassword(final String password) throws GeneralSecurityException {
         if (password.length() < 8 || password.length() > 256) {
-            throw new GeneralSecurityException("invalid password");
+            throw new GeneralSecurityException("invalid password length");
         }
 
         try {
             validateUnicode(password);
         } catch (final CharacterCodingException e) {
-            throw new GeneralSecurityException(e);
+            throw new GeneralSecurityException("invalid Unicode for password", e);
         }
     }
 
@@ -517,7 +517,7 @@ public class AttestationServer {
                 select.dispose();
             }
             if (!MessageDigest.isEqual(hash(currentPassword.getBytes(), currentPasswordSalt), currentPasswordHash)) {
-                throw new GeneralSecurityException("invalid password");
+                throw new GeneralSecurityException("incorrect password for account " + userId);
             }
 
             final byte[] newPasswordSalt = generateRandomToken();
@@ -576,7 +576,7 @@ public class AttestationServer {
                 select.dispose();
             }
             if (!MessageDigest.isEqual(hash(password.getBytes(), passwordSalt), passwordHash)) {
-                throw new GeneralSecurityException("invalid password");
+                throw new GeneralSecurityException("incorrect password for account " + userId);
             }
 
             final long now = System.currentTimeMillis();
@@ -699,10 +699,11 @@ public class AttestationServer {
             try {
                 session = login(username, password);
             } catch (final UsernameUnavailableException e) {
+                logger.log(Level.INFO, "login error: no account for username " + username);
                 exchange.sendResponseHeaders(400, -1);
                 return;
             } catch (final GeneralSecurityException e) {
-                logger.log(Level.INFO, "invalid login information", e);
+                logger.info("login error: " + e.getMessage());
                 exchange.sendResponseHeaders(403, -1);
                 return;
             }
