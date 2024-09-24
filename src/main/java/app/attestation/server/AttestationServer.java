@@ -265,6 +265,8 @@ public class AttestationServer {
     }
 
     public static void main(final String[] args) throws Exception {
+        Logger.getLogger("com.almworks.sqlite4java").setLevel(Level.OFF);
+
         final SQLiteConnection samplesConn = open(SAMPLES_DATABASE);
         try {
             final SQLiteStatement selectCreated = samplesConn.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='Samples'");
