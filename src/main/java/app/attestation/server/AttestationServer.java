@@ -580,12 +580,12 @@ public class AttestationServer {
             }
 
             final long now = System.currentTimeMillis();
-            final SQLiteStatement delete = conn.prepare("DELETE FROM Sessions WHERE expiryTime < ?");
+            final SQLiteStatement deleteExpiredSessions = conn.prepare("DELETE FROM Sessions WHERE expiryTime < ?");
             try {
-                delete.bind(1, now);
-                delete.step();
+                deleteExpiredSessions.bind(1, now);
+                deleteExpiredSessions.step();
             } finally {
-                delete.dispose();
+                deleteExpiredSessions.dispose();
             }
 
             final byte[] token = generateRandomToken();

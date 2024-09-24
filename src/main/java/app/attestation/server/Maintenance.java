@@ -31,11 +31,13 @@ class Maintenance implements Runnable {
         } catch (final SQLiteException e) {
             throw new RuntimeException(e);
         }
+        final SQLiteStatement deleteExpiredSessions;
         final SQLiteStatement deleteDeletedDevices;
         final SQLiteStatement deleteInactiveDevices;
         final SQLiteStatement deleteLegacyHistory;
         final SQLiteStatement deleteInactiveAccounts;
         try {
+            deleteExpiredSessions = attestationConn.prepare("DELETE FROM Sessions WHERE expiryTime < ?");
             deleteDeletedDevices = attestationConn.prepare("DELETE FROM Devices WHERE deletionTime < ?");
             deleteInactiveDevices = attestationConn.prepare("DELETE FROM Devices WHERE verifiedTimeLast < ?");
             deleteLegacyHistory = attestationConn.prepare("DELETE FROM Attestations WHERE time < ?");
@@ -54,6 +56,10 @@ class Maintenance implements Runnable {
                 samplesConn.exec("VACUUM");
 
                 final long now = System.currentTimeMillis();
+
+                // This is also done as part of every login
+                deleteExpiredSessions.bind(1, now);
+                deleteExpiredSessions.step();
 
                 deleteDeletedDevices.bind(1, now - DELETE_EXPIRY_MS);
                 deleteDeletedDevices.step();
@@ -82,6 +88,7 @@ class Maintenance implements Runnable {
                 logger.log(Level.WARNING, "database error", e);
             } finally {
                 try {
+                    deleteExpiredSessions.reset();
                     deleteDeletedDevices.reset();
                     deleteInactiveDevices.reset();
                     deleteLegacyHistory.reset();
