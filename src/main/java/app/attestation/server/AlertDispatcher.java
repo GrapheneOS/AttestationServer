@@ -27,6 +27,8 @@ class AlertDispatcher implements Runnable {
 
     private static final Logger logger = Logger.getLogger(AlertDispatcher.class.getName());
 
+    private record Account(long userId, String username, int alertDelay) {}
+
     @Override
     public void run() {
         final SQLiteConnection conn;
@@ -114,18 +116,21 @@ class AlertDispatcher implements Runnable {
                             });
                 }
 
-                while (selectAccounts.step()) {
-                    final long userId = selectAccounts.columnLong(0);
-                    final String username = selectAccounts.columnString(1);
-                    final int alertDelay = selectAccounts.columnInt(2);
+                final ArrayList<Account> accounts = new ArrayList<>();
 
+                while (selectAccounts.step()) {
+                    accounts.add(new Account(selectAccounts.columnLong(0),
+                            selectAccounts.columnString(1), selectAccounts.columnInt(2)));
+                }
+
+                for (final Account account : accounts) {
                     final long now = System.currentTimeMillis();
 
                     long oldestExpiredTimeLast = now;
                     final ArrayList<byte[]> expiredFingerprints = new ArrayList<>();
                     final StringBuilder expired = new StringBuilder();
-                    selectExpired.bind(1, userId);
-                    selectExpired.bind(2, now - alertDelay * 1000);
+                    selectExpired.bind(1, account.userId);
+                    selectExpired.bind(2, now - account.alertDelay * 1000);
                     while (selectExpired.step()) {
                         final byte[] fingerprint = selectExpired.columnBlob(0);
                         expiredFingerprints.add(fingerprint);
@@ -147,9 +152,14 @@ class AlertDispatcher implements Runnable {
                     selectExpired.reset();
 
                     if (!expiredFingerprints.isEmpty() && oldestExpiredTimeLast < now - ALERT_THROTTLE_MS) {
-                        selectEmails.bind(1, userId);
+                        selectEmails.bind(1, account.userId);
+                        final ArrayList<String> addresses = new ArrayList<>();
                         while (selectEmails.step()) {
-                            final String address = selectEmails.columnString(0);
+                            addresses.add(selectEmails.columnString(0));
+                        }
+                        selectEmails.reset();
+
+                        for (final String address : addresses) {
                             logger.info("sending email to " + address);
                             try {
                                 final Message message = new MimeMessage(session);
@@ -158,8 +168,8 @@ class AlertDispatcher implements Runnable {
                                         InternetAddress.parse(address));
                                 message.setSubject(
                                         "Devices failed to provide valid attestations within " +
-                                        alertDelay / 60 / 60 + " hours");
-                                message.setText("This is an alert for the account '" + username + "'.\n\n" +
+                                        account.alertDelay / 60 / 60 + " hours");
+                                message.setText("This is an alert for the account '" + account.username + "'.\n\n" +
                                         "The following devices have failed to provide valid attestations before the expiry time:\n\n" +
                                         expired + "\nLog in to https://" + AttestationServer.DOMAIN + "/ for more information.\n\n" +
                                         "If you do not want to receive these alerts and cannot log in to the account,\nemail contact@" + AttestationServer.DOMAIN + " from the address receiving the alerts.");
@@ -176,11 +186,10 @@ class AlertDispatcher implements Runnable {
                                 logger.log(Level.WARNING, "email error", e);
                             }
                         }
-                        selectEmails.reset();
                     }
 
                     final StringBuilder failed = new StringBuilder();
-                    selectFailed.bind(1, userId);
+                    selectFailed.bind(1, account.userId);
                     while (selectFailed.step()) {
                         final byte[] fingerprint = selectFailed.columnBlob(0);
                         final String encoded = BaseEncoding.base16().encode(fingerprint);
@@ -189,9 +198,14 @@ class AlertDispatcher implements Runnable {
                     selectFailed.reset();
 
                     if (failed.length() > 0) {
-                        selectEmails.bind(1, userId);
+                        selectEmails.bind(1, account.userId);
+                        final ArrayList<String> addresses = new ArrayList<>();
                         while (selectEmails.step()) {
-                            final String address = selectEmails.columnString(0);
+                            addresses.add(selectEmails.columnString(0));
+                        }
+                        selectEmails.reset();
+
+                        for (final String address : addresses) {
                             logger.info("sending email to " + address);
                             try {
                                 final Message message = new MimeMessage(session);
@@ -199,7 +213,7 @@ class AlertDispatcher implements Runnable {
                                 message.setRecipients(Message.RecipientType.TO,
                                         InternetAddress.parse(address));
                                 message.setSubject("Devices provided invalid attestations");
-                                message.setText("This is an alert for the account '" + username + "'.\n\n" +
+                                message.setText("This is an alert for the account '" + account.username + "'.\n\n" +
                                         "The following devices have provided invalid attestations:\n\n" +
                                         failed + "\nLog in to https://" + AttestationServer.DOMAIN + "/ for more information.\n\n" +
                                         "If you do not want to receive these alerts and cannot log in to the account,\nemail contact@" + AttestationServer.DOMAIN + " from the address receiving the alerts");
@@ -209,7 +223,6 @@ class AlertDispatcher implements Runnable {
                                 logger.log(Level.WARNING, "email error", e);
                             }
                         }
-                        selectEmails.reset();
                     }
                 }
             } catch (final SQLiteException e) {
