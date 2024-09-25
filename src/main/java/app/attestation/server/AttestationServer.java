@@ -915,7 +915,7 @@ public class AttestationServer {
                     BarcodeFormat.QR_CODE, QR_CODE_PIXEL_SIZE, QR_CODE_PIXEL_SIZE, hints);
             MatrixToImageWriter.writeToStream(result, "png", output);
         } catch (WriterException e) {
-            throw new RuntimeException(e);
+            throw new IOException(e);
         }
     }
 
