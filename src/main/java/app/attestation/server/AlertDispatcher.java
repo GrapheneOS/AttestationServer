@@ -44,19 +44,22 @@ class AlertDispatcher implements Runnable {
         final SQLiteStatement selectFailed;
         final SQLiteStatement selectEmails;
         try {
-            selectConfiguration = conn.prepare("SELECT " +
-                    "(SELECT value FROM Configuration WHERE key = 'emailLocal'), " +
-                    "(SELECT value FROM Configuration WHERE key = 'emailUsername'), " +
-                    "(SELECT value FROM Configuration WHERE key = 'emailPassword'), " +
-                    "(SELECT value FROM Configuration WHERE key = 'emailHost'), " +
-                    "(SELECT value FROM Configuration WHERE key = 'emailPort')");
+            selectConfiguration = conn.prepare("""
+                    SELECT
+                    (SELECT value FROM Configuration WHERE key = 'emailLocal'),
+                    (SELECT value FROM Configuration WHERE key = 'emailUsername'),
+                    (SELECT value FROM Configuration WHERE key = 'emailPassword'),
+                    (SELECT value FROM Configuration WHERE key = 'emailHost'),
+                    (SELECT value FROM Configuration WHERE key = 'emailPort')""");
             selectAccounts = conn.prepare("SELECT userId, username, alertDelay FROM Accounts");
-            selectExpired = conn.prepare("SELECT fingerprint, expiredTimeLast FROM Devices " +
-                    "WHERE userId = ? AND verifiedTimeLast < ? AND deletionTime IS NULL");
-            updateExpired = conn.prepare("UPDATE Devices SET expiredTimeLast = ? " +
-                    "WHERE fingerprint = ?");
-            selectFailed = conn.prepare("SELECT fingerprint FROM Devices " +
-                    "WHERE userId = ? AND failureTimeLast IS NOT NULL AND deletionTime IS NULL");
+            selectExpired = conn.prepare("""
+                    SELECT fingerprint, expiredTimeLast FROM Devices
+                    WHERE userId = ? AND verifiedTimeLast < ? AND deletionTime IS NULL""");
+            updateExpired = conn.prepare(
+                    "UPDATE Devices SET expiredTimeLast = ? WHERE fingerprint = ?");
+            selectFailed = conn.prepare("""
+                    SELECT fingerprint FROM Devices
+                    WHERE userId = ? AND failureTimeLast IS NOT NULL AND deletionTime IS NULL""");
             selectEmails = conn.prepare("SELECT address FROM EmailAddresses WHERE userId = ?");
         } catch (final SQLiteException e) {
             conn.dispose();

@@ -135,123 +135,131 @@ public class AttestationServer {
     }
 
     private static void createAttestationTables(final SQLiteConnection conn) throws SQLiteException {
-        conn.exec(
-                "CREATE TABLE IF NOT EXISTS Configuration (\n" +
-                "key TEXT PRIMARY KEY NOT NULL,\n" +
-                "value ANY NOT NULL\n" +
-                ") STRICT");
+        conn.exec("""
+                CREATE TABLE IF NOT EXISTS Configuration (
+                key TEXT PRIMARY KEY NOT NULL,
+                value ANY NOT NULL
+                ) STRICT""");
 
-        conn.exec(
-                "CREATE TABLE IF NOT EXISTS Accounts (\n" +
-                "userId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n" +
-                "username TEXT NOT NULL COLLATE NOCASE UNIQUE,\n" +
-                "passwordHash BLOB NOT NULL,\n" +
-                "passwordSalt BLOB NOT NULL,\n" +
-                "subscribeKey BLOB NOT NULL,\n" +
-                "creationTime INTEGER NOT NULL,\n" +
-                "loginTime INTEGER NOT NULL,\n" +
-                "verifyInterval INTEGER NOT NULL,\n" +
-                "alertDelay INTEGER NOT NULL\n" +
-                ") STRICT");
+        conn.exec("""
+                CREATE TABLE IF NOT EXISTS Accounts (
+                userId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                username TEXT NOT NULL COLLATE NOCASE UNIQUE,
+                passwordHash BLOB NOT NULL,
+                passwordSalt BLOB NOT NULL,
+                subscribeKey BLOB NOT NULL,
+                creationTime INTEGER NOT NULL,
+                loginTime INTEGER NOT NULL,
+                verifyInterval INTEGER NOT NULL,
+                alertDelay INTEGER NOT NULL
+                ) STRICT""");
 
-        conn.exec(
-                "CREATE TABLE IF NOT EXISTS EmailAddresses (\n" +
-                "userId INTEGER NOT NULL REFERENCES Accounts (userId) ON DELETE CASCADE,\n" +
-                "address TEXT NOT NULL,\n" +
-                "PRIMARY KEY (userId, address)\n" +
-                ") STRICT");
+        conn.exec("""
+                CREATE TABLE IF NOT EXISTS EmailAddresses (
+                userId INTEGER NOT NULL REFERENCES Accounts (userId) ON DELETE CASCADE,
+                address TEXT NOT NULL,
+                PRIMARY KEY (userId, address)
+                ) STRICT""");
 
-        conn.exec(
-                "CREATE TABLE IF NOT EXISTS Sessions (\n" +
-                "sessionId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n" +
-                "userId INTEGER NOT NULL REFERENCES Accounts (userId) ON DELETE CASCADE,\n" +
-                "token BLOB NOT NULL,\n" +
-                "expiryTime INTEGER NOT NULL\n" +
-                ") STRICT");
+        conn.exec("""
+                CREATE TABLE IF NOT EXISTS Sessions (
+                sessionId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                userId INTEGER NOT NULL REFERENCES Accounts (userId) ON DELETE CASCADE,
+                token BLOB NOT NULL,
+                expiryTime INTEGER NOT NULL
+                ) STRICT""");
 
-        conn.exec(
-                "CREATE TABLE IF NOT EXISTS Devices (\n" +
-                "fingerprint BLOB NOT NULL PRIMARY KEY,\n" +
-                "pinnedCertificates BLOB NOT NULL,\n" +
-                "attestKey INTEGER NOT NULL CHECK (attestKey in (0, 1)),\n" +
-                "pinnedVerifiedBootKey BLOB NOT NULL,\n" +
-                "verifiedBootHash BLOB,\n" +
-                "pinnedOsVersion INTEGER NOT NULL,\n" +
-                "pinnedOsPatchLevel INTEGER NOT NULL,\n" +
-                "pinnedVendorPatchLevel INTEGER,\n" +
-                "pinnedBootPatchLevel INTEGER,\n" +
-                "pinnedAppVersion INTEGER NOT NULL,\n" +
-                "pinnedAppVariant INTEGER NOT NULL CHECK (pinnedAppVariant in (0, 1, 2)),\n" +
-                "pinnedSecurityLevel INTEGER NOT NULL,\n" +
-                "userProfileSecure INTEGER NOT NULL CHECK (userProfileSecure in (0, 1)),\n" +
-                "enrolledBiometrics INTEGER NOT NULL CHECK (enrolledBiometrics in (0, 1)),\n" +
-                "accessibility INTEGER NOT NULL CHECK (accessibility in (0, 1)),\n" +
-                "deviceAdmin INTEGER NOT NULL CHECK (deviceAdmin in (0, 1, 2)),\n" +
-                "adbEnabled INTEGER NOT NULL CHECK (adbEnabled in (0, 1)),\n" +
-                "addUsersWhenLocked INTEGER NOT NULL CHECK (addUsersWhenLocked in (0, 1)),\n" +
-                "denyNewUsb INTEGER NOT NULL CHECK (denyNewUsb in (0, 1)),\n" +
-                "oemUnlockAllowed INTEGER NOT NULL CHECK (oemUnlockAllowed in (0, 1)),\n" +
-                "systemUser INTEGER NOT NULL CHECK (systemUser in (0, 1)),\n" +
-                "verifiedTimeFirst INTEGER NOT NULL,\n" +
-                "verifiedTimeLast INTEGER NOT NULL,\n" +
-                "expiredTimeLast INTEGER,\n" +
-                "failureTimeLast INTEGER,\n" +
-                "userId INTEGER NOT NULL REFERENCES Accounts (userId) ON DELETE CASCADE,\n" +
-                "deletionTime INTEGER\n" +
-                ") STRICT");
+        conn.exec("""
+                CREATE TABLE IF NOT EXISTS Devices (
+                fingerprint BLOB NOT NULL PRIMARY KEY,
+                pinnedCertificates BLOB NOT NULL,
+                attestKey INTEGER NOT NULL CHECK (attestKey in (0, 1)),
+                pinnedVerifiedBootKey BLOB NOT NULL,
+                verifiedBootHash BLOB,
+                pinnedOsVersion INTEGER NOT NULL,
+                pinnedOsPatchLevel INTEGER NOT NULL,
+                pinnedVendorPatchLevel INTEGER,
+                pinnedBootPatchLevel INTEGER,
+                pinnedAppVersion INTEGER NOT NULL,
+                pinnedAppVariant INTEGER NOT NULL CHECK (pinnedAppVariant in (0, 1, 2)),
+                pinnedSecurityLevel INTEGER NOT NULL,
+                userProfileSecure INTEGER NOT NULL CHECK (userProfileSecure in (0, 1)),
+                enrolledBiometrics INTEGER NOT NULL CHECK (enrolledBiometrics in (0, 1)),
+                accessibility INTEGER NOT NULL CHECK (accessibility in (0, 1)),
+                deviceAdmin INTEGER NOT NULL CHECK (deviceAdmin in (0, 1, 2)),
+                adbEnabled INTEGER NOT NULL CHECK (adbEnabled in (0, 1)),
+                addUsersWhenLocked INTEGER NOT NULL CHECK (addUsersWhenLocked in (0, 1)),
+                denyNewUsb INTEGER NOT NULL CHECK (denyNewUsb in (0, 1)),
+                oemUnlockAllowed INTEGER NOT NULL CHECK (oemUnlockAllowed in (0, 1)),
+                systemUser INTEGER NOT NULL CHECK (systemUser in (0, 1)),
+                verifiedTimeFirst INTEGER NOT NULL,
+                verifiedTimeLast INTEGER NOT NULL,
+                expiredTimeLast INTEGER,
+                failureTimeLast INTEGER,
+                userId INTEGER NOT NULL REFERENCES Accounts (userId) ON DELETE CASCADE,
+                deletionTime INTEGER
+                ) STRICT""");
 
-        conn.exec(
-                "CREATE TABLE IF NOT EXISTS Attestations (\n" +
-                "id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n" +
-                "fingerprint BLOB NOT NULL REFERENCES Devices (fingerprint) ON DELETE CASCADE,\n" +
-                "time INTEGER NOT NULL,\n" +
-                "strong INTEGER NOT NULL CHECK (strong in (0, 1)),\n" +
-                "osVersion INTEGER NOT NULL,\n" +
-                "osPatchLevel INTEGER NOT NULL,\n" +
-                "vendorPatchLevel INTEGER,\n" +
-                "bootPatchLevel INTEGER,\n" +
-                "verifiedBootHash BLOB,\n" +
-                "appVersion INTEGER NOT NULL,\n" +
-                "userProfileSecure INTEGER NOT NULL CHECK (userProfileSecure in (0, 1)),\n" +
-                "enrolledBiometrics INTEGER NOT NULL CHECK (enrolledBiometrics in (0, 1)),\n" +
-                "accessibility INTEGER NOT NULL CHECK (accessibility in (0, 1)),\n" +
-                "deviceAdmin INTEGER NOT NULL CHECK (deviceAdmin in (0, 1, 2)),\n" +
-                "adbEnabled INTEGER NOT NULL CHECK (adbEnabled in (0, 1)),\n" +
-                "addUsersWhenLocked INTEGER NOT NULL CHECK (addUsersWhenLocked in (0, 1)),\n" +
-                "denyNewUsb INTEGER NOT NULL CHECK (denyNewUsb in (0, 1)),\n" +
-                "oemUnlockAllowed INTEGER NOT NULL CHECK (oemUnlockAllowed in (0, 1)),\n" +
-                "systemUser INTEGER NOT NULL CHECK (systemUser in (0, 1))\n" +
-                ") STRICT");
+        conn.exec("""
+                CREATE TABLE IF NOT EXISTS Attestations (
+                id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                fingerprint BLOB NOT NULL REFERENCES Devices (fingerprint) ON DELETE CASCADE,
+                time INTEGER NOT NULL,
+                strong INTEGER NOT NULL CHECK (strong in (0, 1)),
+                osVersion INTEGER NOT NULL,
+                osPatchLevel INTEGER NOT NULL,
+                vendorPatchLevel INTEGER,
+                bootPatchLevel INTEGER,
+                verifiedBootHash BLOB,
+                appVersion INTEGER NOT NULL,
+                userProfileSecure INTEGER NOT NULL CHECK (userProfileSecure in (0, 1)),
+                enrolledBiometrics INTEGER NOT NULL CHECK (enrolledBiometrics in (0, 1)),
+                accessibility INTEGER NOT NULL CHECK (accessibility in (0, 1)),
+                deviceAdmin INTEGER NOT NULL CHECK (deviceAdmin in (0, 1, 2)),
+                adbEnabled INTEGER NOT NULL CHECK (adbEnabled in (0, 1)),
+                addUsersWhenLocked INTEGER NOT NULL CHECK (addUsersWhenLocked in (0, 1)),
+                denyNewUsb INTEGER NOT NULL CHECK (denyNewUsb in (0, 1)),
+                oemUnlockAllowed INTEGER NOT NULL CHECK (oemUnlockAllowed in (0, 1)),
+                systemUser INTEGER NOT NULL CHECK (systemUser in (0, 1))
+                ) STRICT""");
     }
 
     private static void createAttestationIndices(final SQLiteConnection conn) throws SQLiteException {
-        conn.exec("CREATE INDEX IF NOT EXISTS Accounts_loginTime " +
-                "ON Accounts (loginTime)");
+        conn.exec("""
+                CREATE INDEX IF NOT EXISTS Accounts_loginTime
+                ON Accounts (loginTime)""");
 
-        conn.exec("CREATE INDEX IF NOT EXISTS Sessions_expiryTime " +
-                "ON Sessions (expiryTime)");
-        conn.exec("CREATE INDEX IF NOT EXISTS Sessions_userId " +
-                "ON Sessions (userId)");
+        conn.exec("""
+                CREATE INDEX IF NOT EXISTS Sessions_expiryTime
+                ON Sessions (expiryTime)""");
+        conn.exec("""
+                CREATE INDEX IF NOT EXISTS Sessions_userId
+                ON Sessions (userId)""");
 
-        conn.exec("CREATE INDEX IF NOT EXISTS Devices_userId_verifiedTimeFirst " +
-                "ON Devices (userId, verifiedTimeFirst)");
-        conn.exec("CREATE INDEX IF NOT EXISTS Devices_userId_verifiedTimeLast_deletionTimeNull " +
-                "ON Devices (userId, verifiedTimeLast) WHERE deletionTime IS NULL");
-        conn.exec("CREATE INDEX IF NOT EXISTS Devices_deletionTime " +
-                "ON Devices (deletionTime) WHERE deletionTime IS NOT NULL");
-        conn.exec("CREATE INDEX IF NOT EXISTS Devices_verifiedTimeLast_deletionTimeNull " +
-                "ON Devices (verifiedTimeLast) WHERE deletionTime IS NULL");
+        conn.exec("""
+                CREATE INDEX IF NOT EXISTS Devices_userId_verifiedTimeFirst
+                ON Devices (userId, verifiedTimeFirst)""");
+        conn.exec("""
+                CREATE INDEX IF NOT EXISTS Devices_userId_verifiedTimeLast_deletionTimeNull
+                ON Devices (userId, verifiedTimeLast) WHERE deletionTime IS NULL""");
+        conn.exec("""
+                CREATE INDEX IF NOT EXISTS Devices_deletionTime
+                ON Devices (deletionTime) WHERE deletionTime IS NOT NULL""");
+        conn.exec("""
+                CREATE INDEX IF NOT EXISTS Devices_verifiedTimeLast_deletionTimeNull
+                ON Devices (verifiedTimeLast) WHERE deletionTime IS NULL""");
 
-        conn.exec("CREATE INDEX IF NOT EXISTS Attestations_fingerprint_id " +
-                "ON Attestations (fingerprint, id)");
+        conn.exec("""
+                CREATE INDEX IF NOT EXISTS Attestations_fingerprint_id
+                ON Attestations (fingerprint, id)""");
     }
 
     private static void createSamplesTable(final SQLiteConnection conn) throws SQLiteException {
-        conn.exec(
-                "CREATE TABLE IF NOT EXISTS Samples (\n" +
-                "sample BLOB NOT NULL,\n" +
-                "time INTEGER NOT NULL\n" +
-                ") STRICT");
+        conn.exec("""
+                CREATE TABLE IF NOT EXISTS Samples (
+                sample BLOB NOT NULL,
+                time INTEGER NOT NULL
+                ) STRICT""");
     }
 
     private static int getUserVersion(final SQLiteConnection conn) throws SQLiteException {
@@ -276,7 +284,8 @@ public class AttestationServer {
 
         final SQLiteConnection samplesConn = open(SAMPLES_DATABASE);
         try {
-            final SQLiteStatement selectCreated = samplesConn.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='Samples'");
+            final SQLiteStatement selectCreated = samplesConn.prepare(
+                    "SELECT 1 FROM sqlite_master WHERE type='table' AND name='Samples'");
             if (!selectCreated.step()) {
                 samplesConn.exec("PRAGMA user_version = 1");
             }
@@ -298,7 +307,8 @@ public class AttestationServer {
 
         final SQLiteConnection attestationConn = open(ATTESTATION_DATABASE);
         try {
-            final SQLiteStatement selectCreated = attestationConn.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='Configuration'");
+            final SQLiteStatement selectCreated = attestationConn.prepare(
+                    "SELECT 1 FROM sqlite_master WHERE type='table' AND name='Configuration'");
             if (!selectCreated.step()) {
                 attestationConn.exec("PRAGMA user_version = 11");
             }
@@ -485,9 +495,10 @@ public class AttestationServer {
 
         final SQLiteConnection conn = getLocalAttestationConn();
         try {
-            final SQLiteStatement insert = conn.prepare("INSERT INTO Accounts " +
-                    "(username, passwordHash, passwordSalt, subscribeKey, creationTime, loginTime, verifyInterval, alertDelay) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            final SQLiteStatement insert = conn.prepare("""
+                    INSERT INTO Accounts
+                    (username, passwordHash, passwordSalt, subscribeKey, creationTime, loginTime, verifyInterval, alertDelay)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)""");
             try {
                 insert.bind(1, username);
                 insert.bind(2, passwordHash);
@@ -520,8 +531,8 @@ public class AttestationServer {
         try {
             conn.exec("BEGIN IMMEDIATE TRANSACTION");
 
-            final SQLiteStatement select = conn.prepare("SELECT passwordHash, passwordSalt " +
-                    "FROM Accounts WHERE userId = ?");
+            final SQLiteStatement select = conn.prepare(
+                    "SELECT passwordHash, passwordSalt FROM Accounts WHERE userId = ?");
             final byte[] currentPasswordHash;
             final byte[] currentPasswordSalt;
             try {
@@ -539,8 +550,8 @@ public class AttestationServer {
             final byte[] newPasswordSalt = generateRandomToken();
             final byte[] newPasswordHash = hash(newPassword.getBytes(), newPasswordSalt);
 
-            final SQLiteStatement update = conn.prepare("UPDATE Accounts " +
-                    "SET passwordHash = ?, passwordSalt = ? WHERE userId = ?");
+            final SQLiteStatement update = conn.prepare(
+                    "UPDATE Accounts SET passwordHash = ?, passwordSalt = ? WHERE userId = ?");
             try {
                 update.bind(1, newPasswordHash);
                 update.bind(2, newPasswordSalt);
@@ -575,8 +586,8 @@ public class AttestationServer {
         try {
             conn.exec("BEGIN IMMEDIATE TRANSACTION");
 
-            final SQLiteStatement select = conn.prepare("SELECT userId, passwordHash, " +
-                    "passwordSalt FROM Accounts WHERE username = ?");
+            final SQLiteStatement select = conn.prepare(
+                "SELECT userId, passwordHash, passwordSalt FROM Accounts WHERE username = ?");
             final long userId;
             final byte[] passwordHash;
             final byte[] passwordSalt;
@@ -596,7 +607,8 @@ public class AttestationServer {
             }
 
             final long now = System.currentTimeMillis();
-            final SQLiteStatement deleteExpiredSessions = conn.prepare("DELETE FROM Sessions WHERE expiryTime < ?");
+            final SQLiteStatement deleteExpiredSessions = conn.prepare(
+                    "DELETE FROM Sessions WHERE expiryTime < ?");
             try {
                 deleteExpiredSessions.bind(1, now);
                 deleteExpiredSessions.step();
@@ -606,8 +618,8 @@ public class AttestationServer {
 
             final byte[] token = generateRandomToken();
 
-            final SQLiteStatement insert = conn.prepare("INSERT INTO Sessions " +
-                    "(userId, token, expiryTime) VALUES (?, ?, ?)");
+            final SQLiteStatement insert = conn.prepare(
+                    "INSERT INTO Sessions (userId, token, expiryTime) VALUES (?, ?, ?)");
             try {
                 insert.bind(1, userId);
                 insert.bind(2, token);
@@ -617,8 +629,8 @@ public class AttestationServer {
                 insert.dispose();
             }
 
-            final SQLiteStatement updateLoginTime = conn.prepare("UPDATE Accounts SET " +
-                    "loginTime = ? WHERE userId = ?");
+            final SQLiteStatement updateLoginTime = conn.prepare(
+                    "UPDATE Accounts SET loginTime = ? WHERE userId = ?");
             try {
                 updateLoginTime.bind(1, now);
                 updateLoginTime.bind(2, userId);
@@ -775,8 +787,8 @@ public class AttestationServer {
             final SQLiteConnection conn = getLocalAttestationConn();
             final byte[] subscribeKey = generateRandomToken();
 
-            final SQLiteStatement select = conn.prepare("UPDATE Accounts SET " +
-                    "subscribeKey = ? WHERE userId = ?");
+            final SQLiteStatement select = conn.prepare(
+                    "UPDATE Accounts SET subscribeKey = ? WHERE userId = ?");
             try {
                 select.bind(1, subscribeKey);
                 select.bind(2, account.userId);
@@ -847,11 +859,11 @@ public class AttestationServer {
         final byte[] token = Base64.getDecoder().decode(session[1]);
 
         final SQLiteConnection conn = getLocalAttestationConn();
-        final SQLiteStatement select = conn.prepare("SELECT token, expiryTime, " +
-                "username, subscribeKey, Accounts.userId, verifyInterval, alertDelay " +
-                "FROM Sessions " +
-                "INNER JOIN Accounts on Accounts.userId = Sessions.userId " +
-                "WHERE sessionId = ?");
+        final SQLiteStatement select = conn.prepare("""
+                SELECT token, expiryTime, username, subscribeKey, Accounts.userId, verifyInterval, alertDelay
+                FROM Sessions
+                INNER JOIN Accounts on Accounts.userId = Sessions.userId
+                WHERE sessionId = ?""");
         try {
             select.bind(1, sessionId);
             if (!select.step() || !MessageDigest.isEqual(token, select.columnBlob(0))) {
@@ -867,8 +879,8 @@ public class AttestationServer {
             }
 
             if (end) {
-                final SQLiteStatement delete = conn.prepare("DELETE FROM Sessions " +
-                        "WHERE sessionId = ?");
+                final SQLiteStatement delete = conn.prepare(
+                        "DELETE FROM Sessions WHERE sessionId = ?");
                 try {
                     delete.bind(1, sessionId);
                     delete.step();
@@ -897,8 +909,8 @@ public class AttestationServer {
             accountJson.add("alertDelay", account.alertDelay);
 
             final SQLiteConnection conn = getLocalAttestationConn();
-            final SQLiteStatement select = conn.prepare("SELECT address FROM EmailAddresses " +
-                    "WHERE userId = ?");
+            final SQLiteStatement select = conn.prepare(
+                    "SELECT address FROM EmailAddresses WHERE userId = ?");
             try {
                 select.bind(1, account.userId);
                 if (select.step()) {
@@ -1000,8 +1012,8 @@ public class AttestationServer {
             try {
                 conn.exec("BEGIN IMMEDIATE TRANSACTION");
 
-                final SQLiteStatement update = conn.prepare("UPDATE Accounts SET " +
-                        "verifyInterval = ?, alertDelay = ? WHERE userId = ?");
+                final SQLiteStatement update = conn.prepare(
+                        "UPDATE Accounts SET verifyInterval = ?, alertDelay = ? WHERE userId = ?");
                 try {
                     update.bind(1, verifyInterval);
                     update.bind(2, alertDelay);
@@ -1011,8 +1023,8 @@ public class AttestationServer {
                     update.dispose();
                 }
 
-                final SQLiteStatement delete = conn.prepare("DELETE FROM EmailAddresses " +
-                        "WHERE userId = ?");
+                final SQLiteStatement delete = conn.prepare(
+                        "DELETE FROM EmailAddresses WHERE userId = ?");
                 try {
                     delete.bind(1, account.userId);
                     delete.step();
@@ -1021,8 +1033,8 @@ public class AttestationServer {
                 }
 
                 if (!email.isEmpty()) {
-                    final SQLiteStatement insert = conn.prepare("INSERT INTO EmailAddresses " +
-                            "(userId, address) VALUES (?, ?)");
+                    final SQLiteStatement insert = conn.prepare(
+                            "INSERT INTO EmailAddresses (userId, address) VALUES (?, ?)");
                     try {
                         insert.bind(1, account.userId);
                         insert.bind(2, email);
@@ -1059,8 +1071,8 @@ public class AttestationServer {
             }
 
             final SQLiteConnection conn = getLocalAttestationConn();
-            final SQLiteStatement update = conn.prepare("UPDATE Devices SET " +
-                    "deletionTime = ? WHERE userId = ? AND fingerprint = ?");
+            final SQLiteStatement update = conn.prepare(
+                    "UPDATE Devices SET deletionTime = ? WHERE userId = ? AND fingerprint = ?");
             try {
                 update.bind(1, System.currentTimeMillis());
                 update.bind(2, account.userId);
@@ -1089,18 +1101,17 @@ public class AttestationServer {
             throws IOException, SQLiteException {
         final JsonArrayBuilder devices = Json.createArrayBuilder();
         final SQLiteConnection conn = getLocalAttestationConn();
-        final SQLiteStatement select = conn.prepare("SELECT fingerprint, " +
-                "pinnedCertificates, attestKey, hex(pinnedVerifiedBootKey), " +
-                "(SELECT hex(verifiedBootHash) WHERE verifiedBootHash IS NOT NULL), " +
-                "pinnedOsVersion, pinnedOsPatchLevel, pinnedVendorPatchLevel, " +
-                "pinnedBootPatchLevel, pinnedAppVersion, pinnedAppVariant, pinnedSecurityLevel, " +
-                "userProfileSecure, enrolledBiometrics, accessibility, deviceAdmin, " +
-                "adbEnabled, addUsersWhenLocked, denyNewUsb, oemUnlockAllowed, " +
-                "systemUser, verifiedTimeFirst, verifiedTimeLast, " +
-                "(SELECT min(id) FROM Attestations WHERE Attestations.fingerprint = Devices.fingerprint), " +
-                "(SELECT max(id) FROM Attestations WHERE Attestations.fingerprint = Devices.fingerprint) " +
-                "FROM Devices WHERE userId is ? AND deletionTime IS NULL " +
-                "ORDER BY verifiedTimeFirst");
+        final SQLiteStatement select = conn.prepare("""
+                SELECT fingerprint, pinnedCertificates, attestKey, hex(pinnedVerifiedBootKey),
+                (SELECT hex(verifiedBootHash) WHERE verifiedBootHash IS NOT NULL),
+                pinnedOsVersion, pinnedOsPatchLevel, pinnedVendorPatchLevel, pinnedBootPatchLevel,
+                pinnedAppVersion, pinnedAppVariant, pinnedSecurityLevel, userProfileSecure,
+                enrolledBiometrics, accessibility, deviceAdmin, adbEnabled, addUsersWhenLocked,
+                denyNewUsb, oemUnlockAllowed, systemUser, verifiedTimeFirst, verifiedTimeLast,
+                (SELECT min(id) FROM Attestations WHERE Attestations.fingerprint = Devices.fingerprint),
+                (SELECT max(id) FROM Attestations WHERE Attestations.fingerprint = Devices.fingerprint)
+                FROM Devices WHERE userId is ? AND deletionTime IS NULL
+                ORDER BY verifiedTimeFirst""");
         try {
             select.bind(1, userId);
             while (select.step()) {
@@ -1219,16 +1230,17 @@ public class AttestationServer {
         final JsonArrayBuilder attestations = Json.createArrayBuilder();
         final byte[] fingerprint = BaseEncoding.base16().decode(deviceFingerprint);
         final SQLiteConnection conn = getLocalAttestationConn();
-        final SQLiteStatement history = conn.prepare("SELECT id, time, strong, osVersion, osPatchLevel, " +
-                "vendorPatchLevel, bootPatchLevel, Attestations.verifiedBootHash, appVersion, " +
-                "Attestations.userProfileSecure, Attestations.enrolledBiometrics, " +
-                "Attestations.accessibility, Attestations.deviceAdmin, Attestations.adbEnabled, " +
-                "Attestations.addUsersWhenLocked, Attestations.denyNewUsb, " +
-                "Attestations.oemUnlockAllowed, Attestations.systemUser " +
-                "FROM Attestations INNER JOIN Devices ON " +
-                "Attestations.fingerprint = Devices.fingerprint " +
-                "WHERE Devices.fingerprint = ? AND userid = ? " +
-                "AND Attestations.id <= ? ORDER BY id DESC LIMIT " + HISTORY_PER_PAGE);
+        final SQLiteStatement history = conn.prepare("""
+                SELECT id, time, strong, osVersion, osPatchLevel,
+                vendorPatchLevel, bootPatchLevel, Attestations.verifiedBootHash, appVersion,
+                Attestations.userProfileSecure, Attestations.enrolledBiometrics,
+                Attestations.accessibility, Attestations.deviceAdmin, Attestations.adbEnabled,
+                Attestations.addUsersWhenLocked, Attestations.denyNewUsb,
+                Attestations.oemUnlockAllowed, Attestations.systemUser
+                FROM Attestations INNER JOIN Devices ON
+                Attestations.fingerprint = Devices.fingerprint
+                WHERE Devices.fingerprint = ? AND userid = ?
+                AND Attestations.id <= ? ORDER BY id DESC LIMIT\s""" + HISTORY_PER_PAGE);
         int rowCount = 0;
         try {
             history.bind(1, fingerprint);
@@ -1317,8 +1329,8 @@ public class AttestationServer {
             final byte[] currentSubscribeKey;
             final int verifyInterval;
             final SQLiteConnection conn = getLocalAttestationConn();
-            final SQLiteStatement select = conn.prepare("SELECT subscribeKey, verifyInterval " +
-                    "FROM Accounts WHERE userId = ?");
+            final SQLiteStatement select = conn.prepare(
+                    "SELECT subscribeKey, verifyInterval FROM Accounts WHERE userId = ?");
             try {
                 select.bind(1, userId);
                 if (!select.step()) {
@@ -1398,8 +1410,8 @@ public class AttestationServer {
 
             final SQLiteConnection conn = open(SAMPLES_DATABASE);
             try {
-                final SQLiteStatement insert = conn.prepare("INSERT INTO Samples " +
-                       "(sample, time) VALUES (?, ?)");
+                final SQLiteStatement insert = conn.prepare(
+                        "INSERT INTO Samples (sample, time) VALUES (?, ?)");
                 try {
                     insert.bind(1, sample.toByteArray());
                     insert.bind(2, System.currentTimeMillis());
