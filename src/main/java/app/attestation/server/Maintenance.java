@@ -29,7 +29,8 @@ class Maintenance implements Runnable {
             samplesConn = AttestationServer.open(AttestationServer.SAMPLES_DATABASE);
             attestationConn = AttestationServer.open(AttestationServer.ATTESTATION_DATABASE);
         } catch (final SQLiteException e) {
-            throw new RuntimeException(e);
+            logger.log(Level.SEVERE, "database error, cannot set up Maintenance thread", e);
+            return;
         }
         final SQLiteStatement deleteExpiredSessions;
         final SQLiteStatement deleteDeletedDevices;
@@ -46,7 +47,8 @@ class Maintenance implements Runnable {
         } catch (final SQLiteException e) {
             attestationConn.dispose();
             samplesConn.dispose();
-            throw new RuntimeException(e);
+            logger.log(Level.SEVERE, "database error, cannot set up Maintenance thread", e);
+            return;
         }
 
         while (true) {

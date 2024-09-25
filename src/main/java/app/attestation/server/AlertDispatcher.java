@@ -35,7 +35,8 @@ class AlertDispatcher implements Runnable {
         try {
             conn = AttestationServer.open(AttestationServer.ATTESTATION_DATABASE);
         } catch (final SQLiteException e) {
-            throw new RuntimeException(e);
+            logger.log(Level.SEVERE, "database error, cannot set up AlertDispatcher thread", e);
+            return;
         }
         final SQLiteStatement selectConfiguration;
         final SQLiteStatement selectAccounts;
@@ -63,7 +64,8 @@ class AlertDispatcher implements Runnable {
             selectEmails = conn.prepare("SELECT address FROM EmailAddresses WHERE userId = ?");
         } catch (final SQLiteException e) {
             conn.dispose();
-            throw new RuntimeException(e);
+            logger.log(Level.SEVERE, "database error, cannot set up AlertDispatcher thread", e);
+            return;
         }
 
         while (true) {
