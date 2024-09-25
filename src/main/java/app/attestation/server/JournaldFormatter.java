@@ -73,6 +73,6 @@ class JournaldFormatter extends Formatter {
             pw.close();
             throwable = sw.toString().replace("\n", newline);
         }
-        return String.format("<%s>%s: %s%s\n", level, source, message, throwable);
+        return "<%s>%s: %s%s\n".formatted(level, source, message, throwable);
     }
 }

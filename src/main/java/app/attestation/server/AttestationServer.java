@@ -726,7 +726,7 @@ public class AttestationServer {
 
             final Base64.Encoder encoder = Base64.getEncoder();
             exchange.getResponseHeaders().set("Set-Cookie",
-                    String.format("__Host-session=%d|%s; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=%d",
+                    "__Host-session=%d|%s; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=%d".formatted(
                         session.sessionId, new String(encoder.encode(session.token)),
                         SESSION_LENGTH / 1000));
             exchange.sendResponseHeaders(200, -1);
