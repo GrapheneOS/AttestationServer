@@ -568,15 +568,7 @@ public class AttestationServer {
         }
     }
 
-    private static class Session {
-        final long sessionId;
-        final byte[] token;
-
-        Session(final long sessionId, final byte[] token) {
-            this.sessionId = sessionId;
-            this.token = token;
-        }
-    }
+    private record Session(long sessionId, byte[] token) {}
 
     private static Session login(final String username, final String password)
             throws GeneralSecurityException, SQLiteException {
@@ -825,22 +817,7 @@ public class AttestationServer {
                 "__Host-session=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0");
     }
 
-    private static class Account {
-        final long userId;
-        final String username;
-        final byte[] subscribeKey;
-        final int verifyInterval;
-        final int alertDelay;
-
-        Account(final long userId, final String username, final byte[] subscribeKey,
-                final int verifyInterval, final int alertDelay) {
-            this.userId = userId;
-            this.username = username;
-            this.subscribeKey = subscribeKey;
-            this.verifyInterval = verifyInterval;
-            this.alertDelay = alertDelay;
-        }
-    }
+    private record Account(long userId, String username, byte[] subscribeKey, int verifyInterval, int alertDelay) {}
 
     private static Account verifySession(final HttpExchange exchange, final boolean end)
             throws IOException, SQLiteException {
