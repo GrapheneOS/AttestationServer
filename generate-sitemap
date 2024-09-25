@@ -25,7 +25,7 @@ entries = []
 for page in pages:
     path = page[0]
     loc = base + path
-    filepath = "static-production" + path
+    filepath = "static-staging" + path
     if path[-1] == '/':
         filepath += "index.html"
     elif "." not in path:
