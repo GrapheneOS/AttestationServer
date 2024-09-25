@@ -86,7 +86,7 @@ class AttestationServer {
     private static final int HISTORY_PER_PAGE = 20;
     private static final long MMAP_SIZE = 1024 * 1024 * 1024;
 
-    static final String DOMAIN = "attestation.app";
+    static final String DOMAIN = "staging.attestation.app";
     private static final String ORIGIN = "https://" + DOMAIN;
 
     private static final long POST_START_DELAY_MS = 1000;
