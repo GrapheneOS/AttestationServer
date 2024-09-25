@@ -1127,8 +1127,8 @@ public class AttestationServer {
                         }
                     }
                 }
-                device.add("osName", info.osName);
-                device.add("name", info.name);
+                device.add("osName", info.osName());
+                device.add("name", info.name());
                 if (!select.columnNull(4)) {
                     device.add("verifiedBootHash", select.columnString(4));
                 }

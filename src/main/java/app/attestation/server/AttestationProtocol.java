@@ -209,26 +209,10 @@ class AttestationProtocol {
     private static final String OS_STOCK = "Stock";
     private static final String OS_GRAPHENE = "GrapheneOS";
 
-    static class DeviceInfo {
-        final String name;
-        final int attestationVersion;
-        final int keymasterVersion;
-        // API for detecting this was replaced in keymaster v3 but the new one isn't used yet
-        final boolean rollbackResistant;
-        // enforce using StrongBox for new pairings
-        final boolean enforceStrongBox;
-        final String osName;
-
-        DeviceInfo(final String name, final int attestationVersion, final int keymasterVersion,
-                final boolean rollbackResistant, final boolean enforceStrongBox, final String osName) {
-            this.name = name;
-            this.attestationVersion = attestationVersion;
-            this.keymasterVersion = keymasterVersion;
-            this.rollbackResistant = rollbackResistant;
-            this.enforceStrongBox = enforceStrongBox;
-            this.osName = osName;
-        }
-    }
+    public record DeviceInfo(String name, int attestationVersion, int keymasterVersion,
+            // API for detecting this was replaced in keymaster v3 but the new one isn't used yet
+            boolean rollbackResistant,
+            boolean enforceStrongBox, String osName) {}
 
     private static final ImmutableSet<String> extraPatchLevelMissing = ImmutableSet.of(
             DEVICE_SM_G970F,
@@ -937,38 +921,9 @@ class AttestationProtocol {
         return FINGERPRINT_HASH_FUNCTION.hashBytes(certificate.getEncoded()).asBytes();
     }
 
-    private static class Verified {
-        final String device;
-        final String verifiedBootKey;
-        final byte[] verifiedBootHash;
-        final String osName;
-        final int osVersion;
-        final int osPatchLevel;
-        final int vendorPatchLevel;
-        final int bootPatchLevel;
-        final int appVersion;
-        final byte appVariant;
-        final int securityLevel;
-        final boolean attestKey;
-
-        Verified(final String device, final String verifiedBootKey, final byte[] verifiedBootHash,
-                final String osName, final int osVersion, final int osPatchLevel,
-                final int vendorPatchLevel, final int bootPatchLevel, final int appVersion, byte appVariant,
-                final int securityLevel, final boolean attestKey) {
-            this.device = device;
-            this.verifiedBootKey = verifiedBootKey;
-            this.verifiedBootHash = verifiedBootHash;
-            this.osName = osName;
-            this.osVersion = osVersion;
-            this.osPatchLevel = osPatchLevel;
-            this.vendorPatchLevel = vendorPatchLevel;
-            this.bootPatchLevel = bootPatchLevel;
-            this.appVersion = appVersion;
-            this.appVariant = appVariant;
-            this.securityLevel = securityLevel;
-            this.attestKey = attestKey;
-        }
-    }
+    private record Verified(String device, String verifiedBootKey, byte[] verifiedBootHash,
+            String osName, int osVersion, int osPatchLevel, int vendorPatchLevel, int bootPatchLevel,
+            int appVersion, int appVariant, int securityLevel, boolean attestKey) {}
 
     private static X509Certificate generateCertificate(final InputStream in)
             throws CertificateException {
