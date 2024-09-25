@@ -296,8 +296,9 @@ public class AttestationServer {
             createSamplesTable(samplesConn);
 
             if (userVersion < 1) {
-                throw new RuntimeException(SAMPLES_DATABASE + " database schemas older than version 1 are no longer " +
+                logger.severe(SAMPLES_DATABASE + " database schemas older than version 1 are no longer " +
                         "supported. Use an older AttestationServer revision to upgrade.");
+                System.exit(1);
             }
 
             logger.info("Finished database setup for " + SAMPLES_DATABASE);
@@ -320,8 +321,9 @@ public class AttestationServer {
             createAttestationIndices(attestationConn);
 
             if (userVersion < 11) {
-                throw new RuntimeException(ATTESTATION_DATABASE + " database schemas older than version 10 are no longer " +
+                logger.severe(ATTESTATION_DATABASE + " database schemas older than version 10 are no longer " +
                         "supported. Use an older AttestationServer revision to upgrade.");
+                System.exit(1);
             }
 
             logger.info("Finished database setup for " + ATTESTATION_DATABASE);
