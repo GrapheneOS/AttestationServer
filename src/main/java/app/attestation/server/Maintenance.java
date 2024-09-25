@@ -9,6 +9,8 @@ import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static app.attestation.server.SyslogLevel.CRIT;
+
 class Maintenance implements Runnable {
     private static final long WAIT_MS = 24 * 60 * 60 * 1000;
     private static final long DELETE_EXPIRY_MS = 7L * 24 * 60 * 60 * 1000;
@@ -29,7 +31,7 @@ class Maintenance implements Runnable {
             samplesConn = AttestationServer.open(AttestationServer.SAMPLES_DATABASE);
             attestationConn = AttestationServer.open(AttestationServer.ATTESTATION_DATABASE);
         } catch (final SQLiteException e) {
-            logger.log(Level.SEVERE, "database error, cannot set up Maintenance thread", e);
+            logger.log(CRIT, "database error, cannot set up Maintenance thread", e);
             return;
         }
         final SQLiteStatement deleteExpiredSessions;
@@ -47,7 +49,7 @@ class Maintenance implements Runnable {
         } catch (final SQLiteException e) {
             attestationConn.dispose();
             samplesConn.dispose();
-            logger.log(Level.SEVERE, "database error, cannot set up Maintenance thread", e);
+            logger.log(CRIT, "database error, cannot set up Maintenance thread", e);
             return;
         }
 

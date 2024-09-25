@@ -17,6 +17,8 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static app.attestation.server.SyslogLevel.CRIT;
+
 class AlertDispatcher implements Runnable {
     private static final long WAIT_MS = 15 * 60 * 1000;
     private static final int TIMEOUT_MS = 30 * 1000;
@@ -35,7 +37,7 @@ class AlertDispatcher implements Runnable {
         try {
             conn = AttestationServer.open(AttestationServer.ATTESTATION_DATABASE);
         } catch (final SQLiteException e) {
-            logger.log(Level.SEVERE, "database error, cannot set up AlertDispatcher thread", e);
+            logger.log(CRIT, "database error, cannot set up AlertDispatcher thread", e);
             return;
         }
         final SQLiteStatement selectConfiguration;
@@ -64,7 +66,7 @@ class AlertDispatcher implements Runnable {
             selectEmails = conn.prepare("SELECT address FROM EmailAddresses WHERE userId = ?");
         } catch (final SQLiteException e) {
             conn.dispose();
-            logger.log(Level.SEVERE, "database error, cannot set up AlertDispatcher thread", e);
+            logger.log(CRIT, "database error, cannot set up AlertDispatcher thread", e);
             return;
         }
 

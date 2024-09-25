@@ -126,3 +126,15 @@ Standard attestation message in the same format as the Auditor app QR code.
 
 Returns space-separated values in plain text: `<subscribeKey> <verifyInterval>`. Additional fields
 may be added in the future.
+
+## Logging
+
+Logs are written via stderr for journald. Log guidelines:
+
+emerg: filesystem or database corruption
+alert: service fully not functioning
+crit: service partially not functioning
+error: service side error for a specific request
+warning: login failures, unexpected errors triggered by clients and missing setup for full functionality such as sending alerts
+info: security-relevant events such as logins, expected errors triggered by clients and status logging
+debug: not used in production
