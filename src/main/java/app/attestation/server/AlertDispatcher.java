@@ -95,7 +95,7 @@ class AlertDispatcher implements Runnable {
                 final Session session;
                 if (local == 1) {
                     if (emailUsername == null) {
-                        logger.warning("missing email configuration");
+                        logger.warning("missing configuration for sending alert emails");
                         continue;
                     }
                     final Properties props = new Properties();
@@ -105,7 +105,7 @@ class AlertDispatcher implements Runnable {
                     session = Session.getInstance(props);
                 } else {
                     if (emailUsername == null || emailPassword == null || emailHost == null || emailPort == null) {
-                        logger.warning("missing email configuration");
+                        logger.warning("missing configuration for sending alert emails");
                         continue;
                     }
 
