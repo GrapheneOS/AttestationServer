@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 import static app.attestation.server.SyslogLevel.CRIT;
 
 class Maintenance implements Runnable {
+    private static final long INITIAL_WAIT_MS = 60 * 1000;
     private static final long WAIT_MS = 24 * 60 * 60 * 1000;
     private static final long DELETE_EXPIRY_MS = 7L * 24 * 60 * 60 * 1000;
     private static final long INACTIVE_DEVICE_EXPIRY_MS = 90L * 24 * 60 * 60 * 1000;
@@ -54,6 +55,12 @@ class Maintenance implements Runnable {
         }
 
         while (true) {
+            try {
+                Thread.sleep(INITIAL_WAIT_MS);
+            } catch (final InterruptedException e) {
+                return;
+            }
+
             logger.info("maintenance started");
 
             try {
