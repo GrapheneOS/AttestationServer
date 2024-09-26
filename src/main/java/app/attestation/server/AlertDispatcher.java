@@ -41,7 +41,7 @@ class AlertDispatcher implements Runnable {
             return;
         }
         final SQLiteStatement selectConfiguration;
-        final SQLiteStatement selectAccounts;
+        final SQLiteStatement selectAccountsForExpiryAlert;
         final SQLiteStatement selectExpired;
         final SQLiteStatement updateExpired;
         final SQLiteStatement selectFailed;
@@ -54,9 +54,13 @@ class AlertDispatcher implements Runnable {
                     (SELECT value FROM Configuration WHERE key = 'emailPassword'),
                     (SELECT value FROM Configuration WHERE key = 'emailHost'),
                     (SELECT value FROM Configuration WHERE key = 'emailPort')""");
-            selectAccounts = conn.prepare("SELECT userId, username, alertDelay FROM Accounts");
+            selectAccountsForExpiryAlert = conn.prepare("""
+                    SELECT userId, username, alertDelay FROM Accounts
+                    WHERE (SELECT 1 FROM Devices WHERE userId = Accounts.userID
+                        AND verifiedTimeLast < ? - alertDelay * 1000 AND deletionTime is NULL
+                        AND (expiredTimeLast IS NULL OR expiredTimeLast < ?))""");
             selectExpired = conn.prepare("""
-                    SELECT fingerprint, expiredTimeLast FROM Devices
+                    SELECT fingerprint FROM Devices
                     WHERE userId = ? AND verifiedTimeLast < ? AND deletionTime IS NULL""");
             updateExpired = conn.prepare(
                     "UPDATE Devices SET expiredTimeLast = ? WHERE fingerprint = ?");
@@ -123,17 +127,18 @@ class AlertDispatcher implements Runnable {
                             });
                 }
 
-                final ArrayList<Account> accounts = new ArrayList<>();
-
-                while (selectAccounts.step()) {
-                    accounts.add(new Account(selectAccounts.columnLong(0),
-                            selectAccounts.columnString(1), selectAccounts.columnInt(2)));
+                final ArrayList<Account> accountsForExpiryAlert = new ArrayList<>();
+                final long now = System.currentTimeMillis();
+                selectAccountsForExpiryAlert.bind(1, now);
+                selectAccountsForExpiryAlert.bind(2, now - ALERT_THROTTLE_MS);
+                while (selectAccountsForExpiryAlert.step()) {
+                    accountsForExpiryAlert.add(new Account(
+                            selectAccountsForExpiryAlert.columnLong(0),
+                            selectAccountsForExpiryAlert.columnString(1),
+                            selectAccountsForExpiryAlert.columnInt(2)));
                 }
 
-                for (final Account account : accounts) {
-                    final long now = System.currentTimeMillis();
-
-                    long oldestExpiredTimeLast = now;
+                for (final Account account : accountsForExpiryAlert) {
                     final ArrayList<byte[]> expiredFingerprints = new ArrayList<>();
                     final StringBuilder expired = new StringBuilder();
                     selectExpired.bind(1, account.userId);
@@ -141,7 +146,6 @@ class AlertDispatcher implements Runnable {
                     while (selectExpired.step()) {
                         final byte[] fingerprint = selectExpired.columnBlob(0);
                         expiredFingerprints.add(fingerprint);
-                        oldestExpiredTimeLast = Math.min(oldestExpiredTimeLast, selectExpired.columnLong(1));
 
                         expired.append("* ");
 
@@ -158,43 +162,49 @@ class AlertDispatcher implements Runnable {
                     }
                     selectExpired.reset();
 
-                    if (!expiredFingerprints.isEmpty() && oldestExpiredTimeLast < now - ALERT_THROTTLE_MS) {
-                        selectEmails.bind(1, account.userId);
-                        final ArrayList<String> addresses = new ArrayList<>();
-                        while (selectEmails.step()) {
-                            addresses.add(selectEmails.columnString(0));
-                        }
-                        selectEmails.reset();
-
-                        for (final String address : addresses) {
-                            logger.info("sending email to " + address);
-                            try {
-                                final Message message = new MimeMessage(session);
-                                message.setFrom(new InternetAddress(emailUsername));
-                                message.setRecipients(Message.RecipientType.TO,
-                                        InternetAddress.parse(address));
-                                message.setSubject(
-                                        "Devices failed to provide valid attestations within " +
-                                        account.alertDelay / 60 / 60 + " hours");
-                                message.setText("This is an alert for the account '" + account.username + "'.\n\n" +
-                                        "The following devices have failed to provide valid attestations before the expiry time:\n\n" +
-                                        expired + "\nLog in to https://" + AttestationServer.DOMAIN + "/ for more information.\n\n" +
-                                        "If you do not want to receive these alerts and cannot log in to the account,\nemail contact@" + AttestationServer.DOMAIN + " from the address receiving the alerts.");
-
-                                Transport.send(message);
-
-                                for (final byte[] fingerprint : expiredFingerprints) {
-                                    updateExpired.bind(1, now);
-                                    updateExpired.bind(2, fingerprint);
-                                    updateExpired.step();
-                                    updateExpired.reset();
-                                }
-                            } catch (final MessagingException e) {
-                                logger.log(Level.WARNING, "email error", e);
-                            }
-                        }
+                    if (expiredFingerprints.isEmpty()) {
+                        continue;
                     }
 
+                    selectEmails.bind(1, account.userId);
+                    final ArrayList<String> addresses = new ArrayList<>();
+                    while (selectEmails.step()) {
+                        addresses.add(selectEmails.columnString(0));
+                    }
+                    selectEmails.reset();
+
+                    for (final String address : addresses) {
+                        logger.info("sending email to " + address);
+                        try {
+                            final Message message = new MimeMessage(session);
+                            message.setFrom(new InternetAddress(emailUsername));
+                            message.setRecipients(Message.RecipientType.TO,
+                                    InternetAddress.parse(address));
+                            message.setSubject(
+                                    "Devices failed to provide valid attestations within " +
+                                    account.alertDelay / 60 / 60 + " hours");
+                            message.setText("This is an alert for the account '" + account.username + "'.\n\n" +
+                                    "The following devices have failed to provide valid attestations before the expiry time:\n\n" +
+                                    expired + "\nLog in to https://" + AttestationServer.DOMAIN + "/ for more information.\n\n" +
+                                    "If you do not want to receive these alerts and cannot log in to the account,\nemail contact@" + AttestationServer.DOMAIN + " from the address receiving the alerts.");
+
+                            Transport.send(message);
+
+                            for (final byte[] fingerprint : expiredFingerprints) {
+                                updateExpired.bind(1, now);
+                                updateExpired.bind(2, fingerprint);
+                                updateExpired.step();
+                                updateExpired.reset();
+                            }
+                        } catch (final MessagingException e) {
+                            logger.log(Level.WARNING, "email error", e);
+                        }
+                    }
+                }
+
+                final ArrayList<Account> accountsForFailureAlert = new ArrayList<>();
+
+                for (final Account account : accountsForFailureAlert) {
                     final StringBuilder failed = new StringBuilder();
                     selectFailed.bind(1, account.userId);
                     while (selectFailed.step()) {
@@ -237,7 +247,7 @@ class AlertDispatcher implements Runnable {
             } finally {
                 try {
                     selectConfiguration.reset();
-                    selectAccounts.reset();
+                    selectAccountsForExpiryAlert.reset();
                     selectExpired.reset();
                     updateExpired.reset();
                     selectFailed.reset();
