@@ -176,7 +176,7 @@ class AlertDispatcher implements Runnable {
                     selectEmails.reset();
 
                     for (final String address : addresses) {
-                        logger.info("sending email to " + address);
+                        logger.info("sending email to " + address + " for account " + account.userId);
                         try {
                             final Message message = new MimeMessage(session);
                             message.setFrom(new InternetAddress(emailUsername));
@@ -225,7 +225,7 @@ class AlertDispatcher implements Runnable {
                         selectEmails.reset();
 
                         for (final String address : addresses) {
-                            logger.info("sending email to " + address);
+                            logger.info("sending email to " + address + " for account " + account.userId);
                             try {
                                 final Message message = new MimeMessage(session);
                                 message.setFrom(new InternetAddress(emailUsername));
