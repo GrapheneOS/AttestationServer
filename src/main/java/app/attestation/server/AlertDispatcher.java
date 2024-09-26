@@ -90,6 +90,7 @@ class AlertDispatcher implements Runnable {
                 final String emailPassword = selectConfiguration.columnString(2);
                 final String emailHost = selectConfiguration.columnString(3);
                 final String emailPort = selectConfiguration.columnString(4);
+                selectConfiguration.reset();
 
                 final Session session;
                 if (local == 1) {
@@ -137,6 +138,7 @@ class AlertDispatcher implements Runnable {
                             selectAccountsForExpiryAlert.columnString(1),
                             selectAccountsForExpiryAlert.columnInt(2)));
                 }
+                selectAccountsForExpiryAlert.reset();
 
                 for (final Account account : accountsForExpiryAlert) {
                     final ArrayList<byte[]> expiredFingerprints = new ArrayList<>();
