@@ -73,7 +73,7 @@ public class AttestationServer {
     static final File SAMPLES_DATABASE = new File("samples.db");
     private static final int MAX_SAMPLE_SIZE = 64 * 1024;
 
-    private static final int DEFAULT_VERIFY_INTERVAL = 4 * 60 * 60;
+    private static final int DEFAULT_VERIFY_INTERVAL = 6 * 60 * 60;
     private static final int MIN_VERIFY_INTERVAL = 60 * 60;
     private static final int MAX_VERIFY_INTERVAL = 7 * 24 * 70 * 60;
     private static final int DEFAULT_ALERT_DELAY = 48 * 60 * 60;
