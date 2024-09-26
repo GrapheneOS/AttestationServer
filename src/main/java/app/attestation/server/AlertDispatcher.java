@@ -246,6 +246,8 @@ class AlertDispatcher implements Runnable {
                     logger.log(Level.WARNING, "database error", e);
                 }
             }
+
+            logger.info("dispatching alerts completed");
         }
     }
 }
