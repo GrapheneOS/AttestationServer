@@ -216,31 +216,33 @@ class AlertDispatcher implements Runnable {
                     }
                     selectFailed.reset();
 
-                    if (failed.length() > 0) {
-                        selectEmails.bind(1, account.userId);
-                        final ArrayList<String> addresses = new ArrayList<>();
-                        while (selectEmails.step()) {
-                            addresses.add(selectEmails.columnString(0));
-                        }
-                        selectEmails.reset();
+                    if (failed.length() == 0) {
+                        continue;
+                    }
 
-                        for (final String address : addresses) {
-                            logger.info("sending email to " + address + " for account " + account.userId);
-                            try {
-                                final Message message = new MimeMessage(session);
-                                message.setFrom(new InternetAddress(emailUsername));
-                                message.setRecipients(Message.RecipientType.TO,
-                                        InternetAddress.parse(address));
-                                message.setSubject("Devices provided invalid attestations");
-                                message.setText("This is an alert for the account '" + account.username + "'.\n\n" +
-                                        "The following devices have provided invalid attestations:\n\n" +
-                                        failed + "\nLog in to https://" + AttestationServer.DOMAIN + "/ for more information.\n\n" +
-                                        "If you do not want to receive these alerts and cannot log in to the account,\nemail contact@" + AttestationServer.DOMAIN + " from the address receiving the alerts");
+                    selectEmails.bind(1, account.userId);
+                    final ArrayList<String> addresses = new ArrayList<>();
+                    while (selectEmails.step()) {
+                        addresses.add(selectEmails.columnString(0));
+                    }
+                    selectEmails.reset();
 
-                                Transport.send(message);
-                            } catch (final MessagingException e) {
-                                logger.log(Level.WARNING, "email error", e);
-                            }
+                    for (final String address : addresses) {
+                        logger.info("sending email to " + address + " for account " + account.userId);
+                        try {
+                            final Message message = new MimeMessage(session);
+                            message.setFrom(new InternetAddress(emailUsername));
+                            message.setRecipients(Message.RecipientType.TO,
+                                    InternetAddress.parse(address));
+                            message.setSubject("Devices provided invalid attestations");
+                            message.setText("This is an alert for the account '" + account.username + "'.\n\n" +
+                                    "The following devices have provided invalid attestations:\n\n" +
+                                    failed + "\nLog in to https://" + AttestationServer.DOMAIN + "/ for more information.\n\n" +
+                                    "If you do not want to receive these alerts and cannot log in to the account,\nemail contact@" + AttestationServer.DOMAIN + " from the address receiving the alerts");
+
+                            Transport.send(message);
+                        } catch (final MessagingException e) {
+                            logger.log(Level.WARNING, "email error", e);
                         }
                     }
                 }
