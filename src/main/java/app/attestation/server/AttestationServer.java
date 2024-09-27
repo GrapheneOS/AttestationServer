@@ -449,14 +449,6 @@ public class AttestationServer {
         }
     }
 
-    private static final SecureRandom random = new SecureRandom();
-
-    private static byte[] generateRandomToken() {
-        final byte[] token = new byte[32];
-        random.nextBytes(token);
-        return token;
-    }
-
     private static byte[] hash(final byte[] password, final byte[] salt) {
         return SCrypt.generate(password, salt, 32768, 8, 1, 32);
     }
@@ -492,9 +484,9 @@ public class AttestationServer {
         validateUsername(username);
         validatePassword(password);
 
-        final byte[] passwordSalt = generateRandomToken();
+        final byte[] passwordSalt = AttestationProtocol.generateRandomToken();
         final byte[] passwordHash = hash(password.getBytes(), passwordSalt);
-        final byte[] subscribeKey = generateRandomToken();
+        final byte[] subscribeKey = AttestationProtocol.generateRandomToken();
 
         final SQLiteConnection conn = getLocalAttestationConn();
         try {
@@ -550,7 +542,7 @@ public class AttestationServer {
                 throw new GeneralSecurityException("incorrect password for account " + userId);
             }
 
-            final byte[] newPasswordSalt = generateRandomToken();
+            final byte[] newPasswordSalt = AttestationProtocol.generateRandomToken();
             final byte[] newPasswordHash = hash(newPassword.getBytes(), newPasswordSalt);
 
             final SQLiteStatement update = conn.prepare(
@@ -611,7 +603,7 @@ public class AttestationServer {
                 deleteExpiredSessions.dispose();
             }
 
-            final byte[] token = generateRandomToken();
+            final byte[] token = AttestationProtocol.generateRandomToken();
 
             final SQLiteStatement insert = conn.prepare(
                     "INSERT INTO Sessions (userId, token, expiryTime) VALUES (?, ?, ?)");
@@ -780,7 +772,7 @@ public class AttestationServer {
                 return;
             }
             final SQLiteConnection conn = getLocalAttestationConn();
-            final byte[] subscribeKey = generateRandomToken();
+            final byte[] subscribeKey = AttestationProtocol.generateRandomToken();
 
             final SQLiteStatement select = conn.prepare(
                     "UPDATE Accounts SET subscribeKey = ? WHERE userId = ?");
@@ -1273,12 +1265,12 @@ public class AttestationServer {
     private static class ChallengeHandler extends AppPostHandler {
         @Override
         public void handlePost(final HttpExchange exchange) throws IOException {
-            final byte[] challenge = AttestationProtocol.getChallenge();
+            final byte[] challenge = AttestationProtocol.generateRandomToken();
             pendingChallenges.put(ByteBuffer.wrap(challenge), true);
 
             final byte[] challengeMessage =
                     Bytes.concat(new byte[]{AttestationProtocol.PROTOCOL_VERSION},
-                            new byte[AttestationProtocol.CHALLENGE_LENGTH], challenge);
+                            new byte[AttestationProtocol.RANDOM_TOKEN_LENGTH], challenge);
 
             exchange.sendResponseHeaders(200, challengeMessage.length);
             try (final OutputStream output = exchange.getResponseBody()) {
