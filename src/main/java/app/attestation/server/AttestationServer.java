@@ -322,7 +322,7 @@ public class AttestationServer {
             createAttestationIndices(attestationConn);
 
             if (userVersion < 11) {
-                logger.log(ALERT, ATTESTATION_DATABASE + " database schemas older than version 10 are no longer " +
+                logger.log(ALERT, ATTESTATION_DATABASE + " database schemas older than version 11 are no longer " +
                         "supported. Use an older AttestationServer revision to upgrade.");
                 System.exit(1);
             }
