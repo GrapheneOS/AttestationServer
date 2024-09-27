@@ -325,8 +325,11 @@ public class AttestationServer {
                 System.exit(1);
             }
 
+            int targetUserVersion;
+
             // add pinnedAppVariant column to Devices table with default 0 value
-            if (userVersion < 12) {
+            targetUserVersion = 12;
+            if (userVersion < targetUserVersion) {
                 attestationConn.exec("PRAGMA foreign_keys = OFF");
                 attestationConn.exec("BEGIN IMMEDIATE TRANSACTION");
 
@@ -437,15 +440,16 @@ public class AttestationServer {
                 attestationConn.exec("DROP TABLE OldAttestations");
 
                 createAttestationIndices(attestationConn);
-                attestationConn.exec("PRAGMA user_version = 12");
+                attestationConn.exec("PRAGMA user_version = " + targetUserVersion);
                 attestationConn.exec("COMMIT TRANSACTION");
-                userVersion = 12;
+                userVersion = targetUserVersion;
                 attestationConn.exec("PRAGMA foreign_keys = ON");
                 logger.info("Migrated to schema version: " + userVersion);
             }
 
             // update DEFLATE dictionary from 2 to 4
-            if (userVersion < 13) {
+            targetUserVersion = 13;
+            if (userVersion < targetUserVersion) {
                 attestationConn.exec("BEGIN IMMEDIATE TRANSACTION");
 
                 final SQLiteStatement select = attestationConn.prepare(
@@ -462,9 +466,9 @@ public class AttestationServer {
                 select.dispose();
                 update.dispose();
 
-                attestationConn.exec("PRAGMA user_version = 13");
+                attestationConn.exec("PRAGMA user_version = " + targetUserVersion);
                 attestationConn.exec("COMMIT TRANSACTION");
-                userVersion = 13;
+                userVersion = targetUserVersion;
                 logger.info("Migrated to schema version: " + userVersion);
             }
 
