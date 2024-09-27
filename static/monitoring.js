@@ -71,9 +71,9 @@ function toAppVariantString(appVariant) {
 function toSecurityLevelString(securityLevel, attestKey) {
     if (securityLevel == 2) {
         if (attestKey) {
-            return "Very High — StrongBox Hardware Security Module (HSM) with pairing specific attest key";
+            return "High — StrongBox Hardware Security Module (HSM) with pairing specific attest key";
         } else {
-            return "High — StrongBox Hardware Security Module (HSM)";
+            return "Standard — StrongBox Hardware Security Module (HSM)";
         }
     } else if (securityLevel == 1) {
         if (attestKey) {
