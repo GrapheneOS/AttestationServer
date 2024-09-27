@@ -1285,9 +1285,17 @@ class AttestationProtocol {
             int pinnedSecurityLevel = 1;
             if (hasPersistentKey) {
                 final SQLiteStatement st = conn.prepare("""
-                        SELECT pinnedCertificates, pinnedVerifiedBootKey, pinnedOsVersion,
-                        pinnedOsPatchLevel, pinnedVendorPatchLevel, pinnedBootPatchLevel,
-                        pinnedAppVersion, pinnedAppVariant, pinnedSecurityLevel, userId
+                        SELECT
+                            pinnedCertificates,
+                            pinnedVerifiedBootKey,
+                            pinnedOsVersion,
+                            pinnedOsPatchLevel,
+                            pinnedVendorPatchLevel,
+                            pinnedBootPatchLevel,
+                            pinnedAppVersion,
+                            pinnedAppVariant,
+                            pinnedSecurityLevel,
+                            userId
                         FROM Devices WHERE fingerprint = ?""");
                 try {
                     st.bind(1, fingerprint);
@@ -1375,12 +1383,23 @@ class AttestationProtocol {
                 }
 
                 final SQLiteStatement update = conn.prepare("""
-                        UPDATE Devices SET verifiedBootHash = ?, pinnedOsVersion = ?,
-                        pinnedOsPatchLevel = ?, pinnedVendorPatchLevel = ?,
-                        pinnedBootPatchLevel = ?, pinnedAppVersion = ?, pinnedSecurityLevel = ?,
-                        userProfileSecure = ?, enrolledBiometrics = ?, accessibility = ?,
-                        deviceAdmin = ?, adbEnabled = ?, addUsersWhenLocked = ?,
-                        oemUnlockAllowed = ?, systemUser = ?, verifiedTimeLast = ?
+                        UPDATE Devices SET
+                            verifiedBootHash = ?,
+                            pinnedOsVersion = ?,
+                            pinnedOsPatchLevel = ?,
+                            pinnedVendorPatchLevel = ?,
+                            pinnedBootPatchLevel = ?,
+                            pinnedAppVersion = ?,
+                            pinnedSecurityLevel = ?,
+                            userProfileSecure = ?,
+                            enrolledBiometrics = ?,
+                            accessibility = ?,
+                            deviceAdmin = ?,
+                            adbEnabled = ?,
+                            addUsersWhenLocked = ?,
+                            oemUnlockAllowed = ?,
+                            systemUser = ?,
+                            verifiedTimeLast = ?
                         WHERE fingerprint = ?""");
                 try {
                     update.bind(1, verified.verifiedBootHash);
@@ -1412,14 +1431,31 @@ class AttestationProtocol {
                 verifySignature(attestationCertificates[0].getPublicKey(), signedMessage, signature);
 
                 final SQLiteStatement insert = conn.prepare("""
-                        INSERT INTO Devices (fingerprint, pinnedCertificates, attestKey,
-                        pinnedVerifiedBootKey, verifiedBootHash, pinnedOsVersion,
-                        pinnedOsPatchLevel, pinnedVendorPatchLevel, pinnedBootPatchLevel,
-                        pinnedAppVersion, pinnedAppVariant, pinnedSecurityLevel, userProfileSecure,
-                        enrolledBiometrics, accessibility, deviceAdmin, adbEnabled,
-                        addUsersWhenLocked, oemUnlockAllowed, systemUser,
-                        verifiedTimeFirst, verifiedTimeLast, userId)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""");
+                        INSERT INTO Devices (
+                            fingerprint,
+                            pinnedCertificates,
+                            attestKey,
+                            pinnedVerifiedBootKey,
+                            verifiedBootHash,
+                            pinnedOsVersion,
+                            pinnedOsPatchLevel,
+                            pinnedVendorPatchLevel,
+                            pinnedBootPatchLevel,
+                            pinnedAppVersion,
+                            pinnedAppVariant,
+                            pinnedSecurityLevel,
+                            userProfileSecure,
+                            enrolledBiometrics,
+                            accessibility,
+                            deviceAdmin,
+                            adbEnabled,
+                            addUsersWhenLocked,
+                            oemUnlockAllowed,
+                            systemUser,
+                            verifiedTimeFirst,
+                            verifiedTimeLast,
+                            userId
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""");
                 try {
                     insert.bind(1, fingerprint);
                     insert.bind(2, encodeChain(DEFLATE_DICTIONARY_2, attestationCertificates));
@@ -1455,11 +1491,25 @@ class AttestationProtocol {
             }
 
             final SQLiteStatement insert = conn.prepare("""
-                    INSERT INTO Attestations (fingerprint, time, strong, osVersion, osPatchLevel,
-                    vendorPatchLevel, bootPatchLevel, verifiedBootHash, appVersion,
-                    userProfileSecure, enrolledBiometrics, accessibility, deviceAdmin, adbEnabled,
-                    addUsersWhenLocked, oemUnlockAllowed, systemUser)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""");
+                    INSERT INTO Attestations (
+                        fingerprint,
+                        time,
+                        strong,
+                        osVersion,
+                        osPatchLevel,
+                        vendorPatchLevel,
+                        bootPatchLevel,
+                        verifiedBootHash,
+                        appVersion,
+                        userProfileSecure,
+                        enrolledBiometrics,
+                        accessibility,
+                        deviceAdmin,
+                        adbEnabled,
+                        addUsersWhenLocked,
+                        oemUnlockAllowed,
+                        systemUser
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""");
             try {
                 insert.bind(1, fingerprint);
                 insert.bind(2, now);

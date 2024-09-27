@@ -608,9 +608,16 @@ public class AttestationServer {
         final SQLiteConnection conn = getLocalAttestationConn();
         try {
             final SQLiteStatement insert = conn.prepare("""
-                    INSERT INTO Accounts
-                    (username, passwordHash, passwordSalt, subscribeKey, creationTime, loginTime, verifyInterval, alertDelay)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)""");
+                    INSERT INTO Accounts (
+                        username,
+                        passwordHash,
+                        passwordSalt,
+                        subscribeKey,
+                        creationTime,
+                        loginTime,
+                        verifyInterval,
+                        alertDelay
+                     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)""");
             try {
                 insert.bind(1, username);
                 insert.bind(2, passwordHash);
@@ -949,7 +956,14 @@ public class AttestationServer {
 
         final SQLiteConnection conn = getLocalAttestationConn();
         final SQLiteStatement select = conn.prepare("""
-                SELECT token, expiryTime, username, subscribeKey, Accounts.userId, verifyInterval, alertDelay
+                SELECT
+                    token,
+                    expiryTime,
+                    username,
+                    subscribeKey,
+                    Accounts.userId,
+                    verifyInterval,
+                    alertDelay
                 FROM Sessions
                 INNER JOIN Accounts on Accounts.userId = Sessions.userId
                 WHERE sessionId = ?""");
@@ -1191,14 +1205,31 @@ public class AttestationServer {
         final JsonArrayBuilder devices = Json.createArrayBuilder();
         final SQLiteConnection conn = getLocalAttestationConn();
         final SQLiteStatement select = conn.prepare("""
-                SELECT fingerprint, pinnedCertificates, attestKey, hex(pinnedVerifiedBootKey),
-                (SELECT hex(verifiedBootHash) WHERE verifiedBootHash IS NOT NULL),
-                pinnedOsVersion, pinnedOsPatchLevel, pinnedVendorPatchLevel, pinnedBootPatchLevel,
-                pinnedAppVersion, pinnedAppVariant, pinnedSecurityLevel, userProfileSecure,
-                enrolledBiometrics, accessibility, deviceAdmin, adbEnabled, addUsersWhenLocked,
-                oemUnlockAllowed, systemUser, verifiedTimeFirst, verifiedTimeLast,
-                (SELECT min(id) FROM Attestations WHERE Attestations.fingerprint = Devices.fingerprint),
-                (SELECT max(id) FROM Attestations WHERE Attestations.fingerprint = Devices.fingerprint)
+                SELECT
+                    fingerprint,
+                    pinnedCertificates,
+                    attestKey,
+                    hex(pinnedVerifiedBootKey),
+                    (SELECT hex(verifiedBootHash) WHERE verifiedBootHash IS NOT NULL),
+                    pinnedOsVersion,
+                    pinnedOsPatchLevel,
+                    pinnedVendorPatchLevel,
+                    pinnedBootPatchLevel,
+                    pinnedAppVersion,
+                    pinnedAppVariant,
+                    pinnedSecurityLevel,
+                    userProfileSecure,
+                    enrolledBiometrics,
+                    accessibility,
+                    deviceAdmin,
+                    adbEnabled,
+                    addUsersWhenLocked,
+                    oemUnlockAllowed,
+                    systemUser,
+                    verifiedTimeFirst,
+                    verifiedTimeLast,
+                    (SELECT min(id) FROM Attestations WHERE Attestations.fingerprint = Devices.fingerprint),
+                    (SELECT max(id) FROM Attestations WHERE Attestations.fingerprint = Devices.fingerprint)
                 FROM Devices WHERE userId is ? AND deletionTime IS NULL
                 ORDER BY verifiedTimeFirst""");
         try {
@@ -1319,12 +1350,24 @@ public class AttestationServer {
         final byte[] fingerprint = BaseEncoding.base16().decode(deviceFingerprint);
         final SQLiteConnection conn = getLocalAttestationConn();
         final SQLiteStatement history = conn.prepare("""
-                SELECT id, time, strong, osVersion, osPatchLevel,
-                vendorPatchLevel, bootPatchLevel, Attestations.verifiedBootHash, appVersion,
-                Attestations.userProfileSecure, Attestations.enrolledBiometrics,
-                Attestations.accessibility, Attestations.deviceAdmin, Attestations.adbEnabled,
-                Attestations.addUsersWhenLocked, Attestations.oemUnlockAllowed,
-                Attestations.systemUser
+                SELECT
+                    id,
+                    time,
+                    strong,
+                    osVersion,
+                    osPatchLevel,
+                    vendorPatchLevel,
+                    bootPatchLevel,
+                    Attestations.verifiedBootHash,
+                    appVersion,
+                    Attestations.userProfileSecure,
+                    Attestations.enrolledBiometrics,
+                    Attestations.accessibility,
+                    Attestations.deviceAdmin,
+                    Attestations.adbEnabled,
+                    Attestations.addUsersWhenLocked,
+                    Attestations.oemUnlockAllowed,
+                    Attestations.systemUser
                 FROM Attestations INNER JOIN Devices ON
                 Attestations.fingerprint = Devices.fingerprint
                 WHERE Devices.fingerprint = ? AND userid = ?
