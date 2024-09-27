@@ -1301,7 +1301,7 @@ class AttestationProtocol {
                     st.bind(1, fingerprint);
                     if (st.step()) {
                         try {
-                            pinnedCertificates = decodeChain(DEFLATE_DICTIONARY_2, st.columnBlob(0));
+                            pinnedCertificates = decodeChain(DEFLATE_DICTIONARY_4, st.columnBlob(0));
                         } catch (final DataFormatException e) {
                             throw new IOException(e);
                         }
@@ -1458,7 +1458,7 @@ class AttestationProtocol {
                         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""");
                 try {
                     insert.bind(1, fingerprint);
-                    insert.bind(2, encodeChain(DEFLATE_DICTIONARY_2, attestationCertificates));
+                    insert.bind(2, encodeChain(DEFLATE_DICTIONARY_4, attestationCertificates));
                     insert.bind(3, verified.attestKey ? 1 : 0);
                     insert.bind(4, verifiedBootKey);
                     insert.bind(5, verified.verifiedBootHash);

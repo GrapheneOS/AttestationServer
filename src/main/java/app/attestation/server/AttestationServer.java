@@ -310,7 +310,7 @@ public class AttestationServer {
             final SQLiteStatement selectCreated = attestationConn.prepare(
                     "SELECT 1 FROM sqlite_master WHERE type='table' AND name='Configuration'");
             if (!selectCreated.step()) {
-                attestationConn.exec("PRAGMA user_version = 12");
+                attestationConn.exec("PRAGMA user_version = 13");
             }
             selectCreated.dispose();
 
@@ -441,6 +441,30 @@ public class AttestationServer {
                 attestationConn.exec("COMMIT TRANSACTION");
                 userVersion = 12;
                 attestationConn.exec("PRAGMA foreign_keys = ON");
+                logger.info("Migrated to schema version: " + userVersion);
+            }
+
+            // update DEFLATE dictionary from 2 to 4
+            if (userVersion < 13) {
+                attestationConn.exec("BEGIN IMMEDIATE TRANSACTION");
+
+                final SQLiteStatement select = attestationConn.prepare(
+                        "SELECT pinnedCertificates, fingerprint FROM Devices");
+                final SQLiteStatement update = attestationConn.prepare(
+                        "UPDATE Devices SET pinnedCertificates = ? where fingerprint = ?");
+                while (select.step()) {
+                    final Certificate[] chain = AttestationProtocol.decodeChain(AttestationProtocol.DEFLATE_DICTIONARY_2, select.columnBlob(0));
+                    update.bind(1, AttestationProtocol.encodeChain(AttestationProtocol.DEFLATE_DICTIONARY_4, chain));
+                    update.bind(2, select.columnBlob(1));
+                    update.step();
+                    update.reset();
+                }
+                select.dispose();
+                update.dispose();
+
+                attestationConn.exec("PRAGMA user_version = 13");
+                attestationConn.exec("COMMIT TRANSACTION");
+                userVersion = 13;
                 logger.info("Migrated to schema version: " + userVersion);
             }
 
@@ -1239,7 +1263,7 @@ public class AttestationServer {
                 final byte[] fingerprint = select.columnBlob(0);
                 device.add("fingerprint", BaseEncoding.base16().encode(fingerprint));
                 try {
-                    final Certificate[] pinnedCertificates = AttestationProtocol.decodeChain(AttestationProtocol.DEFLATE_DICTIONARY_2, select.columnBlob(1));
+                    final Certificate[] pinnedCertificates = AttestationProtocol.decodeChain(AttestationProtocol.DEFLATE_DICTIONARY_4, select.columnBlob(1));
                     final JsonArrayBuilder certificates = Json.createArrayBuilder();
                     for (final Certificate pinnedCertificate : pinnedCertificates) {
                         certificates.add(convertToPem(pinnedCertificate.getEncoded()));
