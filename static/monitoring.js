@@ -175,7 +175,6 @@ function fetchHistory(parent, nextOffset) {
             appendLine(parent, "Device administrator(s) enabled: " + deviceAdminStrings.get(attestation.deviceAdmin));
             appendLine(parent, "Android Debug Bridge enabled: " + toYesNoString(attestation.adbEnabled));
             appendLine(parent, "Add users from lock screen: " + toYesNoString(attestation.addUsersWhenLocked));
-            appendLine(parent, "Disallow new USB peripherals when locked: " + toYesNoString(attestation.denyNewUsb));
             appendLine(parent, "OEM unlocking allowed: " + toYesNoString(attestation.oemUnlockAllowed));
             appendLine(parent, "Main user account: " + toYesNoString(attestation.systemUser));
         }
@@ -300,7 +299,6 @@ function fetchDevices() {
             appendLine(info, "Device administrator(s) enabled: " + deviceAdminStrings.get(device.deviceAdmin));
             appendLine(info, "Android Debug Bridge enabled: " + toYesNoString(device.adbEnabled));
             appendLine(info, "Add users from lock screen: " + toYesNoString(device.addUsersWhenLocked));
-            appendLine(info, "Disallow new USB peripherals when locked: " + toYesNoString(device.denyNewUsb));
             appendLine(info, "OEM unlocking allowed: " + toYesNoString(device.oemUnlockAllowed));
             appendLine(info, "Main user account: " + toYesNoString(device.systemUser));
 

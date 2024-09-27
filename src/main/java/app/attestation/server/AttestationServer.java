@@ -190,7 +190,6 @@ public class AttestationServer {
                     deviceAdmin INTEGER NOT NULL CHECK (deviceAdmin in (0, 1, 2)),
                     adbEnabled INTEGER NOT NULL CHECK (adbEnabled in (0, 1)),
                     addUsersWhenLocked INTEGER NOT NULL CHECK (addUsersWhenLocked in (0, 1)),
-                    denyNewUsb INTEGER NOT NULL CHECK (denyNewUsb in (0, 1)),
                     oemUnlockAllowed INTEGER NOT NULL CHECK (oemUnlockAllowed in (0, 1)),
                     systemUser INTEGER NOT NULL CHECK (systemUser in (0, 1)),
                     verifiedTimeFirst INTEGER NOT NULL,
@@ -219,7 +218,6 @@ public class AttestationServer {
                     deviceAdmin INTEGER NOT NULL CHECK (deviceAdmin in (0, 1, 2)),
                     adbEnabled INTEGER NOT NULL CHECK (adbEnabled in (0, 1)),
                     addUsersWhenLocked INTEGER NOT NULL CHECK (addUsersWhenLocked in (0, 1)),
-                    denyNewUsb INTEGER NOT NULL CHECK (denyNewUsb in (0, 1)),
                     oemUnlockAllowed INTEGER NOT NULL CHECK (oemUnlockAllowed in (0, 1)),
                     systemUser INTEGER NOT NULL CHECK (systemUser in (0, 1))
                 ) STRICT""");
@@ -312,7 +310,7 @@ public class AttestationServer {
             final SQLiteStatement selectCreated = attestationConn.prepare(
                     "SELECT 1 FROM sqlite_master WHERE type='table' AND name='Configuration'");
             if (!selectCreated.step()) {
-                attestationConn.exec("PRAGMA user_version = 11");
+                attestationConn.exec("PRAGMA user_version = 12");
             }
             selectCreated.dispose();
 
@@ -325,6 +323,125 @@ public class AttestationServer {
                 logger.log(ALERT, ATTESTATION_DATABASE + " database schemas older than version 11 are no longer " +
                         "supported. Use an older AttestationServer revision to upgrade.");
                 System.exit(1);
+            }
+
+            // add pinnedAppVariant column to Devices table with default 0 value
+            if (userVersion < 12) {
+                attestationConn.exec("PRAGMA foreign_keys = OFF");
+                attestationConn.exec("BEGIN IMMEDIATE TRANSACTION");
+
+                attestationConn.exec("ALTER TABLE Devices RENAME TO OldDevices");
+                attestationConn.exec("ALTER TABLE Attestations RENAME TO OldAttestations");
+
+                createAttestationTables(attestationConn);
+
+                attestationConn.exec("""
+                        INSERT INTO Devices (
+                            fingerprint,
+                            pinnedCertificates,
+                            attestKey,
+                            pinnedVerifiedBootKey,
+                            verifiedBootHash,
+                            pinnedOsVersion,
+                            pinnedOsPatchLevel,
+                            pinnedVendorPatchLevel,
+                            pinnedBootPatchLevel,
+                            pinnedAppVersion,
+                            pinnedAppVariant,
+                            pinnedSecurityLevel,
+                            userProfileSecure,
+                            enrolledBiometrics,
+                            accessibility,
+                            deviceAdmin,
+                            adbEnabled,
+                            addUsersWhenLocked,
+                            oemUnlockAllowed,
+                            systemUser,
+                            verifiedTimeFirst,
+                            verifiedTimeLast,
+                            expiredTimeLast,
+                            failureTimeLast,
+                            userId,
+                            deletionTime)
+                        SELECT
+                            fingerprint,
+                            pinnedCertificates,
+                            attestKey,
+                            pinnedVerifiedBootKey,
+                            verifiedBootHash,
+                            pinnedOsVersion,
+                            pinnedOsPatchLevel,
+                            pinnedVendorPatchLevel,
+                            pinnedBootPatchLevel,
+                            pinnedAppVersion,
+                            pinnedAppVariant,
+                            pinnedSecurityLevel,
+                            userProfileSecure,
+                            enrolledBiometrics,
+                            accessibility,
+                            deviceAdmin,
+                            adbEnabled,
+                            addUsersWhenLocked,
+                            oemUnlockAllowed,
+                            systemUser,
+                            verifiedTimeFirst,
+                            verifiedTimeLast,
+                            expiredTimeLast,
+                            failureTimeLast,
+                            userId,
+                            deletionTime
+                        FROM OldDevices""");
+
+                attestationConn.exec("""
+                        INSERT INTO Attestations (
+                            id,
+                            fingerprint,
+                            time,
+                            strong,
+                            osVersion,
+                            osPatchLevel,
+                            vendorPatchLevel,
+                            bootPatchLevel,
+                            verifiedBootHash,
+                            appVersion,
+                            userProfileSecure,
+                            enrolledBiometrics,
+                            accessibility,
+                            deviceAdmin,
+                            adbEnabled,
+                            addUsersWhenLocked,
+                            oemUnlockAllowed,
+                            systemUser
+                        ) SELECT
+                            id,
+                            fingerprint,
+                            time,
+                            strong,
+                            osVersion,
+                            osPatchLevel,
+                            vendorPatchLevel,
+                            bootPatchLevel,
+                            verifiedBootHash,
+                            appVersion,
+                            userProfileSecure,
+                            enrolledBiometrics,
+                            accessibility,
+                            deviceAdmin,
+                            adbEnabled,
+                            addUsersWhenLocked,
+                            oemUnlockAllowed,
+                            systemUser
+                        FROM OldAttestations""");
+
+                attestationConn.exec("DROP TABLE OldDevices");
+                attestationConn.exec("DROP TABLE OldAttestations");
+
+                createAttestationIndices(attestationConn);
+                attestationConn.exec("PRAGMA user_version = 12");
+                attestationConn.exec("COMMIT TRANSACTION");
+                userVersion = 12;
+                attestationConn.exec("PRAGMA foreign_keys = ON");
+                logger.info("Migrated to schema version: " + userVersion);
             }
 
             logger.info("Finished database setup for " + ATTESTATION_DATABASE);
@@ -1079,7 +1196,7 @@ public class AttestationServer {
                 pinnedOsVersion, pinnedOsPatchLevel, pinnedVendorPatchLevel, pinnedBootPatchLevel,
                 pinnedAppVersion, pinnedAppVariant, pinnedSecurityLevel, userProfileSecure,
                 enrolledBiometrics, accessibility, deviceAdmin, adbEnabled, addUsersWhenLocked,
-                denyNewUsb, oemUnlockAllowed, systemUser, verifiedTimeFirst, verifiedTimeLast,
+                oemUnlockAllowed, systemUser, verifiedTimeFirst, verifiedTimeLast,
                 (SELECT min(id) FROM Attestations WHERE Attestations.fingerprint = Devices.fingerprint),
                 (SELECT max(id) FROM Attestations WHERE Attestations.fingerprint = Devices.fingerprint)
                 FROM Devices WHERE userId is ? AND deletionTime IS NULL
@@ -1144,13 +1261,12 @@ public class AttestationServer {
                 device.add("deviceAdmin", select.columnInt(15));
                 device.add("adbEnabled", select.columnInt(16));
                 device.add("addUsersWhenLocked", select.columnInt(17));
-                device.add("denyNewUsb", select.columnInt(18));
-                device.add("oemUnlockAllowed", select.columnInt(19));
-                device.add("systemUser", select.columnInt(20));
-                device.add("verifiedTimeFirst", select.columnLong(21));
-                device.add("verifiedTimeLast", select.columnLong(22));
-                device.add("minId", select.columnLong(23));
-                device.add("maxId", select.columnLong(24));
+                device.add("oemUnlockAllowed", select.columnInt(18));
+                device.add("systemUser", select.columnInt(19));
+                device.add("verifiedTimeFirst", select.columnLong(20));
+                device.add("verifiedTimeLast", select.columnLong(21));
+                device.add("minId", select.columnLong(22));
+                device.add("maxId", select.columnLong(23));
                 devices.add(device);
             }
         } finally {
@@ -1207,8 +1323,8 @@ public class AttestationServer {
                 vendorPatchLevel, bootPatchLevel, Attestations.verifiedBootHash, appVersion,
                 Attestations.userProfileSecure, Attestations.enrolledBiometrics,
                 Attestations.accessibility, Attestations.deviceAdmin, Attestations.adbEnabled,
-                Attestations.addUsersWhenLocked, Attestations.denyNewUsb,
-                Attestations.oemUnlockAllowed, Attestations.systemUser
+                Attestations.addUsersWhenLocked, Attestations.oemUnlockAllowed,
+                Attestations.systemUser
                 FROM Attestations INNER JOIN Devices ON
                 Attestations.fingerprint = Devices.fingerprint
                 WHERE Devices.fingerprint = ? AND userid = ?
@@ -1241,9 +1357,8 @@ public class AttestationServer {
                 attestation.add("deviceAdmin", history.columnInt(12));
                 attestation.add("adbEnabled", history.columnInt(13));
                 attestation.add("addUsersWhenLocked", history.columnInt(14));
-                attestation.add("denyNewUsb", history.columnInt(15));
-                attestation.add("oemUnlockAllowed", history.columnInt(16));
-                attestation.add("systemUser", history.columnInt(17));
+                attestation.add("oemUnlockAllowed", history.columnInt(15));
+                attestation.add("systemUser", history.columnInt(16));
                 attestations.add(attestation);
                 rowCount += 1;
             }
