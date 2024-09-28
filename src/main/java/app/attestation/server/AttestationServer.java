@@ -477,9 +477,6 @@ public class AttestationServer {
             attestationConn.dispose();
         }
 
-        new Thread(new AlertDispatcher()).start();
-        new Thread(new Maintenance()).start();
-
         final ThreadPoolExecutor executor = new ThreadPoolExecutor(32, 32, 0, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(1024));
         executor.prestartAllCoreThreads();
 
@@ -503,6 +500,9 @@ public class AttestationServer {
         server.createContext("/submit", new SubmitHandler());
         server.setExecutor(executor);
         server.start();
+
+        new Thread(new AlertDispatcher()).start();
+        new Thread(new Maintenance()).start();
     }
 
     private static String getRequestHeaderValue(final HttpExchange exchange, final String header)
