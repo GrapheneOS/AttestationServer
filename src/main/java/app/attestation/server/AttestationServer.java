@@ -150,13 +150,11 @@ public class AttestationServer {
         }
     }
 
-    private static void createSamplesTable(final SQLiteConnection conn) throws SQLiteException {
-        conn.exec("""
-                CREATE TABLE IF NOT EXISTS Samples (
-                    sample BLOB NOT NULL,
-                    time INTEGER NOT NULL
-                ) STRICT""");
-    }
+    private static final String CREATE_SAMPLES_TABLE = """
+            CREATE TABLE IF NOT EXISTS Samples (
+                sample BLOB NOT NULL,
+                time INTEGER NOT NULL
+            ) STRICT""";
 
     private static void setupSamplesDatabase() throws SQLiteException {
         final SQLiteConnection conn = open(SAMPLES_DATABASE);
@@ -170,7 +168,7 @@ public class AttestationServer {
 
             int userVersion = getUserVersion(conn);
 
-            createSamplesTable(conn);
+            conn.exec(CREATE_SAMPLES_TABLE);
 
             if (userVersion < 1) {
                 logger.log(ALERT, SAMPLES_DATABASE + " database schemas older than version 1 are no longer " +
@@ -184,123 +182,107 @@ public class AttestationServer {
         }
     }
 
-    private static void createAttestationTables(final SQLiteConnection conn) throws SQLiteException {
-        conn.exec("""
-                CREATE TABLE IF NOT EXISTS Configuration (
-                    key TEXT PRIMARY KEY NOT NULL,
-                    value ANY NOT NULL
-                ) STRICT""");
+    private static final String CREATE_ATTESTATION_TABLES = """
+            CREATE TABLE IF NOT EXISTS Configuration (
+                key TEXT PRIMARY KEY NOT NULL,
+                value ANY NOT NULL
+            ) STRICT;
 
-        conn.exec("""
-                CREATE TABLE IF NOT EXISTS Accounts (
-                    userId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                    username TEXT NOT NULL COLLATE NOCASE UNIQUE,
-                    passwordHash BLOB NOT NULL,
-                    passwordSalt BLOB NOT NULL,
-                    subscribeKey BLOB NOT NULL,
-                    creationTime INTEGER NOT NULL,
-                    loginTime INTEGER NOT NULL,
-                    verifyInterval INTEGER NOT NULL,
-                    alertDelay INTEGER NOT NULL
-                ) STRICT""");
+            CREATE TABLE IF NOT EXISTS Accounts (
+                userId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                username TEXT NOT NULL COLLATE NOCASE UNIQUE,
+                passwordHash BLOB NOT NULL,
+                passwordSalt BLOB NOT NULL,
+                subscribeKey BLOB NOT NULL,
+                creationTime INTEGER NOT NULL,
+                loginTime INTEGER NOT NULL,
+                verifyInterval INTEGER NOT NULL,
+                alertDelay INTEGER NOT NULL
+            ) STRICT;
 
-        conn.exec("""
-                CREATE TABLE IF NOT EXISTS EmailAddresses (
-                    userId INTEGER NOT NULL REFERENCES Accounts (userId) ON DELETE CASCADE,
-                    address TEXT NOT NULL,
-                    PRIMARY KEY (userId, address)
-                ) STRICT""");
+            CREATE TABLE IF NOT EXISTS EmailAddresses (
+                userId INTEGER NOT NULL REFERENCES Accounts (userId) ON DELETE CASCADE,
+                address TEXT NOT NULL,
+                PRIMARY KEY (userId, address)
+            ) STRICT;
 
-        conn.exec("""
-                CREATE TABLE IF NOT EXISTS Sessions (
-                    sessionId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                    userId INTEGER NOT NULL REFERENCES Accounts (userId) ON DELETE CASCADE,
-                    token BLOB NOT NULL,
-                    expiryTime INTEGER NOT NULL
-                ) STRICT""");
+            CREATE TABLE IF NOT EXISTS Sessions (
+                sessionId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                userId INTEGER NOT NULL REFERENCES Accounts (userId) ON DELETE CASCADE,
+                token BLOB NOT NULL,
+                expiryTime INTEGER NOT NULL
+            ) STRICT;
 
-        conn.exec("""
-                CREATE TABLE IF NOT EXISTS Devices (
-                    fingerprint BLOB NOT NULL PRIMARY KEY,
-                    pinnedCertificates BLOB NOT NULL,
-                    attestKey INTEGER NOT NULL CHECK (attestKey in (0, 1)),
-                    pinnedVerifiedBootKey BLOB NOT NULL,
-                    verifiedBootHash BLOB,
-                    pinnedOsVersion INTEGER NOT NULL,
-                    pinnedOsPatchLevel INTEGER NOT NULL,
-                    pinnedVendorPatchLevel INTEGER,
-                    pinnedBootPatchLevel INTEGER,
-                    pinnedAppVersion INTEGER NOT NULL,
-                    pinnedAppVariant INTEGER NOT NULL CHECK (pinnedAppVariant in (0, 1, 2)),
-                    pinnedSecurityLevel INTEGER NOT NULL,
-                    userProfileSecure INTEGER NOT NULL CHECK (userProfileSecure in (0, 1)),
-                    enrolledBiometrics INTEGER NOT NULL CHECK (enrolledBiometrics in (0, 1)),
-                    accessibility INTEGER NOT NULL CHECK (accessibility in (0, 1)),
-                    deviceAdmin INTEGER NOT NULL CHECK (deviceAdmin in (0, 1, 2)),
-                    adbEnabled INTEGER NOT NULL CHECK (adbEnabled in (0, 1)),
-                    addUsersWhenLocked INTEGER NOT NULL CHECK (addUsersWhenLocked in (0, 1)),
-                    oemUnlockAllowed INTEGER NOT NULL CHECK (oemUnlockAllowed in (0, 1)),
-                    systemUser INTEGER NOT NULL CHECK (systemUser in (0, 1)),
-                    verifiedTimeFirst INTEGER NOT NULL,
-                    verifiedTimeLast INTEGER NOT NULL,
-                    expiredTimeLast INTEGER,
-                    failureTimeLast INTEGER,
-                    userId INTEGER NOT NULL REFERENCES Accounts (userId) ON DELETE CASCADE,
-                    deletionTime INTEGER
-                ) STRICT""");
+            CREATE TABLE IF NOT EXISTS Devices (
+                fingerprint BLOB NOT NULL PRIMARY KEY,
+                pinnedCertificates BLOB NOT NULL,
+                attestKey INTEGER NOT NULL CHECK (attestKey in (0, 1)),
+                pinnedVerifiedBootKey BLOB NOT NULL,
+                verifiedBootHash BLOB,
+                pinnedOsVersion INTEGER NOT NULL,
+                pinnedOsPatchLevel INTEGER NOT NULL,
+                pinnedVendorPatchLevel INTEGER,
+                pinnedBootPatchLevel INTEGER,
+                pinnedAppVersion INTEGER NOT NULL,
+                pinnedAppVariant INTEGER NOT NULL CHECK (pinnedAppVariant in (0, 1, 2)),
+                pinnedSecurityLevel INTEGER NOT NULL,
+                userProfileSecure INTEGER NOT NULL CHECK (userProfileSecure in (0, 1)),
+                enrolledBiometrics INTEGER NOT NULL CHECK (enrolledBiometrics in (0, 1)),
+                accessibility INTEGER NOT NULL CHECK (accessibility in (0, 1)),
+                deviceAdmin INTEGER NOT NULL CHECK (deviceAdmin in (0, 1, 2)),
+                adbEnabled INTEGER NOT NULL CHECK (adbEnabled in (0, 1)),
+                addUsersWhenLocked INTEGER NOT NULL CHECK (addUsersWhenLocked in (0, 1)),
+                oemUnlockAllowed INTEGER NOT NULL CHECK (oemUnlockAllowed in (0, 1)),
+                systemUser INTEGER NOT NULL CHECK (systemUser in (0, 1)),
+                verifiedTimeFirst INTEGER NOT NULL,
+                verifiedTimeLast INTEGER NOT NULL,
+                expiredTimeLast INTEGER,
+                failureTimeLast INTEGER,
+                userId INTEGER NOT NULL REFERENCES Accounts (userId) ON DELETE CASCADE,
+                deletionTime INTEGER
+            ) STRICT;
 
-        conn.exec("""
-                CREATE TABLE IF NOT EXISTS Attestations (
-                    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                    fingerprint BLOB NOT NULL REFERENCES Devices (fingerprint) ON DELETE CASCADE,
-                    time INTEGER NOT NULL,
-                    strong INTEGER NOT NULL CHECK (strong in (0, 1)),
-                    osVersion INTEGER NOT NULL,
-                    osPatchLevel INTEGER NOT NULL,
-                    vendorPatchLevel INTEGER,
-                    bootPatchLevel INTEGER,
-                    verifiedBootHash BLOB,
-                    appVersion INTEGER NOT NULL,
-                    userProfileSecure INTEGER NOT NULL CHECK (userProfileSecure in (0, 1)),
-                    enrolledBiometrics INTEGER NOT NULL CHECK (enrolledBiometrics in (0, 1)),
-                    accessibility INTEGER NOT NULL CHECK (accessibility in (0, 1)),
-                    deviceAdmin INTEGER NOT NULL CHECK (deviceAdmin in (0, 1, 2)),
-                    adbEnabled INTEGER NOT NULL CHECK (adbEnabled in (0, 1)),
-                    addUsersWhenLocked INTEGER NOT NULL CHECK (addUsersWhenLocked in (0, 1)),
-                    oemUnlockAllowed INTEGER NOT NULL CHECK (oemUnlockAllowed in (0, 1)),
-                    systemUser INTEGER NOT NULL CHECK (systemUser in (0, 1))
-                ) STRICT""");
-    }
+            CREATE TABLE IF NOT EXISTS Attestations (
+                id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                fingerprint BLOB NOT NULL REFERENCES Devices (fingerprint) ON DELETE CASCADE,
+                time INTEGER NOT NULL,
+                strong INTEGER NOT NULL CHECK (strong in (0, 1)),
+                osVersion INTEGER NOT NULL,
+                osPatchLevel INTEGER NOT NULL,
+                vendorPatchLevel INTEGER,
+                bootPatchLevel INTEGER,
+                verifiedBootHash BLOB,
+                appVersion INTEGER NOT NULL,
+                userProfileSecure INTEGER NOT NULL CHECK (userProfileSecure in (0, 1)),
+                enrolledBiometrics INTEGER NOT NULL CHECK (enrolledBiometrics in (0, 1)),
+                accessibility INTEGER NOT NULL CHECK (accessibility in (0, 1)),
+                deviceAdmin INTEGER NOT NULL CHECK (deviceAdmin in (0, 1, 2)),
+                adbEnabled INTEGER NOT NULL CHECK (adbEnabled in (0, 1)),
+                addUsersWhenLocked INTEGER NOT NULL CHECK (addUsersWhenLocked in (0, 1)),
+                oemUnlockAllowed INTEGER NOT NULL CHECK (oemUnlockAllowed in (0, 1)),
+                systemUser INTEGER NOT NULL CHECK (systemUser in (0, 1))
+            ) STRICT""";
 
-    private static void createAttestationIndices(final SQLiteConnection conn) throws SQLiteException {
-        conn.exec("""
-                CREATE INDEX IF NOT EXISTS Accounts_loginTime
-                ON Accounts (loginTime)""");
+    private static final String CREATE_ATTESTATION_INDICES = """
+            CREATE INDEX IF NOT EXISTS Accounts_loginTime
+            ON Accounts (loginTime);
 
-        conn.exec("""
-                CREATE INDEX IF NOT EXISTS Sessions_expiryTime
-                ON Sessions (expiryTime)""");
-        conn.exec("""
-                CREATE INDEX IF NOT EXISTS Sessions_userId
-                ON Sessions (userId)""");
+            CREATE INDEX IF NOT EXISTS Sessions_expiryTime
+            ON Sessions (expiryTime);
+            CREATE INDEX IF NOT EXISTS Sessions_userId
+            ON Sessions (userId);
 
-        conn.exec("""
-                CREATE INDEX IF NOT EXISTS Devices_userId_verifiedTimeFirst
-                ON Devices (userId, verifiedTimeFirst)""");
-        conn.exec("""
-                CREATE INDEX IF NOT EXISTS Devices_userId_verifiedTimeLast_deletionTimeNull
-                ON Devices (userId, verifiedTimeLast) WHERE deletionTime IS NULL""");
-        conn.exec("""
-                CREATE INDEX IF NOT EXISTS Devices_deletionTime
-                ON Devices (deletionTime) WHERE deletionTime IS NOT NULL""");
-        conn.exec("""
-                CREATE INDEX IF NOT EXISTS Devices_verifiedTimeLast_deletionTimeNull
-                ON Devices (verifiedTimeLast) WHERE deletionTime IS NULL""");
+            CREATE INDEX IF NOT EXISTS Devices_userId_verifiedTimeFirst
+            ON Devices (userId, verifiedTimeFirst);
+            CREATE INDEX IF NOT EXISTS Devices_userId_verifiedTimeLast_deletionTimeNull
+            ON Devices (userId, verifiedTimeLast) WHERE deletionTime IS NULL;
+            CREATE INDEX IF NOT EXISTS Devices_deletionTime
+            ON Devices (deletionTime) WHERE deletionTime IS NOT NULL;
+            CREATE INDEX IF NOT EXISTS Devices_verifiedTimeLast_deletionTimeNull
+            ON Devices (verifiedTimeLast) WHERE deletionTime IS NULL;
 
-        conn.exec("""
-                CREATE INDEX IF NOT EXISTS Attestations_fingerprint_id
-                ON Attestations (fingerprint, id)""");
-    }
+            CREATE INDEX IF NOT EXISTS Attestations_fingerprint_id
+            ON Attestations (fingerprint, id)""";
 
     private static void setupAttestationDatabase() throws DataFormatException, GeneralSecurityException, IOException, SQLiteException {
         final SQLiteConnection conn = open(ATTESTATION_DATABASE);
@@ -314,8 +296,8 @@ public class AttestationServer {
 
             int userVersion = getUserVersion(conn);
 
-            createAttestationTables(conn);
-            createAttestationIndices(conn);
+            conn.exec(CREATE_ATTESTATION_TABLES);
+            conn.exec(CREATE_ATTESTATION_INDICES);
 
             if (userVersion < 11) {
                 logger.log(ALERT, ATTESTATION_DATABASE + " database schemas older than version 11 are no longer " +
@@ -334,7 +316,7 @@ public class AttestationServer {
                 conn.exec("ALTER TABLE Devices RENAME TO OldDevices");
                 conn.exec("ALTER TABLE Attestations RENAME TO OldAttestations");
 
-                createAttestationTables(conn);
+                conn.exec(CREATE_ATTESTATION_TABLES);
 
                 conn.exec("""
                         INSERT INTO Devices (
@@ -437,7 +419,7 @@ public class AttestationServer {
                 conn.exec("DROP TABLE OldDevices");
                 conn.exec("DROP TABLE OldAttestations");
 
-                createAttestationIndices(conn);
+                conn.exec(CREATE_ATTESTATION_INDICES);
                 conn.exec("PRAGMA user_version = " + targetUserVersion);
                 conn.exec("COMMIT TRANSACTION");
                 userVersion = targetUserVersion;
