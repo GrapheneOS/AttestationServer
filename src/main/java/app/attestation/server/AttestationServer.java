@@ -9,6 +9,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.io.BaseEncoding;
 import com.google.common.primitives.Bytes;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.WriterException;
@@ -276,6 +277,8 @@ public class AttestationServer {
     }
 
     public static void main(final String[] args) throws Exception {
+        Thread.currentThread().setName("Main");
+
         Logger.getLogger("com.almworks.sqlite4java").setLevel(Level.OFF);
 
         Logger.getLogger("app.attestation").setUseParentHandlers(false);
@@ -479,7 +482,9 @@ public class AttestationServer {
             attestationConn.dispose();
         }
 
-        final ThreadPoolExecutor executor = new ThreadPoolExecutor(32, 32, 0, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(1024));
+        final ThreadPoolExecutor executor = new ThreadPoolExecutor(32, 32, 0, TimeUnit.SECONDS,
+                new LinkedBlockingQueue<Runnable>(1024),
+                new ThreadFactoryBuilder().setNameFormat("HTTP %d").build());
 
         System.setProperty("sun.net.httpserver.nodelay", "true");
         final HttpServer server = HttpServer.create(new InetSocketAddress("::1", 8080), 4096);
@@ -509,8 +514,8 @@ public class AttestationServer {
         }
 
         executor.prestartAllCoreThreads();
-        new Thread(new AlertDispatcher()).start();
-        new Thread(new Maintenance()).start();
+        new Thread(new AlertDispatcher(), "AlertDispatcher").start();
+        new Thread(new Maintenance(), "Maintenance").start();
     }
 
     private static String getRequestHeaderValue(final HttpExchange exchange, final String header)
