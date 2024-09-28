@@ -487,25 +487,30 @@ public class AttestationServer {
                 new ThreadFactoryBuilder().setNameFormat("HTTP %d").build());
 
         System.setProperty("sun.net.httpserver.nodelay", "true");
-        final HttpServer server = HttpServer.create(new InetSocketAddress("::1", 8080), 4096);
-        server.createContext("/api/status", new StatusHandler());
-        server.createContext("/api/create-account", new CreateAccountHandler());
-        server.createContext("/api/change-password", new ChangePasswordHandler());
-        server.createContext("/api/login", new LoginHandler());
-        server.createContext("/api/logout", new LogoutHandler());
-        server.createContext("/api/logout-everywhere", new LogoutEverywhereHandler());
-        server.createContext("/api/rotate", new RotateHandler());
-        server.createContext("/api/account", new AccountHandler());
-        server.createContext("/api/account.png", new AccountQrHandler());
-        server.createContext("/api/configuration", new ConfigurationHandler());
-        server.createContext("/api/delete-device", new DeleteDeviceHandler());
-        server.createContext("/api/devices.json", new DevicesHandler());
-        server.createContext("/api/attestation-history.json", new AttestationHistoryHandler());
-        server.createContext("/challenge", new ChallengeHandler());
-        server.createContext("/verify", new VerifyHandler());
-        server.createContext("/submit", new SubmitHandler());
-        server.setExecutor(executor);
-        server.start();
+        try {
+            final HttpServer server = HttpServer.create(new InetSocketAddress("::1", 8080), 4096);
+            server.createContext("/api/status", new StatusHandler());
+            server.createContext("/api/create-account", new CreateAccountHandler());
+            server.createContext("/api/change-password", new ChangePasswordHandler());
+            server.createContext("/api/login", new LoginHandler());
+            server.createContext("/api/logout", new LogoutHandler());
+            server.createContext("/api/logout-everywhere", new LogoutEverywhereHandler());
+            server.createContext("/api/rotate", new RotateHandler());
+            server.createContext("/api/account", new AccountHandler());
+            server.createContext("/api/account.png", new AccountQrHandler());
+            server.createContext("/api/configuration", new ConfigurationHandler());
+            server.createContext("/api/delete-device", new DeleteDeviceHandler());
+            server.createContext("/api/devices.json", new DevicesHandler());
+            server.createContext("/api/attestation-history.json", new AttestationHistoryHandler());
+            server.createContext("/challenge", new ChallengeHandler());
+            server.createContext("/verify", new VerifyHandler());
+            server.createContext("/submit", new SubmitHandler());
+            server.setExecutor(executor);
+            server.start();
+        } catch (final IOException e) {
+            logger.log(ALERT, "failed to start HTTP server", e);
+            System.exit(1);
+        }
 
         try {
             Thread.sleep(POST_START_DELAY_MS);
