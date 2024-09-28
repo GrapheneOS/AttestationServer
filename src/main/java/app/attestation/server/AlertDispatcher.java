@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 import static app.attestation.server.SyslogLevel.CRIT;
 
 class AlertDispatcher implements Runnable {
-    private static final long WAIT_MS = 15 * 60 * 1000;
+    private static final long WAIT_MS = 60 * 1000;
     private static final int TIMEOUT_MS = 30 * 1000;
     private static final long ALERT_THROTTLE_MS = 24 * 60 * 60 * 1000;
 
