@@ -88,6 +88,8 @@ public class AttestationServer {
     static final String DOMAIN = "attestation.app";
     private static final String ORIGIN = "https://" + DOMAIN;
 
+    private static final long POST_START_DELAY_MS = 1000;
+
     private static final Logger logger = Logger.getLogger(AttestationServer.class.getName());
 
     // This should be moved to a table in the database so that it can be modified dynamically
@@ -478,7 +480,6 @@ public class AttestationServer {
         }
 
         final ThreadPoolExecutor executor = new ThreadPoolExecutor(32, 32, 0, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(1024));
-        executor.prestartAllCoreThreads();
 
         System.setProperty("sun.net.httpserver.nodelay", "true");
         final HttpServer server = HttpServer.create(new InetSocketAddress("::1", 8080), 4096);
@@ -501,6 +502,13 @@ public class AttestationServer {
         server.setExecutor(executor);
         server.start();
 
+        try {
+            Thread.sleep(POST_START_DELAY_MS);
+        } catch (final InterruptedException e) {
+            return;
+        }
+
+        executor.prestartAllCoreThreads();
         new Thread(new AlertDispatcher()).start();
         new Thread(new Maintenance()).start();
     }
