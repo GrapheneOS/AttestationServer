@@ -36,7 +36,7 @@ tasks.withType<AbstractArchiveTask>().configureEach {
 }
 
 tasks.withType<JavaCompile> {
-    options.compilerArgs.addAll(arrayOf("-Xlint:unchecked", "-Xlint:deprecation"))
+    options.compilerArgs.addAll(listOf("-Xlint", "-Xlint:-serial"))
 }
 
 val copyJavaDeps by tasks.registering(Copy::class) {
