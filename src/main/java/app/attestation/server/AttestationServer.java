@@ -138,6 +138,52 @@ public class AttestationServer {
         }
     }
 
+    private static int getUserVersion(final SQLiteConnection conn) throws SQLiteException {
+        final SQLiteStatement pragmaUserVersion = conn.prepare("PRAGMA user_version");
+        try {
+            pragmaUserVersion.step();
+            int userVersion = pragmaUserVersion.columnInt(0);
+            logger.info("Existing schema version: " + userVersion);
+            return userVersion;
+        } finally {
+            pragmaUserVersion.dispose();
+        }
+    }
+
+    private static void createSamplesTable(final SQLiteConnection conn) throws SQLiteException {
+        conn.exec("""
+                CREATE TABLE IF NOT EXISTS Samples (
+                    sample BLOB NOT NULL,
+                    time INTEGER NOT NULL
+                ) STRICT""");
+    }
+
+    private static void setupSamplesDatabase() throws SQLiteException {
+        final SQLiteConnection conn = open(SAMPLES_DATABASE);
+        try {
+            final SQLiteStatement selectCreated = conn.prepare(
+                    "SELECT 1 FROM sqlite_master WHERE type='table' AND name='Samples'");
+            if (!selectCreated.step()) {
+                conn.exec("PRAGMA user_version = 1");
+            }
+            selectCreated.dispose();
+
+            int userVersion = getUserVersion(conn);
+
+            createSamplesTable(conn);
+
+            if (userVersion < 1) {
+                logger.log(ALERT, SAMPLES_DATABASE + " database schemas older than version 1 are no longer " +
+                        "supported. Use an older AttestationServer revision to upgrade.");
+                System.exit(1);
+            }
+
+            logger.info("Finished database setup for " + SAMPLES_DATABASE);
+        } finally {
+            conn.dispose();
+        }
+    }
+
     private static void createAttestationTables(final SQLiteConnection conn) throws SQLiteException {
         conn.exec("""
                 CREATE TABLE IF NOT EXISTS Configuration (
@@ -256,73 +302,20 @@ public class AttestationServer {
                 ON Attestations (fingerprint, id)""");
     }
 
-    private static void createSamplesTable(final SQLiteConnection conn) throws SQLiteException {
-        conn.exec("""
-                CREATE TABLE IF NOT EXISTS Samples (
-                    sample BLOB NOT NULL,
-                    time INTEGER NOT NULL
-                ) STRICT""");
-    }
-
-    private static int getUserVersion(final SQLiteConnection conn) throws SQLiteException {
-        final SQLiteStatement pragmaUserVersion = conn.prepare("PRAGMA user_version");
+    private static void setupAttestationDatabase() throws DataFormatException, GeneralSecurityException, IOException, SQLiteException {
+        final SQLiteConnection conn = open(ATTESTATION_DATABASE);
         try {
-            pragmaUserVersion.step();
-            int userVersion = pragmaUserVersion.columnInt(0);
-            logger.info("Existing schema version: " + userVersion);
-            return userVersion;
-        } finally {
-            pragmaUserVersion.dispose();
-        }
-    }
-
-    public static void main(final String[] args) throws Exception {
-        Thread.currentThread().setName("Main");
-
-        Logger.getLogger("com.almworks.sqlite4java").setLevel(Level.OFF);
-
-        Logger.getLogger("app.attestation").setUseParentHandlers(false);
-        final ConsoleHandler handler = new ConsoleHandler();
-        handler.setFormatter(new JournaldFormatter());
-        Logger.getLogger("app.attestation").addHandler(handler);
-
-        final SQLiteConnection samplesConn = open(SAMPLES_DATABASE);
-        try {
-            final SQLiteStatement selectCreated = samplesConn.prepare(
-                    "SELECT 1 FROM sqlite_master WHERE type='table' AND name='Samples'");
-            if (!selectCreated.step()) {
-                samplesConn.exec("PRAGMA user_version = 1");
-            }
-            selectCreated.dispose();
-
-            int userVersion = getUserVersion(samplesConn);
-
-            createSamplesTable(samplesConn);
-
-            if (userVersion < 1) {
-                logger.log(ALERT, SAMPLES_DATABASE + " database schemas older than version 1 are no longer " +
-                        "supported. Use an older AttestationServer revision to upgrade.");
-                System.exit(1);
-            }
-
-            logger.info("Finished database setup for " + SAMPLES_DATABASE);
-        } finally {
-            samplesConn.dispose();
-        }
-
-        final SQLiteConnection attestationConn = open(ATTESTATION_DATABASE);
-        try {
-            final SQLiteStatement selectCreated = attestationConn.prepare(
+            final SQLiteStatement selectCreated = conn.prepare(
                     "SELECT 1 FROM sqlite_master WHERE type='table' AND name='Configuration'");
             if (!selectCreated.step()) {
-                attestationConn.exec("PRAGMA user_version = 13");
+                conn.exec("PRAGMA user_version = 13");
             }
             selectCreated.dispose();
 
-            int userVersion = getUserVersion(attestationConn);
+            int userVersion = getUserVersion(conn);
 
-            createAttestationTables(attestationConn);
-            createAttestationIndices(attestationConn);
+            createAttestationTables(conn);
+            createAttestationIndices(conn);
 
             if (userVersion < 11) {
                 logger.log(ALERT, ATTESTATION_DATABASE + " database schemas older than version 11 are no longer " +
@@ -335,15 +328,15 @@ public class AttestationServer {
             // add pinnedAppVariant column to Devices table with default 0 value
             targetUserVersion = 12;
             if (userVersion < targetUserVersion) {
-                attestationConn.exec("PRAGMA foreign_keys = OFF");
-                attestationConn.exec("BEGIN IMMEDIATE TRANSACTION");
+                conn.exec("PRAGMA foreign_keys = OFF");
+                conn.exec("BEGIN IMMEDIATE TRANSACTION");
 
-                attestationConn.exec("ALTER TABLE Devices RENAME TO OldDevices");
-                attestationConn.exec("ALTER TABLE Attestations RENAME TO OldAttestations");
+                conn.exec("ALTER TABLE Devices RENAME TO OldDevices");
+                conn.exec("ALTER TABLE Attestations RENAME TO OldAttestations");
 
-                createAttestationTables(attestationConn);
+                createAttestationTables(conn);
 
-                attestationConn.exec("""
+                conn.exec("""
                         INSERT INTO Devices (
                             fingerprint,
                             pinnedCertificates,
@@ -400,7 +393,7 @@ public class AttestationServer {
                             deletionTime
                         FROM OldDevices""");
 
-                attestationConn.exec("""
+                conn.exec("""
                         INSERT INTO Attestations (
                             id,
                             fingerprint,
@@ -441,25 +434,25 @@ public class AttestationServer {
                             systemUser
                         FROM OldAttestations""");
 
-                attestationConn.exec("DROP TABLE OldDevices");
-                attestationConn.exec("DROP TABLE OldAttestations");
+                conn.exec("DROP TABLE OldDevices");
+                conn.exec("DROP TABLE OldAttestations");
 
-                createAttestationIndices(attestationConn);
-                attestationConn.exec("PRAGMA user_version = " + targetUserVersion);
-                attestationConn.exec("COMMIT TRANSACTION");
+                createAttestationIndices(conn);
+                conn.exec("PRAGMA user_version = " + targetUserVersion);
+                conn.exec("COMMIT TRANSACTION");
                 userVersion = targetUserVersion;
-                attestationConn.exec("PRAGMA foreign_keys = ON");
+                conn.exec("PRAGMA foreign_keys = ON");
                 logger.info("Migrated to schema version: " + userVersion);
             }
 
             // update DEFLATE dictionary from 2 to 4
             targetUserVersion = 13;
             if (userVersion < targetUserVersion) {
-                attestationConn.exec("BEGIN IMMEDIATE TRANSACTION");
+                conn.exec("BEGIN IMMEDIATE TRANSACTION");
 
-                final SQLiteStatement select = attestationConn.prepare(
+                final SQLiteStatement select = conn.prepare(
                         "SELECT pinnedCertificates, fingerprint FROM Devices");
-                final SQLiteStatement update = attestationConn.prepare(
+                final SQLiteStatement update = conn.prepare(
                         "UPDATE Devices SET pinnedCertificates = ? where fingerprint = ?");
                 while (select.step()) {
                     final Certificate[] chain = AttestationProtocol.decodeChain(AttestationProtocol.DEFLATE_DICTIONARY_2, select.columnBlob(0));
@@ -471,16 +464,30 @@ public class AttestationServer {
                 select.dispose();
                 update.dispose();
 
-                attestationConn.exec("PRAGMA user_version = " + targetUserVersion);
-                attestationConn.exec("COMMIT TRANSACTION");
+                conn.exec("PRAGMA user_version = " + targetUserVersion);
+                conn.exec("COMMIT TRANSACTION");
                 userVersion = targetUserVersion;
                 logger.info("Migrated to schema version: " + userVersion);
             }
 
             logger.info("Finished database setup for " + ATTESTATION_DATABASE);
         } finally {
-            attestationConn.dispose();
+            conn.dispose();
         }
+    }
+
+    public static void main(final String[] args) throws Exception {
+        Thread.currentThread().setName("Main");
+
+        Logger.getLogger("com.almworks.sqlite4java").setLevel(Level.OFF);
+
+        Logger.getLogger("app.attestation").setUseParentHandlers(false);
+        final ConsoleHandler handler = new ConsoleHandler();
+        handler.setFormatter(new JournaldFormatter());
+        Logger.getLogger("app.attestation").addHandler(handler);
+
+        setupSamplesDatabase();
+        setupAttestationDatabase();
 
         final ThreadPoolExecutor executor = new ThreadPoolExecutor(32, 32, 0, TimeUnit.SECONDS,
                 new LinkedBlockingQueue<Runnable>(1024),
