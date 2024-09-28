@@ -458,7 +458,7 @@ public class AttestationServer {
         }
     }
 
-    public static void main(final String[] args) throws Exception {
+    public static void main(final String[] args) {
         Thread.currentThread().setName("Main");
 
         Logger.getLogger("com.almworks.sqlite4java").setLevel(Level.OFF);
@@ -468,8 +468,13 @@ public class AttestationServer {
         handler.setFormatter(new JournaldFormatter());
         Logger.getLogger("app.attestation").addHandler(handler);
 
-        setupSamplesDatabase();
-        setupAttestationDatabase();
+        try {
+            setupSamplesDatabase();
+            setupAttestationDatabase();
+        } catch (final DataFormatException | GeneralSecurityException | IOException | SQLiteException e) {
+            logger.log(ALERT, "failed to setup databases", e);
+            System.exit(1);
+        }
 
         final ThreadPoolExecutor executor = new ThreadPoolExecutor(32, 32, 0, TimeUnit.SECONDS,
                 new LinkedBlockingQueue<Runnable>(1024),
