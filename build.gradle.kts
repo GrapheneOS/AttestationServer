@@ -10,7 +10,10 @@ java {
 
 tasks.jar {
     manifest {
-        attributes("Main-Class" to "app.attestation.server.AttestationServer")
+        attributes(
+            "Main-Class" to "app.attestation.server.AttestationServer",
+            "Class-Path" to configurations.runtimeClasspath.get().joinToString(" ") { it.name }
+        )
     }
 }
 

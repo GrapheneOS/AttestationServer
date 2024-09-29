@@ -3,7 +3,7 @@ Description=Attestation server
 
 [Service]
 CapabilityBoundingSet=
-ExecStart=/usr/bin/java -cp '/opt/attestation/deploy/*' app.attestation.server.AttestationServer
+ExecStart=/usr/bin/java -jar /opt/attestation/deploy/attestation.app.jar
 IPAddressDeny=any
 IPAddressAllow=localhost
 LockPersonality=true
