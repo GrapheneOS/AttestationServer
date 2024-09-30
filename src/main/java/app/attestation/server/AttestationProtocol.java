@@ -874,7 +874,7 @@ class AttestationProtocol {
                         GOOGLE_ROOT_CERTIFICATE_2, GOOGLE_ROOT_CERTIFICATE_3});
             final byte[] verifiedBootKey = BaseEncoding.base16().decode(verified.verifiedBootKey);
 
-            final long now = new Date().getTime();
+            final long now = System.currentTimeMillis();
 
             if (hasPersistentKey) {
                 final int chainOffset;
