@@ -45,8 +45,9 @@ class Maintenance implements Runnable {
             deleteDeletedDevices = attestationConn.prepare("DELETE FROM Devices WHERE deletionTime < ?");
             deleteInactiveDevices = attestationConn.prepare("DELETE FROM Devices WHERE verifiedTimeLast < ?");
             deleteLegacyHistory = attestationConn.prepare("DELETE FROM Attestations WHERE time < ?");
-            deleteInactiveAccounts = attestationConn.prepare("DELETE FROM Accounts WHERE loginTime < ? " +
-                    "AND NOT EXISTS (SELECT 1 FROM Devices WHERE Accounts.userId = Devices.userId)");
+            deleteInactiveAccounts = attestationConn.prepare("""
+                    DELETE FROM Accounts WHERE loginTime < ? AND NOT EXISTS
+                        (SELECT 1 FROM Devices WHERE Accounts.userId = Devices.userId)""");
         } catch (final SQLiteException e) {
             attestationConn.dispose();
             samplesConn.dispose();
