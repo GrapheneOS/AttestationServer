@@ -51,6 +51,7 @@ class JournaldFormatter extends Formatter {
         return LEVEL_DEBUG;
     }
 
+    @Override
     public synchronized String format(LogRecord record) {
         String source;
         if (record.getSourceClassName() != null) {
