@@ -1606,6 +1606,8 @@ class AttestationServer {
     private static class VerifyHandler extends AppPostHandler {
         @Override
         public void handlePost(final HttpExchange exchange) throws IOException, SQLiteException {
+            final boolean legacy = exchange.getRequestURI().toString().equals("/verify");
+
             String authorization = null;
             try {
                 authorization = getRequestHeaderValue(exchange, "Authorization");
@@ -1669,11 +1671,22 @@ class AttestationServer {
                 return;
             }
 
-            final byte[] result = (BaseEncoding.base64().encode(currentSubscribeKey) + " " +
-                    verifyInterval).getBytes();
-            exchange.sendResponseHeaders(200, result.length);
-            try (final OutputStream output = exchange.getResponseBody()) {
-                output.write(result);
+            if (legacy) {
+                final byte[] result = (BaseEncoding.base64().encode(currentSubscribeKey) + " " +
+                        verifyInterval).getBytes();
+                exchange.sendResponseHeaders(200, result.length);
+                try (final OutputStream output = exchange.getResponseBody()) {
+                    output.write(result);
+                }
+            } else {
+                final JsonObjectBuilder result = Json.createObjectBuilder();
+                result.add("verifyInterval", verifyInterval);
+                exchange.getResponseHeaders().set("Content-Type", "application/json");
+                exchange.sendResponseHeaders(200, 0);
+                try (final OutputStream output = exchange.getResponseBody();
+                        final JsonWriter writer = Json.createWriter(output)) {
+                    writer.write(result.build());
+                }
             }
         }
     }

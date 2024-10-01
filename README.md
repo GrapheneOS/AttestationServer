@@ -124,8 +124,7 @@ Standard attestation message in the same format as the Auditor app QR code.
 
 * Response body:
 
-Returns space-separated values in plain text: `<subscribeKey> <verifyInterval>`. Additional fields
-may be added in the future.
+Returns JSON with a `verifyInterval` field.
 
 ## Logging
 
