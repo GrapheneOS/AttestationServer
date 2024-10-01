@@ -52,7 +52,7 @@ class JournaldFormatter extends Formatter {
     }
 
     @Override
-    public synchronized String format(LogRecord record) {
+    public String format(LogRecord record) {
         String source;
         if (record.getSourceClassName() != null) {
             source = record.getSourceClassName();
