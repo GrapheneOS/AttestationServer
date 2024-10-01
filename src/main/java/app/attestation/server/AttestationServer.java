@@ -307,7 +307,7 @@ class AttestationServer {
 
             int targetUserVersion;
 
-            // add pinnedAppVariant column to Devices table with default 0 value
+            // remove denyNewUsb column from Devices
             targetUserVersion = 12;
             if (userVersion < targetUserVersion) {
                 conn.exec("PRAGMA foreign_keys = OFF");
