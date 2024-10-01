@@ -1536,7 +1536,8 @@ class AttestationServer {
 
             try {
                 AttestationProtocol.verifySerialized(attestationResult, pendingChallenges, userId, subscribeKey == null);
-            } catch (final BufferUnderflowException | NegativeArraySizeException | DataFormatException | GeneralSecurityException | IOException e) {
+            } catch (final BufferUnderflowException | NegativeArraySizeException |
+                    DataFormatException | GeneralSecurityException e) {
                 logger.log(Level.WARNING, "invalid request", e);
                 final byte[] response = "Error\n".getBytes();
                 exchange.sendResponseHeaders(400, response.length);
