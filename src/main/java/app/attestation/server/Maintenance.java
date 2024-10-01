@@ -70,32 +70,47 @@ class Maintenance implements Runnable {
                 final long now = System.currentTimeMillis();
 
                 // This is also done as part of every login
-                deleteExpiredSessions.bind(1, now);
-                deleteExpiredSessions.step();
-                deleteExpiredSessions.reset();
+                try {
+                    deleteExpiredSessions.bind(1, now);
+                    deleteExpiredSessions.step();
+                } finally {
+                    deleteExpiredSessions.reset();
+                }
 
-                deleteDeletedDevices.bind(1, now - DELETE_EXPIRY_MS);
-                deleteDeletedDevices.step();
-                deleteDeletedDevices.reset();
+                try {
+                    deleteDeletedDevices.bind(1, now - DELETE_EXPIRY_MS);
+                    deleteDeletedDevices.step();
+                } finally {
+                    deleteDeletedDevices.reset();
+                }
 
                 if (DELETE_INACTIVE_DEVICES) {
-                    deleteInactiveDevices.bind(1, now - INACTIVE_DEVICE_EXPIRY_MS);
-                    deleteInactiveDevices.step();
-                    deleteInactiveDevices.reset();
+                    try {
+                        deleteInactiveDevices.bind(1, now - INACTIVE_DEVICE_EXPIRY_MS);
+                        deleteInactiveDevices.step();
+                    } finally {
+                        deleteInactiveDevices.reset();
+                    }
                     logger.info("deleted " + attestationConn.getChanges() + " inactive devices");
                 }
 
                 if (DELETE_LEGACY_HISTORY) {
-                    deleteLegacyHistory.bind(1, now - HISTORY_EXPIRY_MS);
-                    deleteLegacyHistory.step();
-                    deleteLegacyHistory.reset();
+                    try {
+                        deleteLegacyHistory.bind(1, now - HISTORY_EXPIRY_MS);
+                        deleteLegacyHistory.step();
+                    } finally {
+                        deleteLegacyHistory.reset();
+                    }
                     logger.info("deleted " + attestationConn.getChanges() + " legacy history entries");
                 }
 
                 if (DELETE_INACTIVE_ACCOUNTS) {
-                    deleteInactiveAccounts.bind(1, now - INACTIVE_ACCOUNT_EXPIRY_MS);
-                    deleteInactiveAccounts.step();
-                    deleteInactiveAccounts.reset();
+                    try {
+                        deleteInactiveAccounts.bind(1, now - INACTIVE_ACCOUNT_EXPIRY_MS);
+                        deleteInactiveAccounts.step();
+                    } finally {
+                        deleteInactiveAccounts.reset();
+                    }
                     logger.info("deleted " + attestationConn.getChanges() + " inactive accounts");
                 }
 
@@ -103,16 +118,6 @@ class Maintenance implements Runnable {
                 attestationConn.exec("VACUUM");
             } catch (final SQLiteException e) {
                 logger.log(Level.WARNING, "database error", e);
-            } finally {
-                try {
-                    deleteExpiredSessions.reset();
-                    deleteDeletedDevices.reset();
-                    deleteInactiveDevices.reset();
-                    deleteLegacyHistory.reset();
-                    deleteInactiveAccounts.reset();
-                } catch (final SQLiteException e) {
-                    logger.log(Level.WARNING, "database error", e);
-                }
             }
 
             logger.info("maintenance completed");

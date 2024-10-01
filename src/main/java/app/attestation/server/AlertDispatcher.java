@@ -84,13 +84,21 @@ class AlertDispatcher implements Runnable {
             logger.info("dispatching alerts");
 
             try {
-                selectConfiguration.step();
-                final int local = selectConfiguration.columnInt(0);
-                final String emailUsername = selectConfiguration.columnString(1);
-                final String emailPassword = selectConfiguration.columnString(2);
-                final String emailHost = selectConfiguration.columnString(3);
-                final String emailPort = selectConfiguration.columnString(4);
-                selectConfiguration.reset();
+                final int local;
+                final String emailUsername;
+                final String emailPassword;
+                final String emailHost;
+                final String emailPort;
+                try {
+                    selectConfiguration.step();
+                    local = selectConfiguration.columnInt(0);
+                    emailUsername = selectConfiguration.columnString(1);
+                    emailPassword = selectConfiguration.columnString(2);
+                    emailHost = selectConfiguration.columnString(3);
+                    emailPort = selectConfiguration.columnString(4);
+                } finally {
+                    selectConfiguration.reset();
+                }
 
                 final Session session;
                 if (local == 1) {
@@ -130,50 +138,59 @@ class AlertDispatcher implements Runnable {
 
                 final ArrayList<Account> accountsForExpiryAlert = new ArrayList<>();
                 final long now = System.currentTimeMillis();
-                selectAccountsForExpiryAlert.bind(1, now);
-                selectAccountsForExpiryAlert.bind(2, now - ALERT_THROTTLE_MS);
-                while (selectAccountsForExpiryAlert.step()) {
-                    accountsForExpiryAlert.add(new Account(
-                            selectAccountsForExpiryAlert.columnLong(0),
-                            selectAccountsForExpiryAlert.columnString(1),
-                            selectAccountsForExpiryAlert.columnInt(2)));
+                try {
+                    selectAccountsForExpiryAlert.bind(1, now);
+                    selectAccountsForExpiryAlert.bind(2, now - ALERT_THROTTLE_MS);
+                    while (selectAccountsForExpiryAlert.step()) {
+                        accountsForExpiryAlert.add(new Account(
+                                selectAccountsForExpiryAlert.columnLong(0),
+                                selectAccountsForExpiryAlert.columnString(1),
+                                selectAccountsForExpiryAlert.columnInt(2)));
+                    }
+                } finally {
+                    selectAccountsForExpiryAlert.reset();
                 }
-                selectAccountsForExpiryAlert.reset();
 
                 for (final Account account : accountsForExpiryAlert) {
                     final ArrayList<byte[]> expiredFingerprints = new ArrayList<>();
                     final StringBuilder expired = new StringBuilder();
-                    selectExpired.bind(1, account.userId);
-                    selectExpired.bind(2, now - account.alertDelay * 1000);
-                    while (selectExpired.step()) {
-                        final byte[] fingerprint = selectExpired.columnBlob(0);
-                        expiredFingerprints.add(fingerprint);
+                    try {
+                        selectExpired.bind(1, account.userId);
+                        selectExpired.bind(2, now - account.alertDelay * 1000);
+                        while (selectExpired.step()) {
+                            final byte[] fingerprint = selectExpired.columnBlob(0);
+                            expiredFingerprints.add(fingerprint);
 
-                        expired.append("* ");
+                            expired.append("* ");
 
-                        final String encoded = BaseEncoding.base16().encode(fingerprint);
+                            final String encoded = BaseEncoding.base16().encode(fingerprint);
 
-                        for (int i = 0; i < encoded.length(); i += FINGERPRINT_SPLIT_INTERVAL) {
-                            expired.append(encoded, i, Math.min(encoded.length(), i + FINGERPRINT_SPLIT_INTERVAL));
-                            if (i + FINGERPRINT_SPLIT_INTERVAL < encoded.length()) {
-                                expired.append("-");
+                            for (int i = 0; i < encoded.length(); i += FINGERPRINT_SPLIT_INTERVAL) {
+                                expired.append(encoded, i, Math.min(encoded.length(), i + FINGERPRINT_SPLIT_INTERVAL));
+                                if (i + FINGERPRINT_SPLIT_INTERVAL < encoded.length()) {
+                                    expired.append("-");
+                                }
                             }
-                        }
 
-                        expired.append("\n");
+                            expired.append("\n");
+                        }
+                    } finally {
+                        selectExpired.reset();
                     }
-                    selectExpired.reset();
 
                     if (expiredFingerprints.isEmpty()) {
                         continue;
                     }
 
-                    selectEmails.bind(1, account.userId);
                     final ArrayList<String> addresses = new ArrayList<>();
-                    while (selectEmails.step()) {
-                        addresses.add(selectEmails.columnString(0));
+                    try {
+                        selectEmails.bind(1, account.userId);
+                        while (selectEmails.step()) {
+                            addresses.add(selectEmails.columnString(0));
+                        }
+                    } finally {
+                        selectEmails.reset();
                     }
-                    selectEmails.reset();
 
                     for (final String address : addresses) {
                         logger.info("sending email to " + address + " for account " + account.userId);
@@ -193,10 +210,13 @@ class AlertDispatcher implements Runnable {
                             Transport.send(message);
 
                             for (final byte[] fingerprint : expiredFingerprints) {
-                                updateExpired.bind(1, now);
-                                updateExpired.bind(2, fingerprint);
-                                updateExpired.step();
-                                updateExpired.reset();
+                                try {
+                                    updateExpired.bind(1, now);
+                                    updateExpired.bind(2, fingerprint);
+                                    updateExpired.step();
+                                } finally {
+                                    updateExpired.reset();
+                                }
                             }
                         } catch (final MessagingException e) {
                             logger.log(Level.WARNING, "email error", e);
@@ -208,24 +228,30 @@ class AlertDispatcher implements Runnable {
 
                 for (final Account account : accountsForFailureAlert) {
                     final StringBuilder failed = new StringBuilder();
-                    selectFailed.bind(1, account.userId);
-                    while (selectFailed.step()) {
-                        final byte[] fingerprint = selectFailed.columnBlob(0);
-                        final String encoded = BaseEncoding.base16().encode(fingerprint);
-                        failed.append("* ").append(encoded).append("\n");
+                    try {
+                        selectFailed.bind(1, account.userId);
+                        while (selectFailed.step()) {
+                            final byte[] fingerprint = selectFailed.columnBlob(0);
+                            final String encoded = BaseEncoding.base16().encode(fingerprint);
+                            failed.append("* ").append(encoded).append("\n");
+                        }
+                    } finally {
+                        selectFailed.reset();
                     }
-                    selectFailed.reset();
 
                     if (failed.length() == 0) {
                         continue;
                     }
 
-                    selectEmails.bind(1, account.userId);
                     final ArrayList<String> addresses = new ArrayList<>();
-                    while (selectEmails.step()) {
-                        addresses.add(selectEmails.columnString(0));
+                    try {
+                        selectEmails.bind(1, account.userId);
+                        while (selectEmails.step()) {
+                            addresses.add(selectEmails.columnString(0));
+                        }
+                    } finally {
+                        selectEmails.reset();
                     }
-                    selectEmails.reset();
 
                     for (final String address : addresses) {
                         logger.info("sending email to " + address + " for account " + account.userId);
@@ -248,17 +274,6 @@ class AlertDispatcher implements Runnable {
                 }
             } catch (final SQLiteException e) {
                 logger.log(Level.WARNING, "database error", e);
-            } finally {
-                try {
-                    selectConfiguration.reset();
-                    selectAccountsForExpiryAlert.reset();
-                    selectExpired.reset();
-                    updateExpired.reset();
-                    selectFailed.reset();
-                    selectEmails.reset();
-                } catch (final SQLiteException e) {
-                    logger.log(Level.WARNING, "database error", e);
-                }
             }
 
             logger.info("dispatching alerts completed");
