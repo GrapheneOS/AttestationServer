@@ -1662,11 +1662,7 @@ class AttestationServer {
             } catch (final BufferUnderflowException | NegativeArraySizeException |
                     DataFormatException | GeneralSecurityException e) {
                 logger.log(Level.WARNING, "invalid request", e);
-                final byte[] response = "Error\n".getBytes();
-                exchange.sendResponseHeaders(400, response.length);
-                try (final OutputStream output = exchange.getResponseBody()) {
-                    output.write(response);
-                }
+                exchange.sendResponseHeaders(400, -1);
                 return;
             }
 
