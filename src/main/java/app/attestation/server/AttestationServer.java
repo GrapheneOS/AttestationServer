@@ -1535,7 +1535,7 @@ class AttestationServer {
                     Attestations.oemUnlockAllowed,
                     Attestations.systemUser
                 FROM Attestations INNER JOIN Devices ON
-                Attestations.fingerprint = Devices.fingerprint
+                    Attestations.fingerprint = Devices.fingerprint
                 WHERE Devices.fingerprint = ? AND userid = ?
                 AND Attestations.id <= ? ORDER BY id DESC LIMIT\s""" + HISTORY_PER_PAGE);
         int rowCount = 0;
