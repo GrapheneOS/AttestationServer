@@ -97,7 +97,7 @@ The scanned QR code contains space-separated values in plain-text: `<domain> <us
 <subscribeKey> <verifyInterval>`. The `subscribeKey` should be treated as an opaque string rather
 than assuming base64 encoding. Additional fields may be added in the future.
 
-### /challenge
+### /auditor/challenge
 
 * Request method: POST
 * Request headers: n/a
@@ -109,7 +109,7 @@ can only be used once and expires in 1 minute.
 
 The server challenge index is always zeroed out and the userId should be used instead.
 
-### /verify
+### /auditor/verify
 
 * Request method: POST
 * Request headers:

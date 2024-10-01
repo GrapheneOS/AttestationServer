@@ -619,6 +619,9 @@ class AttestationServer {
             server.createContext("/api/delete-device", new DeleteDeviceHandler());
             server.createContext("/api/devices.json", new DevicesHandler());
             server.createContext("/api/attestation-history.json", new AttestationHistoryHandler());
+            server.createContext("/auditor/challenge", new ChallengeHandler());
+            server.createContext("/auditor/verify", new VerifyHandler());
+            server.createContext("/auditor/submit", new SubmitHandler());
             server.createContext("/challenge", new ChallengeHandler());
             server.createContext("/verify", new VerifyHandler());
             server.createContext("/submit", new SubmitHandler());
