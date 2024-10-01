@@ -69,7 +69,7 @@ import static app.attestation.server.AttestationProtocol.fingerprintsStrongBoxSt
 import static app.attestation.server.SyslogLevel.ALERT;
 import static com.almworks.sqlite4java.SQLiteConstants.SQLITE_CONSTRAINT_UNIQUE;
 
-public class AttestationServer {
+class AttestationServer {
     static final File ATTESTATION_DATABASE = new File("attestation.db");
     static final File SAMPLES_DATABASE = new File("samples.db");
     private static final int MAX_SAMPLE_SIZE = 64 * 1024;

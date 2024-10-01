@@ -2,8 +2,8 @@ package app.attestation.server;
 
 import java.util.logging.Level;
 
-public class SyslogLevel extends Level {
-    protected SyslogLevel(final String name, final int value) {
+class SyslogLevel extends Level {
+    private SyslogLevel(final String name, final int value) {
         super(name, value);
     }
 
