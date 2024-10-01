@@ -193,7 +193,7 @@ class AlertDispatcher implements Runnable {
                     }
 
                     for (final String address : addresses) {
-                        logger.info("sending email to " + address + " for account " + account.userId);
+                        logger.info("sending expiry email to " + address + " for account " + account.userId);
                         try {
                             final Message message = new MimeMessage(session);
                             message.setFrom(new InternetAddress(emailUsername));
@@ -254,7 +254,7 @@ class AlertDispatcher implements Runnable {
                     }
 
                     for (final String address : addresses) {
-                        logger.info("sending email to " + address + " for account " + account.userId);
+                        logger.info("sending failure email to " + address + " for account " + account.userId);
                         try {
                             final Message message = new MimeMessage(session);
                             message.setFrom(new InternetAddress(emailUsername));
