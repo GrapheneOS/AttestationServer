@@ -78,10 +78,17 @@ class AttestationProtocol {
     // byte[] compressedChain { [short encodedCertificateLength, byte[] encodedCertificate] }
     // byte[] fingerprint (length: FINGERPRINT_LENGTH)
     // int osEnforcedFlags
+    // short autoRebootMinutes (-1 for unknown)
+    // byte portSecurityMode (-1 for unknown)
+    // byte userCount (-1 for unknown)
     // }
     // byte[] signature (rest of message)
     //
     // Protocol version changes:
+    //
+    // 6: autoRebootMinutes added
+    // 6: portSecurityMode added
+    // 6: userCount added
     //
     // n/a
     //
@@ -1176,6 +1183,12 @@ class AttestationProtocol {
 
         if (deviceAdminNonSystem && !deviceAdmin) {
             throw new GeneralSecurityException("invalid device administrator state");
+        }
+
+        if (version >= 6) {
+            final short autoRebootMinutes = deserializer.getShort();
+            final byte portSecurityMode = deserializer.get();
+            final byte userCount = deserializer.get();
         }
 
         final int signatureLength = deserializer.remaining();
