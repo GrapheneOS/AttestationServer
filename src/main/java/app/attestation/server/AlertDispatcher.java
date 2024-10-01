@@ -66,7 +66,7 @@ class AlertDispatcher implements Runnable {
                     "UPDATE Devices SET expiredTimeLast = ? WHERE fingerprint = ?");
             selectFailed = conn.prepare("""
                     SELECT fingerprint FROM Devices
-                    WHERE userId = ? AND failureTimeLast IS NOT NULL AND deletionTime IS NULL""");
+                    WHERE userId = ? AND failureAlertTime < failureTimeLast AND deletionTime IS NULL""");
             selectEmails = conn.prepare("SELECT address FROM EmailAddresses WHERE userId = ?");
         } catch (final SQLiteException e) {
             conn.dispose();
