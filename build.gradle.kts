@@ -28,7 +28,7 @@ dependencies {
     implementation("com.google.guava:guava:33.3.1-jre")
     implementation("com.google.zxing:core:3.5.3")
     implementation("com.google.zxing:javase:3.5.3")
-    implementation("org.bouncycastle:bcprov-jdk18on:1.78.1")
+    implementation("org.bouncycastle:bcprov-jdk18on:1.79")
     implementation("org.eclipse.angus:jakarta.mail:2.0.3")
     implementation("org.eclipse.parsson:jakarta.json:1.1.7")
 }
