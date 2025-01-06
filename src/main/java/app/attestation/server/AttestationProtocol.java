@@ -78,7 +78,7 @@ class AttestationProtocol {
     // byte[] compressedChain { [short encodedCertificateLength, byte[] encodedCertificate] }
     // byte[] fingerprint (length: FINGERPRINT_LENGTH)
     // int osEnforcedFlags
-    // short autoRebootMinutes (-1 for unknown)
+    // int autoRebootSeconds (-1 for unknown)
     // byte portSecurityMode (-1 for unknown)
     // byte userCount (-1 for unknown)
     // }
@@ -86,7 +86,7 @@ class AttestationProtocol {
     //
     // Protocol version changes:
     //
-    // 6: autoRebootMinutes added
+    // 6: autoRebootSeconds added
     // 6: portSecurityMode added
     // 6: userCount added
     //
@@ -1200,7 +1200,7 @@ class AttestationProtocol {
         }
 
         if (version >= 6) {
-            final short autoRebootMinutes = deserializer.getShort();
+            final int autoRebootSeconds = deserializer.getInt();
             final byte portSecurityMode = deserializer.get();
             final byte userCount = deserializer.get();
         }
