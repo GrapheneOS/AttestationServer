@@ -9,6 +9,8 @@ java {
 }
 
 tasks.jar {
+    archiveBaseName.set("attestation-server")
+
     manifest {
         attributes(
             "Main-Class" to "app.attestation.server.AttestationServer",
