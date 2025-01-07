@@ -220,6 +220,10 @@ class AttestationProtocol {
             // API for detecting this was replaced in keymaster v3 but the new one isn't used yet
             boolean rollbackResistant,
             boolean enforceStrongBox, String osName) {
+
+        boolean hasPogoPins() {
+            return DEVICE_PIXEL_TABLET.equals(name);
+        }
     }
 
     private static final ImmutableSet<String> extraPatchLevelMissing = ImmutableSet.of(
@@ -476,6 +480,10 @@ class AttestationProtocol {
     private record Verified(String device, String verifiedBootKey, byte[] verifiedBootHash,
             String osName, int osVersion, int osPatchLevel, int vendorPatchLevel, int bootPatchLevel,
             int appVersion, int appVariant, int securityLevel, boolean attestKey) {
+
+        boolean hasPogoPins() {
+            return DEVICE_PIXEL_TABLET.equals(device);
+        }
     }
 
     private static X509Certificate generateCertificate(final InputStream in)
