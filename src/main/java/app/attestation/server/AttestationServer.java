@@ -234,6 +234,9 @@ class AttestationServer {
                 addUsersWhenLocked INTEGER NOT NULL CHECK (addUsersWhenLocked in (0, 1)),
                 oemUnlockAllowed INTEGER NOT NULL CHECK (oemUnlockAllowed in (0, 1)),
                 systemUser INTEGER NOT NULL CHECK (systemUser in (0, 1)),
+                autoRebootSeconds INTEGER NOT NULL CHECK (autoRebootSeconds in (-2, -1) OR autoRebootSeconds >= 0),
+                portSecurityMode INTEGER NOT NULL CHECK (portSecurityMode in (-2, -1) OR portSecurityMode >= 0),
+                userCount INTEGER NOT NULL CHECK (userCount in (-2, -1) OR userCount >= 1),
                 verifiedTimeFirst INTEGER NOT NULL,
                 verifiedTimeLast INTEGER NOT NULL,
                 expiredTimeLast INTEGER,
@@ -261,7 +264,10 @@ class AttestationServer {
                 adbEnabled INTEGER NOT NULL CHECK (adbEnabled in (0, 1)),
                 addUsersWhenLocked INTEGER NOT NULL CHECK (addUsersWhenLocked in (0, 1)),
                 oemUnlockAllowed INTEGER NOT NULL CHECK (oemUnlockAllowed in (0, 1)),
-                systemUser INTEGER NOT NULL CHECK (systemUser in (0, 1))
+                systemUser INTEGER NOT NULL CHECK (systemUser in (0, 1)),
+                autoRebootSeconds INTEGER NOT NULL CHECK (autoRebootSeconds in (-2, -1) OR autoRebootSeconds >= 0),
+                portSecurityMode INTEGER NOT NULL CHECK (portSecurityMode in (-2, -1) OR portSecurityMode >= 0),
+                userCount INTEGER NOT NULL CHECK (userCount in (-2, -1) OR userCount >= 1)
             ) STRICT""";
 
     private static final String CREATE_ATTESTATION_INDICES = """
