@@ -1532,6 +1532,9 @@ class AttestationServer {
                     addUsersWhenLocked,
                     oemUnlockAllowed,
                     systemUser,
+                    autoRebootSeconds,
+                    portSecurityMode,
+                    userCount,
                     verifiedTimeFirst,
                     verifiedTimeLast,
                     (SELECT min(id) FROM Attestations WHERE Attestations.fingerprint = Devices.fingerprint),
@@ -1600,10 +1603,14 @@ class AttestationServer {
                 device.add("addUsersWhenLocked", select.columnInt(17));
                 device.add("oemUnlockAllowed", select.columnInt(18));
                 device.add("systemUser", select.columnInt(19));
-                device.add("verifiedTimeFirst", select.columnLong(20));
-                device.add("verifiedTimeLast", select.columnLong(21));
-                device.add("minId", select.columnLong(22));
-                device.add("maxId", select.columnLong(23));
+                device.add("autoRebootSeconds", select.columnInt(20));
+                device.add("portSecurityMode", select.columnInt(21));
+                device.add("userCount", select.columnInt(22));
+                device.add("verifiedTimeFirst", select.columnLong(23));
+                device.add("verifiedTimeLast", select.columnLong(24));
+                device.add("minId", select.columnLong(25));
+                device.add("maxId", select.columnLong(26));
+                device.add("hasPogoPins", info.hasPogoPins() ? 1 : 0);
                 devices.add(device);
             }
         } finally {
@@ -1673,7 +1680,10 @@ class AttestationServer {
                     Attestations.adbEnabled,
                     Attestations.addUsersWhenLocked,
                     Attestations.oemUnlockAllowed,
-                    Attestations.systemUser
+                    Attestations.systemUser,
+                    Attestations.autoRebootSeconds,
+                    Attestations.portSecurityMode,
+                    Attestations.userCount
                 FROM Attestations INNER JOIN Devices ON
                     Attestations.fingerprint = Devices.fingerprint
                 WHERE Devices.fingerprint = ? AND userid = ?
@@ -1708,6 +1718,9 @@ class AttestationServer {
                 attestation.add("addUsersWhenLocked", history.columnInt(14));
                 attestation.add("oemUnlockAllowed", history.columnInt(15));
                 attestation.add("systemUser", history.columnInt(16));
+                attestation.add("autoRebootSeconds", history.columnInt(17));
+                attestation.add("portSecurityMode", history.columnInt(18));
+                attestation.add("userCount", history.columnInt(19));
                 attestations.add(attestation);
                 rowCount += 1;
             }

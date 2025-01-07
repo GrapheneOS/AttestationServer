@@ -85,6 +85,75 @@ function toSecurityLevelString(securityLevel, attestKey) {
     throw new Error("Invalid security level");
 }
 
+function autoRebootTimeoutString(autoRebootSeconds) {
+    if (autoRebootSeconds >= 0) {
+        const duration = {
+            hours: Math.floor(autoRebootSeconds / 60 / 60),
+            minutes: Math.floor(autoRebootSeconds / 60) % 60,
+            seconds: autoRebootSeconds % 60,
+        };
+        if (typeof window.Intl.DurationFormat == "function") {
+            const durationFormat = new Intl.DurationFormat("en", {style: "long"});
+            return durationFormat.format(duration);
+        } else {
+            let durationString = "";
+            if (duration.hours > 0) {
+                durationString += duration.hours + " hour" + ((duration.hours > 1 ? "s" : ""));
+            }
+
+            if (duration.minutes > 0) {
+                if (durationString.length > 0) {
+                    durationString += ", ";
+                }
+                durationString += duration.minutes + " minute" + ((duration.minutes > 1 ? "s" : ""));
+            }
+
+            if (duration.seconds > 0) {
+                if (durationString.length > 0) {
+                    durationString += ", ";
+                }
+                durationString += duration.seconds + " second" + ((duration.seconds > 1 ? "s" : ""));
+            }
+
+            return durationString;
+        }
+    } else if (autoRebootSeconds == -1) {
+        return "Unknown";
+    } else if (autoRebootSeconds == -2) {
+        return "Invalid";
+    }
+    throw new Error("Invalid auto reboot minutes value");
+}
+
+function usbPortSecurityModeString(portSecurityMode, hasPogoPins) {
+    if (portSecurityMode >= 0) {
+        switch (portSecurityMode) {
+            case 0: return (hasPogoPins > 0) ? "USB-C port off, pogo pins used only for charging" : "Off";
+            case 1: return "Charging-only";
+            case 2: return "Charging-only when locked";
+            case 3: return "Charging-only when locked, except before first unlock";
+            case 4: return "On";
+            default: break;
+        }
+    } else if (portSecurityMode == -1) {
+        return "Unknown";
+    } else if (portSecurityMode == -2) {
+        return "Invalid";
+    }
+    throw new Error("Invalid port security mode value");
+}
+
+function userCountString(userCount) {
+    if (userCount > 0) {
+        return userCount + " users";
+    } else if (userCount == -1) {
+        return "Unknown";
+    } else if (userCount == -2) {
+        return "Invalid";
+    }
+    throw new Error("Invalid port security mode value");
+}
+
 function reloadQrCode() {
     qr.src = "/placeholder.gif";
     qr.alt = "";
@@ -131,7 +200,7 @@ function appendLine(element, text) {
     element.appendChild(document.createElement("br"));
 }
 
-function fetchHistory(parent, nextOffset) {
+function fetchHistory(parent, nextOffset, hasPogoPins) {
     const parentdata = parent.dataset;
     parentdata.offsetId = Number(nextOffset);
     post("/api/attestation-history.json", JSON.stringify({
@@ -177,11 +246,14 @@ function fetchHistory(parent, nextOffset) {
             appendLine(parent, "Add users from lock screen: " + toYesNoString(attestation.addUsersWhenLocked));
             appendLine(parent, "OEM unlocking allowed: " + toYesNoString(attestation.oemUnlockAllowed));
             appendLine(parent, "Main user account: " + toYesNoString(attestation.systemUser));
+            appendLine(parent, "Auto reboot timeout: " + autoRebootTimeoutString(attestation.autoRebootSeconds));
+            appendLine(parent, "USB-C port" + ((hasPogoPins > 0) ? " and pogo pins" : "") + " security mode: " + usbPortSecurityModeString(attestation.portSecurityMode, hasPogoPins));
+            appendLine(parent, "User count: " + userCountString(attestation.userCount));
         }
         const earliestCurrentId = attestations.slice(-1)[0].id;
         function fetchHistoryNextPage() {
             parent.removeChild(parent.lastChild);
-            return fetchHistory(parent, earliestCurrentId - 1);
+            return fetchHistory(parent, earliestCurrentId - 1, hasPogoPins);
         }
         if (earliestCurrentId !== Number(parentdata.minId)) {
             parent.appendChild(create("button", "Load More", "page_history_next")).onclick = fetchHistoryNextPage;
@@ -301,6 +373,9 @@ function fetchDevices() {
             appendLine(info, "Add users from lock screen: " + toYesNoString(device.addUsersWhenLocked));
             appendLine(info, "OEM unlocking allowed: " + toYesNoString(device.oemUnlockAllowed));
             appendLine(info, "Main user account: " + toYesNoString(device.systemUser));
+            appendLine(info, "Auto reboot timeout: " + autoRebootTimeoutString(device.autoRebootSeconds));
+            appendLine(info, "USB-C port" + ((device.hasPogoPins > 0) ? " and pogo pins" : "") + " security mode: " + usbPortSecurityModeString(device.portSecurityMode, device.hasPogoPins));
+            appendLine(info, "User count: " + userCountString(device.userCount));
 
             info.appendChild(create("h3", "Attestation history"));
             appendLine(info, "First verified time: " + new Date(device.verifiedTimeFirst));
@@ -312,7 +387,7 @@ function fetchDevices() {
             history.dataset.maxId = Number(device.maxId);
             history.hidden = true;
             // always starts with latest attestation history entry
-            historyButton.onclick = fetchHistory(history, device.maxId);
+            historyButton.onclick = fetchHistory(history, device.maxId, device.hasPogoPins);
         }
 
         for (const toggle of document.getElementsByClassName("toggle")) {
