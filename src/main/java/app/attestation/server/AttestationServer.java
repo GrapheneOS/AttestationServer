@@ -581,6 +581,140 @@ class AttestationServer {
                 logger.info("Migrated to schema version: " + userVersion);
             }
 
+            // add failureAlertTime column to Devices
+            targetUserVersion = 15;
+            if (userVersion < targetUserVersion) {
+                conn.exec("PRAGMA foreign_keys = OFF");
+                conn.exec("BEGIN IMMEDIATE TRANSACTION");
+
+                conn.exec("ALTER TABLE Devices RENAME TO OldDevices");
+                conn.exec("ALTER TABLE Attestations RENAME TO OldAttestations");
+
+                conn.exec(CREATE_ATTESTATION_TABLES);
+
+                conn.exec("""
+                        INSERT INTO Devices (
+                            fingerprint,
+                            pinnedCertificates,
+                            attestKey,
+                            pinnedVerifiedBootKey,
+                            verifiedBootHash,
+                            pinnedOsVersion,
+                            pinnedOsPatchLevel,
+                            pinnedVendorPatchLevel,
+                            pinnedBootPatchLevel,
+                            pinnedAppVersion,
+                            pinnedAppVariant,
+                            pinnedSecurityLevel,
+                            userProfileSecure,
+                            enrolledBiometrics,
+                            accessibility,
+                            deviceAdmin,
+                            adbEnabled,
+                            addUsersWhenLocked,
+                            oemUnlockAllowed,
+                            systemUser,
+                            autoRebootSeconds,
+                            portSecurityMode,
+                            userCount,
+                            verifiedTimeFirst,
+                            verifiedTimeLast,
+                            expiredTimeLast,
+                            failureTimeLast,
+                            failureAlertTime,
+                            userId,
+                            deletionTime)
+                        SELECT
+                            fingerprint,
+                            pinnedCertificates,
+                            attestKey,
+                            pinnedVerifiedBootKey,
+                            verifiedBootHash,
+                            pinnedOsVersion,
+                            pinnedOsPatchLevel,
+                            pinnedVendorPatchLevel,
+                            pinnedBootPatchLevel,
+                            pinnedAppVersion,
+                            pinnedAppVariant,
+                            pinnedSecurityLevel,
+                            userProfileSecure,
+                            enrolledBiometrics,
+                            accessibility,
+                            deviceAdmin,
+                            adbEnabled,
+                            addUsersWhenLocked,
+                            oemUnlockAllowed,
+                            systemUser,
+                            -1,
+                            -1,
+                            -1,
+                            verifiedTimeFirst,
+                            verifiedTimeLast,
+                            expiredTimeLast,
+                            failureTimeLast,
+                            failureAlertTime,
+                            userId,
+                            deletionTime
+                        FROM OldDevices""");
+
+                conn.exec("""
+                        INSERT INTO Attestations (
+                            id,
+                            fingerprint,
+                            time,
+                            strong,
+                            osVersion,
+                            osPatchLevel,
+                            vendorPatchLevel,
+                            bootPatchLevel,
+                            verifiedBootHash,
+                            appVersion,
+                            userProfileSecure,
+                            enrolledBiometrics,
+                            accessibility,
+                            deviceAdmin,
+                            adbEnabled,
+                            addUsersWhenLocked,
+                            oemUnlockAllowed,
+                            systemUser,
+                            autoRebootSeconds,
+                            portSecurityMode,
+                            userCount
+                        ) SELECT
+                            id,
+                            fingerprint,
+                            time,
+                            strong,
+                            osVersion,
+                            osPatchLevel,
+                            vendorPatchLevel,
+                            bootPatchLevel,
+                            verifiedBootHash,
+                            appVersion,
+                            userProfileSecure,
+                            enrolledBiometrics,
+                            accessibility,
+                            deviceAdmin,
+                            adbEnabled,
+                            addUsersWhenLocked,
+                            oemUnlockAllowed,
+                            systemUser,
+                            -1,
+                            -1,
+                            -1
+                        FROM OldAttestations""");
+
+                conn.exec("DROP TABLE OldDevices");
+                conn.exec("DROP TABLE OldAttestations");
+
+                conn.exec(CREATE_ATTESTATION_INDICES);
+                conn.exec("PRAGMA user_version = " + targetUserVersion);
+                conn.exec("COMMIT TRANSACTION");
+                userVersion = targetUserVersion;
+                conn.exec("PRAGMA foreign_keys = ON");
+                logger.info("Migrated to schema version: " + userVersion);
+            }
+
             logger.info("Finished database setup for " + ATTESTATION_DATABASE);
         } finally {
             conn.dispose();
