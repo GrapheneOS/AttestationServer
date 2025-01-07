@@ -222,7 +222,8 @@ class AttestationProtocol {
     public record DeviceInfo(String name, int attestationVersion, int keymasterVersion,
             // API for detecting this was replaced in keymaster v3 but the new one isn't used yet
             boolean rollbackResistant,
-            boolean enforceStrongBox, String osName) {}
+            boolean enforceStrongBox, String osName) {
+    }
 
     private static final ImmutableSet<String> extraPatchLevelMissing = ImmutableSet.of(
             DEVICE_SM_G970F,
@@ -485,7 +486,8 @@ class AttestationProtocol {
 
     private record Verified(String device, String verifiedBootKey, byte[] verifiedBootHash,
             String osName, int osVersion, int osPatchLevel, int vendorPatchLevel, int bootPatchLevel,
-            int appVersion, int appVariant, int securityLevel, boolean attestKey) {}
+            int appVersion, int appVariant, int securityLevel, boolean attestKey) {
+    }
 
     private static X509Certificate generateCertificate(final InputStream in)
             throws CertificateException {
