@@ -842,7 +842,7 @@ class AttestationProtocol {
             final boolean accessibility, final boolean deviceAdmin,
             final boolean deviceAdminNonSystem, final boolean adbEnabled,
             final boolean addUsersWhenLocked, final boolean enrolledBiometrics,
-            final boolean systemUser)
+            final boolean systemUser, final SecurityStateExt securityStateExt)
             throws GeneralSecurityException, IOException, SQLiteException {
         final String fingerprintHex = BaseEncoding.base16().encode(fingerprint);
         final byte[] currentFingerprint = getFingerprint(attestationCertificates[0]);
@@ -1216,11 +1216,16 @@ class AttestationProtocol {
             throw new GeneralSecurityException("invalid device administrator state");
         }
 
+        SecurityStateExt securityStateExt;
         if (version >= 6) {
             final int autoRebootSeconds = deserializer.getInt();
             final byte portSecurityMode = deserializer.get();
             final byte userCount = deserializer.get();
             final byte oemUnlockAllowed = deserializer.get();
+            securityStateExt = new SecurityStateExt(autoRebootSeconds, portSecurityMode,
+                    userCount, oemUnlockAllowed);
+        } else {
+            securityStateExt = SecurityStateExt.UNKNOWN;
         }
 
         final int signatureLength = deserializer.remaining();
@@ -1232,6 +1237,6 @@ class AttestationProtocol {
 
         verify(fingerprint, pendingChallenges, userId, paired, deserializer.asReadOnlyBuffer(), signature,
                 certificates, userProfileSecure, accessibility, deviceAdmin, deviceAdminNonSystem,
-                adbEnabled, addUsersWhenLocked, enrolledBiometrics, systemUser);
+                adbEnabled, addUsersWhenLocked, enrolledBiometrics, systemUser, securityStateExt);
     }
 }
