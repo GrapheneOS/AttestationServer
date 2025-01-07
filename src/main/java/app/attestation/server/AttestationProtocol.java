@@ -828,6 +828,13 @@ class AttestationProtocol {
         return value ? "yes" : "no";
     }
 
+    record SecurityStateExt(
+            int autoRebootSeconds, byte portSecurityMode, byte userCount, byte oemUnlocked) {
+        static final int UNKNOWN_VALUE = -1;
+        static final SecurityStateExt UNKNOWN = new SecurityStateExt(UNKNOWN_VALUE,
+                (byte) UNKNOWN_VALUE, (byte) UNKNOWN_VALUE, (byte) UNKNOWN_VALUE);
+    }
+
     private static void verify(final byte[] fingerprint,
             final Cache<ByteBuffer, Boolean> pendingChallenges, final long userId,
             final boolean paired, final ByteBuffer signedMessage, final byte[] signature,
