@@ -1539,6 +1539,10 @@ class AttestationServer {
                     addUsersWhenLocked,
                     oemUnlockAllowed,
                     systemUser,
+                    autoRebootSeconds,
+                    portSecurityMode,
+                    userCount,
+                    oemUnlockAllowed2,
                     verifiedTimeFirst,
                     verifiedTimeLast,
                     (SELECT min(id) FROM Attestations WHERE Attestations.fingerprint = Devices.fingerprint),
@@ -1607,10 +1611,27 @@ class AttestationServer {
                 device.add("addUsersWhenLocked", select.columnInt(17));
                 device.add("oemUnlockAllowed", select.columnInt(18));
                 device.add("systemUser", select.columnInt(19));
-                device.add("verifiedTimeFirst", select.columnLong(20));
-                device.add("verifiedTimeLast", select.columnLong(21));
-                device.add("minId", select.columnLong(22));
-                device.add("maxId", select.columnLong(23));
+                final int autoRebootSeconds = select.columnInt(20);
+                if (autoRebootSeconds != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
+                    device.add("autoRebootSeconds", autoRebootSeconds);
+                }
+                final int portSecurityMode = select.columnInt(21);
+                if (portSecurityMode != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
+                    device.add("portSecurityMode", portSecurityMode);
+                }
+                final int userCount = select.columnInt(22);
+                if (userCount != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
+                    device.add("userCount", userCount);
+                }
+                final int oemUnlockAllowed2 = select.columnInt(23);
+                if (oemUnlockAllowed2 != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
+                    device.add("oemUnlockAllowed2", oemUnlockAllowed2);
+                }
+                device.add("verifiedTimeFirst", select.columnLong(24));
+                device.add("verifiedTimeLast", select.columnLong(25));
+                device.add("minId", select.columnLong(26));
+                device.add("maxId", select.columnLong(27));
+                device.add("hasPogoPins", info.hasPogoPins() ? 1 : 0);
                 devices.add(device);
             }
         } finally {
@@ -1680,7 +1701,11 @@ class AttestationServer {
                     Attestations.adbEnabled,
                     Attestations.addUsersWhenLocked,
                     Attestations.oemUnlockAllowed,
-                    Attestations.systemUser
+                    Attestations.systemUser,
+                    Attestations.autoRebootSeconds,
+                    Attestations.portSecurityMode,
+                    Attestations.userCount,
+                    Attestations.oemUnlockAllowed2
                 FROM Attestations INNER JOIN Devices ON
                     Attestations.fingerprint = Devices.fingerprint
                 WHERE Devices.fingerprint = ? AND userid = ?
@@ -1715,6 +1740,22 @@ class AttestationServer {
                 attestation.add("addUsersWhenLocked", history.columnInt(14));
                 attestation.add("oemUnlockAllowed", history.columnInt(15));
                 attestation.add("systemUser", history.columnInt(16));
+                final int autoRebootSeconds = history.columnInt(17);
+                if (autoRebootSeconds != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
+                    attestation.add("autoRebootSeconds", autoRebootSeconds);
+                }
+                final int portSecurityMode = history.columnInt(18);
+                if (portSecurityMode != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
+                    attestation.add("portSecurityMode", portSecurityMode);
+                }
+                final int userCount = history.columnInt(19);
+                if (userCount != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
+                    attestation.add("userCount", userCount);
+                }
+                final int oemUnlockAllowed2 = history.columnInt(20);
+                if (oemUnlockAllowed2 != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
+                    attestation.add("oemUnlockAllowed2", oemUnlockAllowed2);
+                }
                 attestations.add(attestation);
                 rowCount += 1;
             }
