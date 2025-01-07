@@ -970,6 +970,9 @@ class AttestationProtocol {
                             addUsersWhenLocked = ?,
                             oemUnlockAllowed = ?,
                             systemUser = ?,
+                            autoRebootSeconds = ?,
+                            portSecurityMode = ?,
+                            userCount = ?,
                             verifiedTimeLast = ?
                         WHERE fingerprint = ?""");
                 try {
@@ -992,8 +995,11 @@ class AttestationProtocol {
                     update.bind(13, addUsersWhenLocked ? 1 : 0);
                     update.bind(14, oemUnlockAllowed ? 1 : 0);
                     update.bind(15, systemUser ? 1 : 0);
-                    update.bind(16, now);
-                    update.bind(17, fingerprint);
+                    update.bind(16, securityStateExt.autoRebootSeconds);
+                    update.bind(17, securityStateExt.portSecurityMode);
+                    update.bind(18, securityStateExt.userCount);
+                    update.bind(19, now);
+                    update.bind(20, fingerprint);
                     update.step();
                 } finally {
                     update.dispose();
@@ -1023,10 +1029,13 @@ class AttestationProtocol {
                             addUsersWhenLocked,
                             oemUnlockAllowed,
                             systemUser,
+                            autoRebootSeconds,
+                            portSecurityMode,
+                            userCount,
                             verifiedTimeFirst,
                             verifiedTimeLast,
                             userId
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""");
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""");
                 try {
                     insert.bind(1, fingerprint);
                     insert.bind(2, encodeChain(DEFLATE_DICTIONARY_4, attestationCertificates));
@@ -1052,9 +1061,12 @@ class AttestationProtocol {
                     insert.bind(18, addUsersWhenLocked ? 1 : 0);
                     insert.bind(19, oemUnlockAllowed ? 1 : 0);
                     insert.bind(20, systemUser ? 1 : 0);
-                    insert.bind(21, now);
-                    insert.bind(22, now);
-                    insert.bind(23, userId);
+                    insert.bind(21, securityStateExt.autoRebootSeconds);
+                    insert.bind(22, securityStateExt.portSecurityMode);
+                    insert.bind(23, securityStateExt.userCount);
+                    insert.bind(24, now);
+                    insert.bind(25, now);
+                    insert.bind(26, userId);
                     insert.step();
                 } finally {
                     insert.dispose();
@@ -1079,8 +1091,11 @@ class AttestationProtocol {
                         adbEnabled,
                         addUsersWhenLocked,
                         oemUnlockAllowed,
-                        systemUser
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""");
+                        systemUser,
+                        autoRebootSeconds,
+                        portSecurityMode,
+                        userCount
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""");
             try {
                 insert.bind(1, fingerprint);
                 insert.bind(2, now);
@@ -1103,6 +1118,9 @@ class AttestationProtocol {
                 insert.bind(15, addUsersWhenLocked ? 1 : 0);
                 insert.bind(16, oemUnlockAllowed ? 1 : 0);
                 insert.bind(17, systemUser ? 1 : 0);
+                insert.bind(18, securityStateExt.autoRebootSeconds);
+                insert.bind(19, securityStateExt.portSecurityMode);
+                insert.bind(20, securityStateExt.userCount);
 
                 insert.step();
             } finally {
