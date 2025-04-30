@@ -175,7 +175,7 @@ function fetchHistory(parent, nextOffset) {
             appendLine(parent, "Device administrator(s) enabled: " + deviceAdminStrings.get(attestation.deviceAdmin));
             appendLine(parent, "Android Debug Bridge enabled: " + toYesNoString(attestation.adbEnabled));
             appendLine(parent, "Add users from lock screen: " + toYesNoString(attestation.addUsersWhenLocked));
-            appendLine(parent, "OEM unlocking allowed: " + toYesNoString(attestation.oemUnlockAllowed));
+            //appendLine(parent, "OEM unlocking allowed: " + toYesNoString(attestation.oemUnlockAllowed));
             appendLine(parent, "Main user account: " + toYesNoString(attestation.systemUser));
         }
         const earliestCurrentId = attestations.slice(-1)[0].id;
@@ -299,7 +299,7 @@ function fetchDevices() {
             appendLine(info, "Device administrator(s) enabled: " + deviceAdminStrings.get(device.deviceAdmin));
             appendLine(info, "Android Debug Bridge enabled: " + toYesNoString(device.adbEnabled));
             appendLine(info, "Add users from lock screen: " + toYesNoString(device.addUsersWhenLocked));
-            appendLine(info, "OEM unlocking allowed: " + toYesNoString(device.oemUnlockAllowed));
+            //appendLine(info, "OEM unlocking allowed: " + toYesNoString(device.oemUnlockAllowed));
             appendLine(info, "Main user account: " + toYesNoString(device.systemUser));
 
             info.appendChild(create("h3", "Attestation history"));

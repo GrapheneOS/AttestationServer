@@ -81,6 +81,7 @@ class AttestationProtocol {
     // short autoRebootMinutes (-1 for unknown)
     // byte portSecurityMode (-1 for unknown)
     // byte userCount (-1 for unknown)
+    // byte oemUnlockAllowed (-1 for unknown)
     // }
     // byte[] signature (rest of message)
     //
@@ -89,6 +90,7 @@ class AttestationProtocol {
     // 6: autoRebootMinutes added
     // 6: portSecurityMode added
     // 6: userCount added
+    // 6: oemUnlockAllowed added
     //
     // n/a
     //
@@ -144,7 +146,7 @@ class AttestationProtocol {
     private static final int OS_ENFORCED_FLAGS_ENROLLED_BIOMETRICS = 1 << 5;
     private static final int OS_ENFORCED_FLAGS_DENY_NEW_USB = 1 << 6; // obsolete since version 76
     private static final int OS_ENFORCED_FLAGS_DEVICE_ADMIN_NON_SYSTEM = 1 << 7;
-    private static final int OS_ENFORCED_FLAGS_OEM_UNLOCK_ALLOWED = 1 << 8;
+    private static final int OS_ENFORCED_FLAGS_OEM_UNLOCK_ALLOWED = 1 << 8; // obsolete since version 89
     private static final int OS_ENFORCED_FLAGS_SYSTEM_USER = 1 << 9;
     private static final int OS_ENFORCED_FLAGS_ALL =
             OS_ENFORCED_FLAGS_USER_PROFILE_SECURE |
@@ -823,7 +825,7 @@ class AttestationProtocol {
             final boolean accessibility, final boolean deviceAdmin,
             final boolean deviceAdminNonSystem, final boolean adbEnabled,
             final boolean addUsersWhenLocked, final boolean enrolledBiometrics,
-            final boolean oemUnlockAllowed, final boolean systemUser)
+            final boolean systemUser)
             throws GeneralSecurityException, IOException, SQLiteException {
         final String fingerprintHex = BaseEncoding.base16().encode(fingerprint);
         final byte[] currentFingerprint = getFingerprint(attestationCertificates[0]);
@@ -981,7 +983,7 @@ class AttestationProtocol {
                     update.bind(11, deviceAdmin ? (deviceAdminNonSystem ? 2 : 1) : 0);
                     update.bind(12, adbEnabled ? 1 : 0);
                     update.bind(13, addUsersWhenLocked ? 1 : 0);
-                    update.bind(14, oemUnlockAllowed ? 1 : 0);
+                    update.bind(14, 0); // oemUnlockAllowed
                     update.bind(15, systemUser ? 1 : 0);
                     update.bind(16, now);
                     update.bind(17, fingerprint);
@@ -1041,7 +1043,7 @@ class AttestationProtocol {
                     insert.bind(16, deviceAdmin ? (deviceAdminNonSystem ? 2 : 1) : 0);
                     insert.bind(17, adbEnabled ? 1 : 0);
                     insert.bind(18, addUsersWhenLocked ? 1 : 0);
-                    insert.bind(19, oemUnlockAllowed ? 1 : 0);
+                    insert.bind(19, 0); // oemUnlockAllowed
                     insert.bind(20, systemUser ? 1 : 0);
                     insert.bind(21, now);
                     insert.bind(22, now);
@@ -1092,7 +1094,7 @@ class AttestationProtocol {
                 insert.bind(13, deviceAdmin ? (deviceAdminNonSystem ? 2 : 1) : 0);
                 insert.bind(14, adbEnabled ? 1 : 0);
                 insert.bind(15, addUsersWhenLocked ? 1 : 0);
-                insert.bind(16, oemUnlockAllowed ? 1 : 0);
+                insert.bind(16, 0); // oemUnlockAllowed
                 insert.bind(17, systemUser ? 1 : 0);
 
                 insert.step();
@@ -1191,7 +1193,6 @@ class AttestationProtocol {
         final boolean adbEnabled = (osEnforcedFlags & OS_ENFORCED_FLAGS_ADB_ENABLED) != 0;
         final boolean addUsersWhenLocked = (osEnforcedFlags & OS_ENFORCED_FLAGS_ADD_USERS_WHEN_LOCKED) != 0;
         final boolean enrolledBiometrics = (osEnforcedFlags & OS_ENFORCED_FLAGS_ENROLLED_BIOMETRICS) != 0;
-        final boolean oemUnlockAllowed = (osEnforcedFlags & OS_ENFORCED_FLAGS_OEM_UNLOCK_ALLOWED) != 0;
         final boolean systemUser = (osEnforcedFlags & OS_ENFORCED_FLAGS_SYSTEM_USER) != 0;
 
         if (deviceAdminNonSystem && !deviceAdmin) {
@@ -1202,6 +1203,7 @@ class AttestationProtocol {
             final short autoRebootMinutes = deserializer.getShort();
             final byte portSecurityMode = deserializer.get();
             final byte userCount = deserializer.get();
+            final byte oemUnlockAllowed = deserializer.get();
         }
 
         final int signatureLength = deserializer.remaining();
@@ -1213,6 +1215,6 @@ class AttestationProtocol {
 
         verify(fingerprint, pendingChallenges, userId, paired, deserializer.asReadOnlyBuffer(), signature,
                 certificates, userProfileSecure, accessibility, deviceAdmin, deviceAdminNonSystem,
-                adbEnabled, addUsersWhenLocked, enrolledBiometrics, oemUnlockAllowed, systemUser);
+                adbEnabled, addUsersWhenLocked, enrolledBiometrics, systemUser);
     }
 }
