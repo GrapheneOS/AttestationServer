@@ -72,7 +72,7 @@ import static com.almworks.sqlite4java.SQLiteConstants.SQLITE_CONSTRAINT_UNIQUE;
 class AttestationServer {
     static final File ATTESTATION_DATABASE = new File("attestation.db");
     static final File SAMPLES_DATABASE = new File("samples.db");
-    private static final int MAX_SAMPLE_SIZE = 64 * 1024;
+    private static final int MAX_SAMPLE_SIZE = 128 * 1024;
 
     private static final int DEFAULT_VERIFY_INTERVAL = 6 * 60 * 60;
     private static final int MIN_VERIFY_INTERVAL = 60 * 60;
