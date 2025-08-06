@@ -291,7 +291,7 @@ class AttestationServer {
             final SQLiteStatement selectCreated = conn.prepare(
                     "SELECT 1 FROM sqlite_master WHERE type='table' AND name='Configuration'");
             if (!selectCreated.step()) {
-                conn.exec("PRAGMA user_version = 13");
+                conn.exec("PRAGMA user_version = 14");
             }
             selectCreated.dispose();
 
