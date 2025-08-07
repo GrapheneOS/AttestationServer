@@ -145,7 +145,7 @@ function usbPortSecurityModeString(portSecurityMode, hasPogoPins) {
 
 function userCountString(userCount) {
     if (userCount > 0) {
-        return userCount + " users";
+        return userCount;
     } else if (userCount == -1) {
         return "Unknown";
     } else if (userCount == -2) {
