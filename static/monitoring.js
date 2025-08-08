@@ -86,7 +86,7 @@ function toSecurityLevelString(securityLevel, attestKey) {
 }
 
 function autoRebootTimeoutString(autoRebootSeconds) {
-    if (autoRebootSeconds >= 0) {
+    if (autoRebootSeconds >= 20) {
         const duration = {
             hours: Math.floor(autoRebootSeconds / 60 / 60),
             minutes: Math.floor(autoRebootSeconds / 60) % 60,
@@ -117,6 +117,8 @@ function autoRebootTimeoutString(autoRebootSeconds) {
 
             return durationString;
         }
+    } else if (autoRebootSeconds == 0) {
+        return "Off";
     } else if (autoRebootSeconds == -2) {
         return "Invalid";
     }
