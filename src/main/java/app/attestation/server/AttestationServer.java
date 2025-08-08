@@ -1744,21 +1744,29 @@ class AttestationServer {
                 device.add("addUsersWhenLocked", select.columnInt(17));
                 device.add("oemUnlockAllowed", select.columnInt(18));
                 device.add("systemUser", select.columnInt(19));
-                final int autoRebootSeconds = select.columnInt(20);
-                if (autoRebootSeconds != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
-                    device.add("autoRebootSeconds", autoRebootSeconds);
+                if (!select.columnNull(20)) {
+                    final int autoRebootSeconds = select.columnInt(20);
+                    if (autoRebootSeconds != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
+                        device.add("autoRebootSeconds", autoRebootSeconds);
+                    }
                 }
-                final int portSecurityMode = select.columnInt(21);
-                if (portSecurityMode != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
-                    device.add("portSecurityMode", portSecurityMode);
+                if (!select.columnNull(21)) {
+                    final int portSecurityMode = select.columnInt(21);
+                    if (portSecurityMode != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
+                        device.add("portSecurityMode", portSecurityMode);
+                    }
                 }
-                final int userCount = select.columnInt(22);
-                if (userCount != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
-                    device.add("userCount", userCount);
+                if (!select.columnNull(22)) {
+                    final int userCount = select.columnInt(22);
+                    if (userCount != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
+                        device.add("userCount", userCount);
+                    }
                 }
-                final int oemUnlockAllowed2 = select.columnInt(23);
-                if (oemUnlockAllowed2 != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
-                    device.add("oemUnlockAllowed2", oemUnlockAllowed2);
+                if (!select.columnNull(23)) {
+                    final int oemUnlockAllowed2 = select.columnInt(23);
+                    if (oemUnlockAllowed2 != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
+                        device.add("oemUnlockAllowed2", oemUnlockAllowed2);
+                    }
                 }
                 device.add("verifiedTimeFirst", select.columnLong(24));
                 device.add("verifiedTimeLast", select.columnLong(25));
@@ -1873,21 +1881,29 @@ class AttestationServer {
                 attestation.add("addUsersWhenLocked", history.columnInt(14));
                 attestation.add("oemUnlockAllowed", history.columnInt(15));
                 attestation.add("systemUser", history.columnInt(16));
-                final int autoRebootSeconds = history.columnInt(17);
-                if (autoRebootSeconds != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
-                    attestation.add("autoRebootSeconds", autoRebootSeconds);
+                if (!history.columnNull(17)) {
+                    final int autoRebootSeconds = history.columnInt(17);
+                    if (autoRebootSeconds != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
+                        attestation.add("autoRebootSeconds", autoRebootSeconds);
+                    }
                 }
-                final int portSecurityMode = history.columnInt(18);
-                if (portSecurityMode != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
-                    attestation.add("portSecurityMode", portSecurityMode);
+                if (!history.columnNull(18)) {
+                    final int portSecurityMode = history.columnInt(18);
+                    if (portSecurityMode != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
+                        attestation.add("portSecurityMode", portSecurityMode);
+                    }
                 }
-                final int userCount = history.columnInt(19);
-                if (userCount != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
-                    attestation.add("userCount", userCount);
+                if (!history.columnNull(19)) {
+                    final int userCount = history.columnInt(19);
+                    if (userCount != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
+                        attestation.add("userCount", userCount);
+                    }
                 }
-                final int oemUnlockAllowed2 = history.columnInt(20);
-                if (oemUnlockAllowed2 != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
-                    attestation.add("oemUnlockAllowed2", oemUnlockAllowed2);
+                if (!history.columnNull(20)) {
+                    final int oemUnlockAllowed2 = history.columnInt(20);
+                    if (oemUnlockAllowed2 != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
+                        attestation.add("oemUnlockAllowed2", oemUnlockAllowed2);
+                    }
                 }
                 attestations.add(attestation);
                 rowCount += 1;
