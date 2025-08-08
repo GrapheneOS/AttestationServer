@@ -954,10 +954,24 @@ class AttestationProtocol {
                     update.bind(13, addUsersWhenLocked ? 1 : 0);
                     update.bind(14, 0); // oemUnlockAllowed
                     update.bind(15, systemUser ? 1 : 0);
-                    update.bind(16, securityStateExt.autoRebootSeconds);
-                    update.bind(17, securityStateExt.portSecurityMode);
-                    update.bind(18, securityStateExt.userCount);
-                    update.bind(19, securityStateExt.oemUnlocked);
+                    if (securityStateExt.autoRebootSeconds == SecurityStateExt.INVALID_VALUE
+                            || securityStateExt.autoRebootSeconds == 0
+                            || securityStateExt.autoRebootSeconds >= 20) {
+                        update.bind(16, securityStateExt.autoRebootSeconds);
+                    }
+                    if (securityStateExt.portSecurityMode == SecurityStateExt.INVALID_VALUE
+                            || securityStateExt.portSecurityMode >= 0) {
+                        update.bind(17, securityStateExt.portSecurityMode);
+                    }
+                    if (securityStateExt.userCount == SecurityStateExt.INVALID_VALUE
+                            || securityStateExt.userCount >= 1) {
+                        update.bind(18, securityStateExt.userCount);
+                    }
+                    if (securityStateExt.oemUnlocked == SecurityStateExt.INVALID_VALUE
+                            || securityStateExt.oemUnlocked == 0
+                            || securityStateExt.oemUnlocked == 1) {
+                        update.bind(19, securityStateExt.oemUnlocked);
+                    }
                     update.bind(20, now);
                     update.bind(21, fingerprint);
                     update.step();
@@ -1022,10 +1036,24 @@ class AttestationProtocol {
                     insert.bind(18, addUsersWhenLocked ? 1 : 0);
                     insert.bind(19, 0); // oemUnlockAllowed
                     insert.bind(20, systemUser ? 1 : 0);
-                    insert.bind(21, securityStateExt.autoRebootSeconds);
-                    insert.bind(22, securityStateExt.portSecurityMode);
-                    insert.bind(23, securityStateExt.userCount);
-                    insert.bind(24, securityStateExt.oemUnlocked);
+                    if (securityStateExt.autoRebootSeconds == SecurityStateExt.INVALID_VALUE
+                            || securityStateExt.autoRebootSeconds == 0
+                            || securityStateExt.autoRebootSeconds >= 20) {
+                        insert.bind(21, securityStateExt.autoRebootSeconds);
+                    }
+                    if (securityStateExt.portSecurityMode == SecurityStateExt.INVALID_VALUE
+                            || securityStateExt.portSecurityMode >= 0) {
+                        insert.bind(22, securityStateExt.portSecurityMode);
+                    }
+                    if (securityStateExt.userCount == SecurityStateExt.INVALID_VALUE
+                            || securityStateExt.userCount >= 1) {
+                        insert.bind(23, securityStateExt.userCount);
+                    }
+                    if (securityStateExt.oemUnlocked == SecurityStateExt.INVALID_VALUE
+                            || securityStateExt.oemUnlocked == 0
+                            || securityStateExt.oemUnlocked == 1) {
+                        insert.bind(24, securityStateExt.oemUnlocked);
+                    }
                     insert.bind(25, now);
                     insert.bind(26, now);
                     insert.bind(27, userId);
@@ -1081,10 +1109,24 @@ class AttestationProtocol {
                 insert.bind(15, addUsersWhenLocked ? 1 : 0);
                 insert.bind(16, 0); // oemUnlockAllowed
                 insert.bind(17, systemUser ? 1 : 0);
-                insert.bind(18, securityStateExt.autoRebootSeconds);
-                insert.bind(19, securityStateExt.portSecurityMode);
-                insert.bind(20, securityStateExt.userCount);
-                insert.bind(21, securityStateExt.oemUnlocked);
+                if (securityStateExt.autoRebootSeconds == SecurityStateExt.INVALID_VALUE
+                        || securityStateExt.autoRebootSeconds == 0
+                        || securityStateExt.autoRebootSeconds >= 20) {
+                    insert.bind(18, securityStateExt.autoRebootSeconds);
+                }
+                if (securityStateExt.portSecurityMode == SecurityStateExt.INVALID_VALUE
+                        || securityStateExt.portSecurityMode >= 0) {
+                    insert.bind(19, securityStateExt.portSecurityMode);
+                }
+                if (securityStateExt.userCount == SecurityStateExt.INVALID_VALUE
+                        || securityStateExt.userCount >= 1) {
+                    insert.bind(20, securityStateExt.userCount);
+                }
+                if (securityStateExt.oemUnlocked == SecurityStateExt.INVALID_VALUE
+                        || securityStateExt.oemUnlocked == 0
+                        || securityStateExt.oemUnlocked == 1) {
+                    insert.bind(21, securityStateExt.oemUnlocked);
+                }
 
                 insert.step();
             } finally {
