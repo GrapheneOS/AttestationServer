@@ -117,8 +117,6 @@ function autoRebootTimeoutString(autoRebootSeconds) {
 
             return durationString;
         }
-    } else if (autoRebootSeconds == -1) {
-        return "Unknown";
     } else if (autoRebootSeconds == -2) {
         return "Invalid";
     }
@@ -135,8 +133,6 @@ function usbPortSecurityModeString(portSecurityMode, hasPogoPins) {
             case 4: return "On";
             default: break;
         }
-    } else if (portSecurityMode == -1) {
-        return "Unknown";
     } else if (portSecurityMode == -2) {
         return "Invalid";
     }
@@ -146,8 +142,6 @@ function usbPortSecurityModeString(portSecurityMode, hasPogoPins) {
 function userCountString(userCount) {
     if (userCount > 0) {
         return userCount;
-    } else if (userCount == -1) {
-        return "Unknown";
     } else if (userCount == -2) {
         return "Invalid";
     }
@@ -157,8 +151,6 @@ function userCountString(userCount) {
 function oemUnlockAllowedString(oemUnlockAllowed2) {
     if (oemUnlockAllowed2 >= 0) {
         return toYesNoString(oemUnlockAllowed2 > 0);
-    } else if (oemUnlockAllowed2 == -1) {
-        return "Unknown";
     } else if (oemUnlockAllowed2 == -2) {
         return "Invalid";
     }
