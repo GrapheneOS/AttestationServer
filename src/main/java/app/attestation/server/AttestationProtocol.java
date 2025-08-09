@@ -144,7 +144,7 @@ class AttestationProtocol {
     private static final int OS_ENFORCED_FLAGS_ADB_ENABLED = 1 << 3;
     private static final int OS_ENFORCED_FLAGS_ADD_USERS_WHEN_LOCKED = 1 << 4;
     private static final int OS_ENFORCED_FLAGS_ENROLLED_BIOMETRICS = 1 << 5;
-    private static final int OS_ENFORCED_FLAGS_DENY_NEW_USB = 1 << 6; // obsolete since version 76
+    private static final int OS_ENFORCED_FLAGS_DENY_NEW_USB = 1 << 6; // obsolete since version 86
     private static final int OS_ENFORCED_FLAGS_DEVICE_ADMIN_NON_SYSTEM = 1 << 7;
     private static final int OS_ENFORCED_FLAGS_OEM_UNLOCK_ALLOWED = 1 << 8; // obsolete since version 89
     private static final int OS_ENFORCED_FLAGS_SYSTEM_USER = 1 << 9;
