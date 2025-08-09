@@ -219,6 +219,7 @@ class AttestationProtocol {
 
     static final ImmutableMap<String, DeviceInfo> fingerprintsCustomOS = ImmutableMap
             .<String, DeviceInfo>builder()
+            // GrapheneOS
             .put("80EF268700EE42686F779A47B4A155FE1FFC2EEDF836B4803CAAB8FA61439746",
                     new DeviceInfo(DEVICE_PIXEL_4, 3, 4, false, true, OS_GRAPHENE))
             .put("3F15FDCB82847FED97427CE00563B8F9FF34627070DE5FDB17ACA7849AB98CC8",
