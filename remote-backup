@@ -11,8 +11,16 @@ sqlite3 attestation.db ".backup remote-backup/$timestamp/attestation.db"
 sqlite3 samples.db ".backup remote-backup/$timestamp/samples.db"
 tar -cC remote-backup $timestamp | zstd -9 | age -r $(cat backup-public-key.txt) -o remote-backup/$timestamp.tar.zst.age
 
+expiry=$(date -ud '+60 day' +%s)
+
 source cloud-archive.sh
-swift upload --skip-container-put --segment-size 5368709122 -H "X-Delete-After: 5184000" \
+
+swift upload --skip-container-put --segment-size 5368709122 -H "X-Delete-At: $expiry" \
     --object-name $timestamp.tar.zst.age backup remote-backup/$timestamp.tar.zst.age
+
+# work around https://bugs.launchpad.net/python-swiftclient/+bug/1478830
+for segment in $(swift list backup_segments -p $timestamp.tar.zst.age/); do
+    swift post -H "X-Delete-At: $expiry" backup_segments "$segment"
+done
 
 rm -rf remote-backup
