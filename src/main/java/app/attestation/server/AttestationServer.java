@@ -1574,21 +1574,15 @@ class AttestationServer {
                     info = fingerprintsStrongBoxCustomOS.get(verifiedBootKey);
                     if (info == null) {
                         info = fingerprintsStrongBoxStock.get(verifiedBootKey);
-                        if (info == null) {
-                            throw new RuntimeException("invalid fingerprint");
-                        }
                     }
                 } else {
                     info = fingerprintsCustomOS.get(verifiedBootKey);
                     if (info == null) {
                         info = fingerprintsStock.get(verifiedBootKey);
-                        if (info == null) {
-                            throw new RuntimeException("invalid fingerprint");
-                        }
                     }
                 }
-                device.add("osName", info.osName());
-                device.add("name", info.name());
+                device.add("osName", info != null ? info.osName() : "Unknown (legacy device)");
+                device.add("name", info != null ? info.name() : "Unknown (legacy device)");
                 if (!select.columnNull(4)) {
                     device.add("verifiedBootHash", select.columnString(4));
                 }
@@ -1631,7 +1625,7 @@ class AttestationServer {
                 device.add("verifiedTimeLast", select.columnLong(25));
                 device.add("minId", select.columnLong(26));
                 device.add("maxId", select.columnLong(27));
-                device.add("hasPogoPins", info.hasPogoPins() ? 1 : 0);
+                device.add("hasPogoPins", info != null && info.hasPogoPins() ? 1 : 0);
                 devices.add(device);
             }
         } finally {
