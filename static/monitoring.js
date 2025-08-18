@@ -151,7 +151,7 @@ function userCountString(userCount) {
 }
 
 function oemUnlockAllowedString(oemUnlockAllowed2) {
-    if (oemUnlockAllowed2 >= 0) {
+    if (oemUnlockAllowed2 == 0 || oemUnlockAllowed2 == 1) {
         return toYesNoString(oemUnlockAllowed2 > 0);
     } else if (oemUnlockAllowed2 == -2) {
         return "Invalid";
