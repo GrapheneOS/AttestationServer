@@ -203,6 +203,7 @@ class AttestationProtocol {
     private static final String DEVICE_PIXEL_9_PRO_XL = "Google Pixel 9 Pro XL";
     private static final String DEVICE_PIXEL_9_PRO_FOLD = "Google Pixel 9 Pro Fold";
     private static final String DEVICE_PIXEL_9A = "Google Pixel 9a";
+    private static final String DEVICE_PIXEL_10 = "Google Pixel 10";
 
     private static final String OS_STOCK = "Stock";
     private static final String OS_GRAPHENE = "GrapheneOS";
@@ -307,6 +308,8 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_PIXEL_9_PRO_FOLD, 300, 300, false, true, OS_STOCK))
             .put("3327AF62D84AB897AF2523A16DCB5801E60C5D5B97F41CA1BD099C4784F7B743",
                     new DeviceInfo(DEVICE_PIXEL_9A, 300, 300, false, true, OS_STOCK))
+            .put("757C626A2A91FE852536546048D7CA3F50DF6C745C026DB9FF89CC4703C59481",
+                    new DeviceInfo(DEVICE_PIXEL_10, 300, 300, false, true, OS_STOCK))
             .build();
 
     static final ImmutableMap<String, DeviceInfo> fingerprintsStrongBoxCustomOS = ImmutableMap
@@ -399,6 +402,8 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_PIXEL_9_PRO_FOLD, 300, 300, false, true, OS_STOCK))
             .put("3327AF62D84AB897AF2523A16DCB5801E60C5D5B97F41CA1BD099C4784F7B743",
                     new DeviceInfo(DEVICE_PIXEL_9A, 300, 300, false, true, OS_STOCK))
+            .put("757C626A2A91FE852536546048D7CA3F50DF6C745C026DB9FF89CC4703C59481",
+                    new DeviceInfo(DEVICE_PIXEL_10, 300, 300, false, true, OS_STOCK))
             .build();
 
     private static final byte[] GOOGLE_ROOT_CERTIFICATE_0 = readResource("google_root_0.der");
