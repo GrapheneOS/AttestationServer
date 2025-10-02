@@ -234,10 +234,10 @@ class AttestationServer {
                 addUsersWhenLocked INTEGER NOT NULL CHECK (addUsersWhenLocked in (0, 1)),
                 oemUnlockAllowed INTEGER NOT NULL CHECK (oemUnlockAllowed in (0, 1)),
                 systemUser INTEGER NOT NULL CHECK (systemUser in (0, 1)),
-                autoRebootSeconds INTEGER NOT NULL CHECK (autoRebootSeconds == -1 OR autoRebootSeconds >= 20),
-                portSecurityMode INTEGER NOT NULL CHECK (portSecurityMode == -1 OR portSecurityMode >= 0),
-                userCount INTEGER NOT NULL CHECK (userCount == -1 OR userCount >= 1),
-                oemUnlockAllowed2 INTEGER NOT NULL CHECK (oemUnlockAllowed2 == -1 OR oemUnlockAllowed2 in (0, 1)),
+                autoRebootSeconds INTEGER CHECK (autoRebootSeconds == -2 OR autoRebootSeconds == 0 OR autoRebootSeconds >= 20),
+                portSecurityMode INTEGER CHECK (portSecurityMode == -2 OR portSecurityMode >= 0),
+                userCount INTEGER CHECK (userCount == -2 OR userCount >= 1),
+                oemUnlockAllowed2 INTEGER CHECK (oemUnlockAllowed2 == -2 OR oemUnlockAllowed2 in (0, 1)),
                 verifiedTimeFirst INTEGER NOT NULL,
                 verifiedTimeLast INTEGER NOT NULL,
                 expiredTimeLast INTEGER,
@@ -266,10 +266,10 @@ class AttestationServer {
                 addUsersWhenLocked INTEGER NOT NULL CHECK (addUsersWhenLocked in (0, 1)),
                 oemUnlockAllowed INTEGER NOT NULL CHECK (oemUnlockAllowed in (0, 1)),
                 systemUser INTEGER NOT NULL CHECK (systemUser in (0, 1)),
-                autoRebootSeconds INTEGER NOT NULL CHECK (autoRebootSeconds == -1 OR autoRebootSeconds >= 20),
-                portSecurityMode INTEGER NOT NULL CHECK (portSecurityMode == -1 OR portSecurityMode >= 0),
-                userCount INTEGER NOT NULL CHECK (userCount == -1 OR userCount >= 1),
-                oemUnlockAllowed2 INTEGER NOT NULL CHECK (oemUnlockAllowed2 == -1 OR oemUnlockAllowed2 in (0, 1))
+                autoRebootSeconds INTEGER CHECK (autoRebootSeconds == -2 OR autoRebootSeconds == 0 OR autoRebootSeconds >= 20),
+                portSecurityMode INTEGER CHECK (portSecurityMode == -2 OR portSecurityMode >= 0),
+                userCount INTEGER CHECK (userCount == -2 OR userCount >= 1),
+                oemUnlockAllowed2 INTEGER CHECK (oemUnlockAllowed2 == -2 OR oemUnlockAllowed2 in (0, 1))
             ) STRICT""";
 
     private static final String CREATE_ATTESTATION_INDICES = """
@@ -709,6 +709,145 @@ class AttestationServer {
                             -1,
                             -1,
                             -1
+                        FROM OldAttestations""");
+
+                conn.exec("DROP TABLE OldDevices");
+                conn.exec("DROP TABLE OldAttestations");
+
+                conn.exec(CREATE_ATTESTATION_INDICES);
+                conn.exec("PRAGMA user_version = " + targetUserVersion);
+                conn.exec("COMMIT TRANSACTION");
+                userVersion = targetUserVersion;
+                conn.exec("PRAGMA foreign_keys = ON");
+                logger.info("Migrated to schema version: " + userVersion);
+            }
+
+            // modify autoRebootSeconds, portSecurityMode, userCount, oemUnlockAllowed2
+            // columns persistable values
+            targetUserVersion = 16;
+            if (userVersion < targetUserVersion) {
+                conn.exec("PRAGMA foreign_keys = OFF");
+                conn.exec("BEGIN IMMEDIATE TRANSACTION");
+
+                conn.exec("ALTER TABLE Devices RENAME TO OldDevices");
+                conn.exec("ALTER TABLE Attestations RENAME TO OldAttestations");
+
+                conn.exec(CREATE_ATTESTATION_TABLES);
+
+                conn.exec("""
+                        INSERT INTO Devices (
+                            fingerprint,
+                            pinnedCertificates,
+                            attestKey,
+                            pinnedVerifiedBootKey,
+                            verifiedBootHash,
+                            pinnedOsVersion,
+                            pinnedOsPatchLevel,
+                            pinnedVendorPatchLevel,
+                            pinnedBootPatchLevel,
+                            pinnedAppVersion,
+                            pinnedAppVariant,
+                            pinnedSecurityLevel,
+                            userProfileSecure,
+                            enrolledBiometrics,
+                            accessibility,
+                            deviceAdmin,
+                            adbEnabled,
+                            addUsersWhenLocked,
+                            oemUnlockAllowed,
+                            systemUser,
+                            autoRebootSeconds,
+                            portSecurityMode,
+                            userCount,
+                            oemUnlockAllowed2,
+                            verifiedTimeFirst,
+                            verifiedTimeLast,
+                            expiredTimeLast,
+                            failureTimeLast,
+                            failureAlertTime,
+                            userId,
+                            deletionTime)
+                        SELECT
+                            fingerprint,
+                            pinnedCertificates,
+                            attestKey,
+                            pinnedVerifiedBootKey,
+                            verifiedBootHash,
+                            pinnedOsVersion,
+                            pinnedOsPatchLevel,
+                            pinnedVendorPatchLevel,
+                            pinnedBootPatchLevel,
+                            pinnedAppVersion,
+                            pinnedAppVariant,
+                            pinnedSecurityLevel,
+                            userProfileSecure,
+                            enrolledBiometrics,
+                            accessibility,
+                            deviceAdmin,
+                            adbEnabled,
+                            addUsersWhenLocked,
+                            oemUnlockAllowed,
+                            systemUser,
+                            (SELECT autoRebootSeconds WHERE autoRebootSeconds >= 20),
+                            (SELECT portSecurityMode WHERE portSecurityMode >= 0),
+                            (SELECT userCount WHERE userCount >= 1),
+                            (SELECT oemUnlockAllowed2 WHERE oemUnlockAllowed2 in (0, 1)),
+                            verifiedTimeFirst,
+                            verifiedTimeLast,
+                            expiredTimeLast,
+                            failureTimeLast,
+                            failureAlertTime,
+                            userId,
+                            deletionTime
+                        FROM OldDevices""");
+
+                conn.exec("""
+                        INSERT INTO Attestations (
+                            id,
+                            fingerprint,
+                            time,
+                            strong,
+                            osVersion,
+                            osPatchLevel,
+                            vendorPatchLevel,
+                            bootPatchLevel,
+                            verifiedBootHash,
+                            appVersion,
+                            userProfileSecure,
+                            enrolledBiometrics,
+                            accessibility,
+                            deviceAdmin,
+                            adbEnabled,
+                            addUsersWhenLocked,
+                            oemUnlockAllowed,
+                            systemUser,
+                            autoRebootSeconds,
+                            portSecurityMode,
+                            userCount,
+                            oemUnlockAllowed2
+                        ) SELECT
+                            id,
+                            fingerprint,
+                            time,
+                            strong,
+                            osVersion,
+                            osPatchLevel,
+                            vendorPatchLevel,
+                            bootPatchLevel,
+                            verifiedBootHash,
+                            appVersion,
+                            userProfileSecure,
+                            enrolledBiometrics,
+                            accessibility,
+                            deviceAdmin,
+                            adbEnabled,
+                            addUsersWhenLocked,
+                            oemUnlockAllowed,
+                            systemUser,
+                            (SELECT autoRebootSeconds WHERE autoRebootSeconds >= 20),
+                            (SELECT portSecurityMode WHERE portSecurityMode >= 0),
+                            (SELECT userCount WHERE userCount >= 1),
+                            (SELECT oemUnlockAllowed2 WHERE oemUnlockAllowed2 in (0, 1))
                         FROM OldAttestations""");
 
                 conn.exec("DROP TABLE OldDevices");
@@ -1605,21 +1744,29 @@ class AttestationServer {
                 device.add("addUsersWhenLocked", select.columnInt(17));
                 device.add("oemUnlockAllowed", select.columnInt(18));
                 device.add("systemUser", select.columnInt(19));
-                final int autoRebootSeconds = select.columnInt(20);
-                if (autoRebootSeconds != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
-                    device.add("autoRebootSeconds", autoRebootSeconds);
+                if (!select.columnNull(20)) {
+                    final int autoRebootSeconds = select.columnInt(20);
+                    if (autoRebootSeconds != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
+                        device.add("autoRebootSeconds", autoRebootSeconds);
+                    }
                 }
-                final int portSecurityMode = select.columnInt(21);
-                if (portSecurityMode != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
-                    device.add("portSecurityMode", portSecurityMode);
+                if (!select.columnNull(21)) {
+                    final int portSecurityMode = select.columnInt(21);
+                    if (portSecurityMode != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
+                        device.add("portSecurityMode", portSecurityMode);
+                    }
                 }
-                final int userCount = select.columnInt(22);
-                if (userCount != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
-                    device.add("userCount", userCount);
+                if (!select.columnNull(22)) {
+                    final int userCount = select.columnInt(22);
+                    if (userCount != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
+                        device.add("userCount", userCount);
+                    }
                 }
-                final int oemUnlockAllowed2 = select.columnInt(23);
-                if (oemUnlockAllowed2 != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
-                    device.add("oemUnlockAllowed2", oemUnlockAllowed2);
+                if (!select.columnNull(23)) {
+                    final int oemUnlockAllowed2 = select.columnInt(23);
+                    if (oemUnlockAllowed2 != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
+                        device.add("oemUnlockAllowed2", oemUnlockAllowed2);
+                    }
                 }
                 device.add("verifiedTimeFirst", select.columnLong(24));
                 device.add("verifiedTimeLast", select.columnLong(25));
@@ -1734,21 +1881,29 @@ class AttestationServer {
                 attestation.add("addUsersWhenLocked", history.columnInt(14));
                 attestation.add("oemUnlockAllowed", history.columnInt(15));
                 attestation.add("systemUser", history.columnInt(16));
-                final int autoRebootSeconds = history.columnInt(17);
-                if (autoRebootSeconds != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
-                    attestation.add("autoRebootSeconds", autoRebootSeconds);
+                if (!history.columnNull(17)) {
+                    final int autoRebootSeconds = history.columnInt(17);
+                    if (autoRebootSeconds != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
+                        attestation.add("autoRebootSeconds", autoRebootSeconds);
+                    }
                 }
-                final int portSecurityMode = history.columnInt(18);
-                if (portSecurityMode != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
-                    attestation.add("portSecurityMode", portSecurityMode);
+                if (!history.columnNull(18)) {
+                    final int portSecurityMode = history.columnInt(18);
+                    if (portSecurityMode != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
+                        attestation.add("portSecurityMode", portSecurityMode);
+                    }
                 }
-                final int userCount = history.columnInt(19);
-                if (userCount != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
-                    attestation.add("userCount", userCount);
+                if (!history.columnNull(19)) {
+                    final int userCount = history.columnInt(19);
+                    if (userCount != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
+                        attestation.add("userCount", userCount);
+                    }
                 }
-                final int oemUnlockAllowed2 = history.columnInt(20);
-                if (oemUnlockAllowed2 != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
-                    attestation.add("oemUnlockAllowed2", oemUnlockAllowed2);
+                if (!history.columnNull(20)) {
+                    final int oemUnlockAllowed2 = history.columnInt(20);
+                    if (oemUnlockAllowed2 != AttestationProtocol.SecurityStateExt.UNKNOWN_VALUE) {
+                        attestation.add("oemUnlockAllowed2", oemUnlockAllowed2);
+                    }
                 }
                 attestations.add(attestation);
                 rowCount += 1;

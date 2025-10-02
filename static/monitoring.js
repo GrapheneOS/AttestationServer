@@ -86,7 +86,7 @@ function toSecurityLevelString(securityLevel, attestKey) {
 }
 
 function autoRebootTimeoutString(autoRebootSeconds) {
-    if (autoRebootSeconds >= 0) {
+    if (autoRebootSeconds >= 20) {
         const duration = {
             hours: Math.floor(autoRebootSeconds / 60 / 60),
             minutes: Math.floor(autoRebootSeconds / 60) % 60,
@@ -117,8 +117,8 @@ function autoRebootTimeoutString(autoRebootSeconds) {
 
             return durationString;
         }
-    } else if (autoRebootSeconds == -1) {
-        return "Unknown";
+    } else if (autoRebootSeconds == 0) {
+        return "Off";
     } else if (autoRebootSeconds == -2) {
         return "Invalid";
     }
@@ -135,8 +135,6 @@ function usbPortSecurityModeString(portSecurityMode, hasPogoPins) {
             case 4: return "On";
             default: break;
         }
-    } else if (portSecurityMode == -1) {
-        return "Unknown";
     } else if (portSecurityMode == -2) {
         return "Invalid";
     }
@@ -146,8 +144,6 @@ function usbPortSecurityModeString(portSecurityMode, hasPogoPins) {
 function userCountString(userCount) {
     if (userCount > 0) {
         return userCount;
-    } else if (userCount == -1) {
-        return "Unknown";
     } else if (userCount == -2) {
         return "Invalid";
     }
@@ -155,10 +151,8 @@ function userCountString(userCount) {
 }
 
 function oemUnlockAllowedString(oemUnlockAllowed2) {
-    if (oemUnlockAllowed2 >= 0) {
+    if (oemUnlockAllowed2 == 0 || oemUnlockAllowed2 == 1) {
         return toYesNoString(oemUnlockAllowed2 > 0);
-    } else if (oemUnlockAllowed2 == -1) {
-        return "Unknown";
     } else if (oemUnlockAllowed2 == -2) {
         return "Invalid";
     }
@@ -255,18 +249,23 @@ function fetchHistory(parent, nextOffset, hasPogoPins) {
             appendLine(parent, "Device administrator(s) enabled: " + deviceAdminStrings.get(attestation.deviceAdmin));
             appendLine(parent, "Android Debug Bridge enabled: " + toYesNoString(attestation.adbEnabled));
             appendLine(parent, "Add users from lock screen: " + toYesNoString(attestation.addUsersWhenLocked));
-            if (attestation.oemUnlockAllowed2 !== undefined && attestation.oemUnlockedAllowed2 >= 0) {
+
+            if (attestation.oemUnlockAllowed2 !== undefined
+                    && (attestation.oemUnlockedAllowed2 >= 0 || attestation.oemUnlockAllowed == -2)) {
                 appendLine(parent, "OEM unlocking allowed: " + oemUnlockAllowedString(attestation.oemUnlockAllowed2));
             }
             appendLine(parent, "Main user account: " + toYesNoString(attestation.systemUser));
-            if (attestation.autoRebootSeconds !== undefined && attestation.autoRebootSeconds >= 20) {
+            if (attestation.autoRebootSeconds !== undefined
+                    && (attestation.autoRebootSeconds == -2
+                    || attestation.autoRebootSeconds == 0 || attestation.autoRebootSeconds >= 20)) {
                 appendLine(parent, "Auto reboot timeout: " + autoRebootTimeoutString(attestation.autoRebootSeconds));
             }
-            if (attestation.portSecurityMode !== undefined && attestation.portSecurityMode >= 0) {
+            if (attestation.portSecurityMode !== undefined
+                && (attestation.portSecurityMode == -2 || attestation.portSecurityMode >= 0)) {
                 appendLine(parent, "USB-C port" + ((attestation.hasPogoPins > 0) ? " and pogo pins" : "")
                         + " security mode: " + usbPortSecurityModeString(attestation.portSecurityMode, hasPogoPins));
             }
-            if (attestation.userCount !== undefined && attestation.userCount >= 1) {
+            if (attestation.userCount !== undefined && (attestation.userCount == -2 || attestation.userCount >= 1)) {
                 appendLine(parent, "User count: " + userCountString(attestation.userCount));
             }
         }
@@ -391,17 +390,20 @@ function fetchDevices() {
             appendLine(info, "Device administrator(s) enabled: " + deviceAdminStrings.get(device.deviceAdmin));
             appendLine(info, "Android Debug Bridge enabled: " + toYesNoString(device.adbEnabled));
             appendLine(info, "Add users from lock screen: " + toYesNoString(device.addUsersWhenLocked));
-            if (device.oemUnlockAllowed2 !== undefined && device.oemUnlockAllowed2 >= 0) {
+            if (device.oemUnlockAllowed2 !== undefined
+                    && (device.oemUnlockAllowed2 == -2 || device.oemUnlockAllowed2 >= 0)) {
                 appendLine(info, "OEM unlocking allowed: " + oemUnlockAllowedString(device.oemUnlockAllowed2));
             }
             appendLine(info, "Main user account: " + toYesNoString(device.systemUser));
-            if (device.autoRebootSeconds !== undefined && device.autoRebootSeconds >= 20) {
+            if (device.autoRebootSeconds !== undefined
+                    && (device.autoRebootSeconds == -2 || device.autoRebootSeconds == 0 || device.autoRebootSeconds >= 20)) {
                 appendLine(info, "Auto reboot timeout: " + autoRebootTimeoutString(device.autoRebootSeconds));
             }
-            if (device.portSecurityMode !== undefined && device.portSecurityMode >= 0) {
+            if (device.portSecurityMode !== undefined
+                    && (device.portSecurityMode == -2 || device.portSecurityMode >= 0)) {
                 appendLine(info, "USB-C port" + ((device.hasPogoPins > 0) ? " and pogo pins" : "") + " security mode: " + usbPortSecurityModeString(device.portSecurityMode, device.hasPogoPins));
             }
-            if (device.userCount !== undefined && device.userCount >= 1) {
+            if (device.userCount !== undefined && (device.userCount == -2 || device.userCount >= 1)) {
                 appendLine(info, "User count: " + userCountString(device.userCount));
             }
 
