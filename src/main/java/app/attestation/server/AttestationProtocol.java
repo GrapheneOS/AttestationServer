@@ -410,6 +410,7 @@ class AttestationProtocol {
     private static final byte[] GOOGLE_ROOT_CERTIFICATE_1 = readResource("google_root_1.der");
     private static final byte[] GOOGLE_ROOT_CERTIFICATE_2 = readResource("google_root_2.der");
     private static final byte[] GOOGLE_ROOT_CERTIFICATE_3 = readResource("google_root_3.der");
+    private static final byte[] GOOGLE_ROOT_CERTIFICATE_4 = readResource("google_root_4.der");
     static final byte[] DEFLATE_DICTIONARY_2 = readResource("deflate_dictionary_2.bin");
     static final byte[] DEFLATE_DICTIONARY_4 = readResource("deflate_dictionary_4.bin");
 
@@ -857,7 +858,9 @@ class AttestationProtocol {
 
             final Verified verified = verifyStateless(attestationCertificates, pendingChallenges, hasPersistentKey,
                     new byte[][]{GOOGLE_ROOT_CERTIFICATE_0, GOOGLE_ROOT_CERTIFICATE_1,
-                        GOOGLE_ROOT_CERTIFICATE_2, GOOGLE_ROOT_CERTIFICATE_3});
+                        GOOGLE_ROOT_CERTIFICATE_2, GOOGLE_ROOT_CERTIFICATE_3,
+                        GOOGLE_ROOT_CERTIFICATE_4,
+                    });
             final byte[] verifiedBootKey = BaseEncoding.base16().decode(verified.verifiedBootKey);
 
             final long now = System.currentTimeMillis();
