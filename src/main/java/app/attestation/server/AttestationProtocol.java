@@ -204,6 +204,9 @@ class AttestationProtocol {
     private static final String DEVICE_PIXEL_9_PRO_FOLD = "Google Pixel 9 Pro Fold";
     private static final String DEVICE_PIXEL_9A = "Google Pixel 9a";
     private static final String DEVICE_PIXEL_10 = "Google Pixel 10";
+    private static final String DEVICE_PIXEL_10_PRO = "Google Pixel 10 Pro";
+    private static final String DEVICE_PIXEL_10_PRO_XL = "Google Pixel 10 Pro XL";
+    private static final String DEVICE_PIXEL_10_PRO_FOLD = "Google Pixel 10 Pro Fold";
 
     private static final String OS_STOCK = "Stock";
     private static final String OS_GRAPHENE = "GrapheneOS";
@@ -310,6 +313,12 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_PIXEL_9A, 300, 300, false, true, OS_STOCK))
             .put("757C626A2A91FE852536546048D7CA3F50DF6C745C026DB9FF89CC4703C59481",
                     new DeviceInfo(DEVICE_PIXEL_10, 300, 300, false, true, OS_STOCK))
+            .put("244BAAF78D0FEE555A562FDD3F70EF61036492FBA7AD192B83BB8D427E380B17",
+                    new DeviceInfo(DEVICE_PIXEL_10_PRO, 300, 300, false, true, OS_STOCK))
+            .put("CA5C81DA02B8DEBB054FC625135A7833698A9B32148E8A2EF619EBC62AB2E3D8",
+                    new DeviceInfo(DEVICE_PIXEL_10_PRO_XL, 300, 300, false, true, OS_STOCK))
+            .put("072D8E3269350849F3DE787AC7A319F264C34FA326A7E70917FD96AAEFD2FB0E",
+                    new DeviceInfo(DEVICE_PIXEL_10_PRO_FOLD, 300, 300, false, true, OS_STOCK))
             .build();
 
     static final ImmutableMap<String, DeviceInfo> fingerprintsStrongBoxCustomOS = ImmutableMap
@@ -404,6 +413,12 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_PIXEL_9A, 300, 300, false, true, OS_STOCK))
             .put("757C626A2A91FE852536546048D7CA3F50DF6C745C026DB9FF89CC4703C59481",
                     new DeviceInfo(DEVICE_PIXEL_10, 300, 300, false, true, OS_STOCK))
+            .put("244BAAF78D0FEE555A562FDD3F70EF61036492FBA7AD192B83BB8D427E380B17",
+                    new DeviceInfo(DEVICE_PIXEL_10_PRO, 300, 300, false, true, OS_STOCK))
+            .put("CA5C81DA02B8DEBB054FC625135A7833698A9B32148E8A2EF619EBC62AB2E3D8",
+                    new DeviceInfo(DEVICE_PIXEL_10_PRO_XL, 300, 300, false, true, OS_STOCK))
+            .put("072D8E3269350849F3DE787AC7A319F264C34FA326A7E70917FD96AAEFD2FB0E",
+                    new DeviceInfo(DEVICE_PIXEL_10_PRO_FOLD, 300, 300, false, true, OS_STOCK))
             .build();
 
     private static final byte[] GOOGLE_ROOT_CERTIFICATE_0 = readResource("google_root_0.der");
