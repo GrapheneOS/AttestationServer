@@ -268,6 +268,14 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_PIXEL_9_PRO_FOLD, 300, 300, false, true, OS_GRAPHENE))
             .put("0508DE44EE00BFB49ECE32C418AF1896391ABDE0F05B64F41BC9A2DFB589445B",
                     new DeviceInfo(DEVICE_PIXEL_9A, 300, 300, false, true, OS_GRAPHENE))
+            .put("3F7415EA26F5DF5B14EA6D153256071A7A1AF9CE7B0970B7311CC463C7EA02C7",
+                    new DeviceInfo(DEVICE_PIXEL_10, 300, 300, false, true, OS_GRAPHENE))
+            .put("4E8EE8F717754052198CA6D2D3AAA232E2461B4293C0D6F297E519CC778DE093",
+                    new DeviceInfo(DEVICE_PIXEL_10_PRO, 300, 300, false, true, OS_GRAPHENE))
+            .put("141D7FC32AF7958A416F2661B37CF6F27BFB376FB5CE616AEAA27A82C7A04F74",
+                    new DeviceInfo(DEVICE_PIXEL_10_PRO_XL, 300, 300, false, true, OS_GRAPHENE))
+            .put("55A2D44103E56D5EC65496399C417987BA77730E6488FC60BA058D09FC3CAEE3",
+                    new DeviceInfo(DEVICE_PIXEL_10_PRO_FOLD, 300, 300, false, true, OS_GRAPHENE))
             .build();
     static final ImmutableMap<String, DeviceInfo> fingerprintsStock = ImmutableMap
             .<String, DeviceInfo>builder()
@@ -368,6 +376,14 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_PIXEL_9_PRO_FOLD, 300, 300, false, true, OS_GRAPHENE))
             .put("0508DE44EE00BFB49ECE32C418AF1896391ABDE0F05B64F41BC9A2DFB589445B",
                     new DeviceInfo(DEVICE_PIXEL_9A, 300, 300, false, true, OS_GRAPHENE))
+            .put("3F7415EA26F5DF5B14EA6D153256071A7A1AF9CE7B0970B7311CC463C7EA02C7",
+                    new DeviceInfo(DEVICE_PIXEL_10, 300, 300, false, true, OS_GRAPHENE))
+            .put("4E8EE8F717754052198CA6D2D3AAA232E2461B4293C0D6F297E519CC778DE093",
+                    new DeviceInfo(DEVICE_PIXEL_10_PRO, 300, 300, false, true, OS_GRAPHENE))
+            .put("141D7FC32AF7958A416F2661B37CF6F27BFB376FB5CE616AEAA27A82C7A04F74",
+                    new DeviceInfo(DEVICE_PIXEL_10_PRO_XL, 300, 300, false, true, OS_GRAPHENE))
+            .put("55A2D44103E56D5EC65496399C417987BA77730E6488FC60BA058D09FC3CAEE3",
+                    new DeviceInfo(DEVICE_PIXEL_10_PRO_FOLD, 300, 300, false, true, OS_GRAPHENE))
             .build();
     static final ImmutableMap<String, DeviceInfo> fingerprintsStrongBoxStock = ImmutableMap
             .<String, DeviceInfo>builder()
