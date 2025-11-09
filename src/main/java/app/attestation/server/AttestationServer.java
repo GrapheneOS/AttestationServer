@@ -908,9 +908,6 @@ class AttestationServer {
             server.createContext("/auditor/challenge", new ChallengeHandler());
             server.createContext("/auditor/verify", new VerifyHandler());
             server.createContext("/auditor/submit", new SubmitHandler());
-            server.createContext("/challenge", new ChallengeHandler());
-            server.createContext("/verify", new VerifyHandler());
-            server.createContext("/submit", new SubmitHandler());
             server.setExecutor(executor);
             server.start();
         } catch (final IOException e) {
