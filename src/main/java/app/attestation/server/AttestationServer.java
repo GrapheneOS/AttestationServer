@@ -62,9 +62,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.DataFormatException;
 
-import static app.attestation.server.AttestationProtocol.fingerprintsCustomOS;
+import static app.attestation.server.AttestationProtocol.fingerprintsNonStock;
 import static app.attestation.server.AttestationProtocol.fingerprintsStock;
-import static app.attestation.server.AttestationProtocol.fingerprintsStrongBoxCustomOS;
+import static app.attestation.server.AttestationProtocol.fingerprintsStrongBoxNonStock;
 import static app.attestation.server.AttestationProtocol.fingerprintsStrongBoxStock;
 import static app.attestation.server.SyslogLevel.ALERT;
 import static com.almworks.sqlite4java.SQLiteConstants.SQLITE_CONSTRAINT_UNIQUE;
@@ -1710,12 +1710,12 @@ class AttestationServer {
                 DeviceInfo info;
                 final int pinnedSecurityLevel = select.columnInt(11);
                 if (pinnedSecurityLevel == ParsedAttestationRecord.securityLevelToInt(ParsedAttestationRecord.SecurityLevel.STRONG_BOX)) {
-                    info = fingerprintsStrongBoxCustomOS.get(verifiedBootKey);
+                    info = fingerprintsStrongBoxNonStock.get(verifiedBootKey);
                     if (info == null) {
                         info = fingerprintsStrongBoxStock.get(verifiedBootKey);
                     }
                 } else {
-                    info = fingerprintsCustomOS.get(verifiedBootKey);
+                    info = fingerprintsNonStock.get(verifiedBootKey);
                     if (info == null) {
                         info = fingerprintsStock.get(verifiedBootKey);
                     }
