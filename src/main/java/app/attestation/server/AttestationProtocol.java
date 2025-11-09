@@ -214,7 +214,7 @@ class AttestationProtocol {
     public record DeviceInfo(String name, int attestationVersion, int keymasterVersion,
             // API for detecting this was replaced in keymaster v3 but the new one isn't used yet
             boolean rollbackResistant,
-            boolean enforceStrongBox, String osName) {
+            String osName) {
 
         boolean hasPogoPins() {
             return DEVICE_PIXEL_TABLET.equals(name);
@@ -225,216 +225,216 @@ class AttestationProtocol {
             .<String, DeviceInfo>builder()
             // GrapheneOS
             .put("80EF268700EE42686F779A47B4A155FE1FFC2EEDF836B4803CAAB8FA61439746",
-                    new DeviceInfo(DEVICE_PIXEL_4, 3, 4, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_4, 3, 4, false, OS_GRAPHENE))
             .put("3F15FDCB82847FED97427CE00563B8F9FF34627070DE5FDB17ACA7849AB98CC8",
-                    new DeviceInfo(DEVICE_PIXEL_4_XL, 3, 4, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_4_XL, 3, 4, false, OS_GRAPHENE))
             .put("9F2454A1657B1B5AD7F2336B39A2611F7A40B2E0DDFD0D6553A359605928DF29",
-                    new DeviceInfo(DEVICE_PIXEL_4A, 3, 4, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_4A, 3, 4, false, OS_GRAPHENE))
             .put("DCEC2D053D3EC4F1C9BE414AA07E4D7D7CBD12040AD2F8831C994A83A0536866",
-                    new DeviceInfo(DEVICE_PIXEL_4A_5G, 3, 4, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_4A_5G, 3, 4, false, OS_GRAPHENE))
             .put("36A99EAB7907E4FB12A70E3C41C456BCBE46C13413FBFE2436ADEE2B2B61120F",
-                    new DeviceInfo(DEVICE_PIXEL_5, 3, 4, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_5, 3, 4, false, OS_GRAPHENE))
             .put("0ABDDEDA03B6CE10548C95E0BEA196FAA539866F929BCDF7ECA84B4203952514",
-                    new DeviceInfo(DEVICE_PIXEL_5A, 3, 4, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_5A, 3, 4, false, OS_GRAPHENE))
             .put("F0A890375D1405E62EBFD87E8D3F475F948EF031BBF9DDD516D5F600A23677E8",
-                    new DeviceInfo(DEVICE_PIXEL_6, 100, 100, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_6, 100, 100, false, OS_GRAPHENE))
             .put("439B76524D94C40652CE1BF0D8243773C634D2F99BA3160D8D02AA5E29FF925C",
-                    new DeviceInfo(DEVICE_PIXEL_6_PRO, 100, 100, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_6_PRO, 100, 100, false, OS_GRAPHENE))
             .put("08C860350A9600692D10C8512F7B8E80707757468E8FBFEEA2A870C0A83D6031",
-                    new DeviceInfo(DEVICE_PIXEL_6A, 100, 100, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_6A, 100, 100, false, OS_GRAPHENE))
             .put("3EFE5392BE3AC38AFB894D13DE639E521675E62571A8A9B3EF9FC8C44FD17FA1",
-                    new DeviceInfo(DEVICE_PIXEL_7, 200, 200, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_7, 200, 200, false, OS_GRAPHENE))
             .put("BC1C0DD95664604382BB888412026422742EB333071EA0B2D19036217D49182F",
-                    new DeviceInfo(DEVICE_PIXEL_7_PRO, 200, 200, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_7_PRO, 200, 200, false, OS_GRAPHENE))
             .put("508D75DEA10C5CBC3E7632260FC0B59F6055A8A49DD84E693B6D8899EDBB01E4",
-                    new DeviceInfo(DEVICE_PIXEL_7A, 200, 200, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_7A, 200, 200, false, OS_GRAPHENE))
             .put("94DF136E6C6AA08DC26580AF46F36419B5F9BAF46039DB076F5295B91AAFF230",
-                    new DeviceInfo(DEVICE_PIXEL_TABLET, 200, 200, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_TABLET, 200, 200, false, OS_GRAPHENE))
             .put("EE0C9DFEF6F55A878538B0DBF7E78E3BC3F1A13C8C44839B095FE26DD5FE2842",
-                    new DeviceInfo(DEVICE_PIXEL_FOLD, 200, 200, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_FOLD, 200, 200, false, OS_GRAPHENE))
             .put("CD7479653AA88208F9F03034810EF9B7B0AF8A9D41E2000E458AC403A2ACB233",
-                    new DeviceInfo(DEVICE_PIXEL_8, 300, 300, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_8, 300, 300, false, OS_GRAPHENE))
             .put("896DB2D09D84E1D6BB747002B8A114950B946E5825772A9D48BA7EB01D118C1C",
-                    new DeviceInfo(DEVICE_PIXEL_8_PRO, 300, 300, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_8_PRO, 300, 300, false, OS_GRAPHENE))
             .put("096B8BD6D44527A24AC1564B308839F67E78202185CBFF9CFDCB10E63250BC5E",
-                    new DeviceInfo(DEVICE_PIXEL_8A, 300, 300, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_8A, 300, 300, false, OS_GRAPHENE))
             .put("9E6A8F3E0D761A780179F93ACD5721BA1AB7C8C537C7761073C0A754B0E932DE",
-                    new DeviceInfo(DEVICE_PIXEL_9, 300, 300, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_9, 300, 300, false, OS_GRAPHENE))
             .put("F729CAB861DA1B83FDFAB402FC9480758F2AE78EE0B61C1F2137DD1AB7076E86",
-                    new DeviceInfo(DEVICE_PIXEL_9_PRO, 300, 300, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_9_PRO, 300, 300, false, OS_GRAPHENE))
             .put("55D3C2323DB91BB91F20D38D015E85112D038F6B6B5738FE352C1A80DBA57023",
-                    new DeviceInfo(DEVICE_PIXEL_9_PRO_XL, 300, 300, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_9_PRO_XL, 300, 300, false, OS_GRAPHENE))
             .put("AF4D2C6E62BE0FEC54F0271B9776FF061DD8392D9F51CF6AB1551D346679E24C",
-                    new DeviceInfo(DEVICE_PIXEL_9_PRO_FOLD, 300, 300, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_9_PRO_FOLD, 300, 300, false, OS_GRAPHENE))
             .put("0508DE44EE00BFB49ECE32C418AF1896391ABDE0F05B64F41BC9A2DFB589445B",
-                    new DeviceInfo(DEVICE_PIXEL_9A, 300, 300, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_9A, 300, 300, false, OS_GRAPHENE))
             .put("3F7415EA26F5DF5B14EA6D153256071A7A1AF9CE7B0970B7311CC463C7EA02C7",
-                    new DeviceInfo(DEVICE_PIXEL_10, 300, 300, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_10, 300, 300, false, OS_GRAPHENE))
             .put("4E8EE8F717754052198CA6D2D3AAA232E2461B4293C0D6F297E519CC778DE093",
-                    new DeviceInfo(DEVICE_PIXEL_10_PRO, 300, 300, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_10_PRO, 300, 300, false, OS_GRAPHENE))
             .put("141D7FC32AF7958A416F2661B37CF6F27BFB376FB5CE616AEAA27A82C7A04F74",
-                    new DeviceInfo(DEVICE_PIXEL_10_PRO_XL, 300, 300, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_10_PRO_XL, 300, 300, false, OS_GRAPHENE))
             .put("55A2D44103E56D5EC65496399C417987BA77730E6488FC60BA058D09FC3CAEE3",
-                    new DeviceInfo(DEVICE_PIXEL_10_PRO_FOLD, 300, 300, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_10_PRO_FOLD, 300, 300, false, OS_GRAPHENE))
             .build();
     static final ImmutableMap<String, DeviceInfo> fingerprintsStock = ImmutableMap
             .<String, DeviceInfo>builder()
             .put("AE6316B4753C61F5855B95B9B98484AF784F2E83648D0FCC8107FCA752CAEA34",
-                    new DeviceInfo(DEVICE_PIXEL_4_GENERIC, 3, 4, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_4_GENERIC, 3, 4, false, OS_STOCK))
             .put("879CD3F18EA76E244D4D4AC3BCB9C337C13B4667190B19035AFE2536550050F1",
-                    new DeviceInfo(DEVICE_PIXEL_4A, 3, 4, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_4A, 3, 4, false, OS_STOCK))
             .put("88265D85BA9E1E2F6036A259D880D2741031ACA445840137395B6D541C0FC7FC",
-                    new DeviceInfo(DEVICE_PIXEL_5_GENERIC, 3, 4, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_5_GENERIC, 3, 4, false, OS_STOCK))
             .put("1DD694CE00BF131AD61CEB576B7DCC41CF7F9B2C418F4C12B2B8F3E9A1EA911D",
-                    new DeviceInfo(DEVICE_PIXEL_5A, 3, 4, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_5A, 3, 4, false, OS_STOCK))
             .put("0F6E75C80183B5DEC074B0054D4271E99389EBE4B136B0819DE1F150BA0FF9D7",
-                    new DeviceInfo(DEVICE_PIXEL_6, 100, 100, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_6, 100, 100, false, OS_STOCK))
             .put("42ED1BCA352FABD428F34E8FCEE62776F4CB2C66E06F82E5A59FF4495267BFC2",
-                    new DeviceInfo(DEVICE_PIXEL_6_PRO, 100, 100, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_6_PRO, 100, 100, false, OS_STOCK))
             .put("9AC4174153D45E4545B0F49E22FE63273999B6AC1CB6949C3A9F03EC8807EEE9",
-                    new DeviceInfo(DEVICE_PIXEL_6A, 100, 100, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_6A, 100, 100, false, OS_STOCK))
             .put("8B2C4CD539F5075E8E7CF212ADB3DB0413FBD77D321199C73D5A473C51F2E10D",
-                    new DeviceInfo(DEVICE_PIXEL_7, 200, 200, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_7, 200, 200, false, OS_STOCK))
             .put("26AC4C60BEB1E378357CAD0C3061347AF8DF6FBABBB0D8CEA2445855EE01E368",
-                    new DeviceInfo(DEVICE_PIXEL_7_PRO, 200, 200, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_7_PRO, 200, 200, false, OS_STOCK))
             .put("003F1ADE9D476E612B00F2983E6AD7DCD15E6A80CC2DBB008DA7D6839ED73A8F",
-                    new DeviceInfo(DEVICE_PIXEL_7A, 200, 200, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_7A, 200, 200, false, OS_STOCK))
             .put("C72E569827EC2E19A1073D927E3B6A1C6C8322DA795D5CE44BF3B95031B37C0A",
-                    new DeviceInfo(DEVICE_PIXEL_TABLET, 200, 200, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_TABLET, 200, 200, false, OS_STOCK))
             .put("3BBD4712D8714812E762D3FB6D2D5724800C3342B1835CDBC1D3634AE59D646E",
-                    new DeviceInfo(DEVICE_PIXEL_FOLD, 200, 200, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_FOLD, 200, 200, false, OS_STOCK))
             .put("64DEF0828FF5D3EAC65C3F5CEF46C1D855FE0A5D8525E90FB94FC3DBA9988C87",
-                    new DeviceInfo(DEVICE_PIXEL_8, 300, 300, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_8, 300, 300, false, OS_STOCK))
             .put("E5362DDF4676E8AA134DB520749BCB1F44FE6556F5E7BFAB130CB6343476FC15",
-                    new DeviceInfo(DEVICE_PIXEL_8_PRO, 300, 300, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_8_PRO, 300, 300, false, OS_STOCK))
             .put("9DE25FB02BB5530D44149D148437C82E267E557322530AA6F03B0AC2E92931DA",
-                    new DeviceInfo(DEVICE_PIXEL_8A, 300, 300, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_8A, 300, 300, false, OS_STOCK))
             .put("ACB5A4DD184E2C44CFA6A53D2D5C5E8674C9498A59F8AE8019942AC1FCEB1E6C",
-                    new DeviceInfo(DEVICE_PIXEL_9, 300, 300, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_9, 300, 300, false, OS_STOCK))
             .put("06035F636BDB7F299A94B51C7D5645A913551327FFC5452B00C5830476D3208E",
-                    new DeviceInfo(DEVICE_PIXEL_9_PRO, 300, 300, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_9_PRO, 300, 300, false, OS_STOCK))
             .put("D05975CFD778082E3D1623C91419F6D8634E579A786592118CCEA057537579B7",
-                    new DeviceInfo(DEVICE_PIXEL_9_PRO_XL, 300, 300, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_9_PRO_XL, 300, 300, false, OS_STOCK))
             .put("800E9093D29614F5BC3FC76A0E819BA0A5C0C94A7D6A17C53E7D017D346B7172",
-                    new DeviceInfo(DEVICE_PIXEL_9_PRO_FOLD, 300, 300, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_9_PRO_FOLD, 300, 300, false, OS_STOCK))
             .put("3327AF62D84AB897AF2523A16DCB5801E60C5D5B97F41CA1BD099C4784F7B743",
-                    new DeviceInfo(DEVICE_PIXEL_9A, 300, 300, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_9A, 300, 300, false, OS_STOCK))
             .put("757C626A2A91FE852536546048D7CA3F50DF6C745C026DB9FF89CC4703C59481",
-                    new DeviceInfo(DEVICE_PIXEL_10, 300, 300, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_10, 300, 300, false, OS_STOCK))
             .put("244BAAF78D0FEE555A562FDD3F70EF61036492FBA7AD192B83BB8D427E380B17",
-                    new DeviceInfo(DEVICE_PIXEL_10_PRO, 300, 300, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_10_PRO, 300, 300, false, OS_STOCK))
             .put("CA5C81DA02B8DEBB054FC625135A7833698A9B32148E8A2EF619EBC62AB2E3D8",
-                    new DeviceInfo(DEVICE_PIXEL_10_PRO_XL, 300, 300, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_10_PRO_XL, 300, 300, false, OS_STOCK))
             .put("072D8E3269350849F3DE787AC7A319F264C34FA326A7E70917FD96AAEFD2FB0E",
-                    new DeviceInfo(DEVICE_PIXEL_10_PRO_FOLD, 300, 300, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_10_PRO_FOLD, 300, 300, false, OS_STOCK))
             .build();
 
     static final ImmutableMap<String, DeviceInfo> fingerprintsStrongBoxNonStock = ImmutableMap
             .<String, DeviceInfo>builder()
             // GrapheneOS
             .put("80EF268700EE42686F779A47B4A155FE1FFC2EEDF836B4803CAAB8FA61439746",
-                    new DeviceInfo(DEVICE_PIXEL_4, 3, 4, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_4, 3, 4, false, OS_GRAPHENE))
             .put("3F15FDCB82847FED97427CE00563B8F9FF34627070DE5FDB17ACA7849AB98CC8",
-                    new DeviceInfo(DEVICE_PIXEL_4_XL, 3, 4, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_4_XL, 3, 4, false, OS_GRAPHENE))
             .put("9F2454A1657B1B5AD7F2336B39A2611F7A40B2E0DDFD0D6553A359605928DF29",
-                    new DeviceInfo(DEVICE_PIXEL_4A, 3, 4, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_4A, 3, 4, false, OS_GRAPHENE))
             .put("DCEC2D053D3EC4F1C9BE414AA07E4D7D7CBD12040AD2F8831C994A83A0536866",
-                    new DeviceInfo(DEVICE_PIXEL_4A_5G, 4, 41, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_4A_5G, 4, 41, false, OS_GRAPHENE))
             .put("36A99EAB7907E4FB12A70E3C41C456BCBE46C13413FBFE2436ADEE2B2B61120F",
-                    new DeviceInfo(DEVICE_PIXEL_5, 4, 41, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_5, 4, 41, false, OS_GRAPHENE))
             .put("0ABDDEDA03B6CE10548C95E0BEA196FAA539866F929BCDF7ECA84B4203952514",
-                    new DeviceInfo(DEVICE_PIXEL_5A, 4, 41, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_5A, 4, 41, false, OS_GRAPHENE))
             .put("F0A890375D1405E62EBFD87E8D3F475F948EF031BBF9DDD516D5F600A23677E8",
-                    new DeviceInfo(DEVICE_PIXEL_6, 100, 100, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_6, 100, 100, false, OS_GRAPHENE))
             .put("439B76524D94C40652CE1BF0D8243773C634D2F99BA3160D8D02AA5E29FF925C",
-                    new DeviceInfo(DEVICE_PIXEL_6_PRO, 100, 100, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_6_PRO, 100, 100, false, OS_GRAPHENE))
             .put("08C860350A9600692D10C8512F7B8E80707757468E8FBFEEA2A870C0A83D6031",
-                    new DeviceInfo(DEVICE_PIXEL_6A, 100, 100, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_6A, 100, 100, false, OS_GRAPHENE))
             .put("3EFE5392BE3AC38AFB894D13DE639E521675E62571A8A9B3EF9FC8C44FD17FA1",
-                    new DeviceInfo(DEVICE_PIXEL_7, 100, 100, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_7, 100, 100, false, OS_GRAPHENE))
             .put("BC1C0DD95664604382BB888412026422742EB333071EA0B2D19036217D49182F",
-                    new DeviceInfo(DEVICE_PIXEL_7_PRO, 100, 100, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_7_PRO, 100, 100, false, OS_GRAPHENE))
             .put("508D75DEA10C5CBC3E7632260FC0B59F6055A8A49DD84E693B6D8899EDBB01E4",
-                    new DeviceInfo(DEVICE_PIXEL_7A, 100, 100, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_7A, 100, 100, false, OS_GRAPHENE))
             .put("94DF136E6C6AA08DC26580AF46F36419B5F9BAF46039DB076F5295B91AAFF230",
-                    new DeviceInfo(DEVICE_PIXEL_TABLET, 100, 100, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_TABLET, 100, 100, false, OS_GRAPHENE))
             .put("EE0C9DFEF6F55A878538B0DBF7E78E3BC3F1A13C8C44839B095FE26DD5FE2842",
-                    new DeviceInfo(DEVICE_PIXEL_FOLD, 100, 100, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_FOLD, 100, 100, false, OS_GRAPHENE))
             .put("CD7479653AA88208F9F03034810EF9B7B0AF8A9D41E2000E458AC403A2ACB233",
-                    new DeviceInfo(DEVICE_PIXEL_8, 300, 300, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_8, 300, 300, false, OS_GRAPHENE))
             .put("896DB2D09D84E1D6BB747002B8A114950B946E5825772A9D48BA7EB01D118C1C",
-                    new DeviceInfo(DEVICE_PIXEL_8_PRO, 300, 300, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_8_PRO, 300, 300, false, OS_GRAPHENE))
             .put("096B8BD6D44527A24AC1564B308839F67E78202185CBFF9CFDCB10E63250BC5E",
-                    new DeviceInfo(DEVICE_PIXEL_8A, 300, 300, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_8A, 300, 300, false, OS_GRAPHENE))
             .put("9E6A8F3E0D761A780179F93ACD5721BA1AB7C8C537C7761073C0A754B0E932DE",
-                    new DeviceInfo(DEVICE_PIXEL_9, 300, 300, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_9, 300, 300, false, OS_GRAPHENE))
             .put("F729CAB861DA1B83FDFAB402FC9480758F2AE78EE0B61C1F2137DD1AB7076E86",
-                    new DeviceInfo(DEVICE_PIXEL_9_PRO, 300, 300, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_9_PRO, 300, 300, false, OS_GRAPHENE))
             .put("55D3C2323DB91BB91F20D38D015E85112D038F6B6B5738FE352C1A80DBA57023",
-                    new DeviceInfo(DEVICE_PIXEL_9_PRO_XL, 300, 300, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_9_PRO_XL, 300, 300, false, OS_GRAPHENE))
             .put("AF4D2C6E62BE0FEC54F0271B9776FF061DD8392D9F51CF6AB1551D346679E24C",
-                    new DeviceInfo(DEVICE_PIXEL_9_PRO_FOLD, 300, 300, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_9_PRO_FOLD, 300, 300, false, OS_GRAPHENE))
             .put("0508DE44EE00BFB49ECE32C418AF1896391ABDE0F05B64F41BC9A2DFB589445B",
-                    new DeviceInfo(DEVICE_PIXEL_9A, 300, 300, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_9A, 300, 300, false, OS_GRAPHENE))
             .put("3F7415EA26F5DF5B14EA6D153256071A7A1AF9CE7B0970B7311CC463C7EA02C7",
-                    new DeviceInfo(DEVICE_PIXEL_10, 300, 300, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_10, 300, 300, false, OS_GRAPHENE))
             .put("4E8EE8F717754052198CA6D2D3AAA232E2461B4293C0D6F297E519CC778DE093",
-                    new DeviceInfo(DEVICE_PIXEL_10_PRO, 300, 300, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_10_PRO, 300, 300, false, OS_GRAPHENE))
             .put("141D7FC32AF7958A416F2661B37CF6F27BFB376FB5CE616AEAA27A82C7A04F74",
-                    new DeviceInfo(DEVICE_PIXEL_10_PRO_XL, 300, 300, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_10_PRO_XL, 300, 300, false, OS_GRAPHENE))
             .put("55A2D44103E56D5EC65496399C417987BA77730E6488FC60BA058D09FC3CAEE3",
-                    new DeviceInfo(DEVICE_PIXEL_10_PRO_FOLD, 300, 300, false, true, OS_GRAPHENE))
+                    new DeviceInfo(DEVICE_PIXEL_10_PRO_FOLD, 300, 300, false, OS_GRAPHENE))
             .build();
     static final ImmutableMap<String, DeviceInfo> fingerprintsStrongBoxStock = ImmutableMap
             .<String, DeviceInfo>builder()
             .put("AE6316B4753C61F5855B95B9B98484AF784F2E83648D0FCC8107FCA752CAEA34",
-                    new DeviceInfo(DEVICE_PIXEL_4_GENERIC, 3, 4, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_4_GENERIC, 3, 4, false, OS_STOCK))
             .put("879CD3F18EA76E244D4D4AC3BCB9C337C13B4667190B19035AFE2536550050F1",
-                    new DeviceInfo(DEVICE_PIXEL_4A, 3, 4, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_4A, 3, 4, false, OS_STOCK))
             .put("88265D85BA9E1E2F6036A259D880D2741031ACA445840137395B6D541C0FC7FC",
-                    new DeviceInfo(DEVICE_PIXEL_5_GENERIC, 4, 41, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_5_GENERIC, 4, 41, false, OS_STOCK))
             .put("1DD694CE00BF131AD61CEB576B7DCC41CF7F9B2C418F4C12B2B8F3E9A1EA911D",
-                    new DeviceInfo(DEVICE_PIXEL_5A, 4, 41, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_5A, 4, 41, false, OS_STOCK))
             .put("0F6E75C80183B5DEC074B0054D4271E99389EBE4B136B0819DE1F150BA0FF9D7",
-                    new DeviceInfo(DEVICE_PIXEL_6, 100, 100, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_6, 100, 100, false, OS_STOCK))
             .put("42ED1BCA352FABD428F34E8FCEE62776F4CB2C66E06F82E5A59FF4495267BFC2",
-                    new DeviceInfo(DEVICE_PIXEL_6_PRO, 100, 100, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_6_PRO, 100, 100, false, OS_STOCK))
             .put("9AC4174153D45E4545B0F49E22FE63273999B6AC1CB6949C3A9F03EC8807EEE9",
-                    new DeviceInfo(DEVICE_PIXEL_6A, 100, 100, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_6A, 100, 100, false, OS_STOCK))
             .put("8B2C4CD539F5075E8E7CF212ADB3DB0413FBD77D321199C73D5A473C51F2E10D",
-                    new DeviceInfo(DEVICE_PIXEL_7, 100, 100, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_7, 100, 100, false, OS_STOCK))
             .put("26AC4C60BEB1E378357CAD0C3061347AF8DF6FBABBB0D8CEA2445855EE01E368",
-                    new DeviceInfo(DEVICE_PIXEL_7_PRO, 100, 100, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_7_PRO, 100, 100, false, OS_STOCK))
             .put("003F1ADE9D476E612B00F2983E6AD7DCD15E6A80CC2DBB008DA7D6839ED73A8F",
-                    new DeviceInfo(DEVICE_PIXEL_7A, 100, 100, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_7A, 100, 100, false, OS_STOCK))
             .put("C72E569827EC2E19A1073D927E3B6A1C6C8322DA795D5CE44BF3B95031B37C0A",
-                    new DeviceInfo(DEVICE_PIXEL_TABLET, 100, 100, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_TABLET, 100, 100, false, OS_STOCK))
             .put("3BBD4712D8714812E762D3FB6D2D5724800C3342B1835CDBC1D3634AE59D646E",
-                    new DeviceInfo(DEVICE_PIXEL_FOLD, 100, 100, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_FOLD, 100, 100, false, OS_STOCK))
             .put("64DEF0828FF5D3EAC65C3F5CEF46C1D855FE0A5D8525E90FB94FC3DBA9988C87",
-                    new DeviceInfo(DEVICE_PIXEL_8, 300, 300, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_8, 300, 300, false, OS_STOCK))
             .put("E5362DDF4676E8AA134DB520749BCB1F44FE6556F5E7BFAB130CB6343476FC15",
-                    new DeviceInfo(DEVICE_PIXEL_8_PRO, 300, 300, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_8_PRO, 300, 300, false, OS_STOCK))
             .put("9DE25FB02BB5530D44149D148437C82E267E557322530AA6F03B0AC2E92931DA",
-                    new DeviceInfo(DEVICE_PIXEL_8A, 300, 300, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_8A, 300, 300, false, OS_STOCK))
             .put("ACB5A4DD184E2C44CFA6A53D2D5C5E8674C9498A59F8AE8019942AC1FCEB1E6C",
-                    new DeviceInfo(DEVICE_PIXEL_9, 300, 300, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_9, 300, 300, false, OS_STOCK))
             .put("06035F636BDB7F299A94B51C7D5645A913551327FFC5452B00C5830476D3208E",
-                    new DeviceInfo(DEVICE_PIXEL_9_PRO, 300, 300, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_9_PRO, 300, 300, false, OS_STOCK))
             .put("D05975CFD778082E3D1623C91419F6D8634E579A786592118CCEA057537579B7",
-                    new DeviceInfo(DEVICE_PIXEL_9_PRO_XL, 300, 300, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_9_PRO_XL, 300, 300, false, OS_STOCK))
             .put("800E9093D29614F5BC3FC76A0E819BA0A5C0C94A7D6A17C53E7D017D346B7172",
-                    new DeviceInfo(DEVICE_PIXEL_9_PRO_FOLD, 300, 300, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_9_PRO_FOLD, 300, 300, false, OS_STOCK))
             .put("3327AF62D84AB897AF2523A16DCB5801E60C5D5B97F41CA1BD099C4784F7B743",
-                    new DeviceInfo(DEVICE_PIXEL_9A, 300, 300, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_9A, 300, 300, false, OS_STOCK))
             .put("757C626A2A91FE852536546048D7CA3F50DF6C745C026DB9FF89CC4703C59481",
-                    new DeviceInfo(DEVICE_PIXEL_10, 300, 300, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_10, 300, 300, false, OS_STOCK))
             .put("244BAAF78D0FEE555A562FDD3F70EF61036492FBA7AD192B83BB8D427E380B17",
-                    new DeviceInfo(DEVICE_PIXEL_10_PRO, 300, 300, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_10_PRO, 300, 300, false, OS_STOCK))
             .put("CA5C81DA02B8DEBB054FC625135A7833698A9B32148E8A2EF619EBC62AB2E3D8",
-                    new DeviceInfo(DEVICE_PIXEL_10_PRO_XL, 300, 300, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_10_PRO_XL, 300, 300, false, OS_STOCK))
             .put("072D8E3269350849F3DE787AC7A319F264C34FA326A7E70917FD96AAEFD2FB0E",
-                    new DeviceInfo(DEVICE_PIXEL_10_PRO_FOLD, 300, 300, false, true, OS_STOCK))
+                    new DeviceInfo(DEVICE_PIXEL_10_PRO_FOLD, 300, 300, false, OS_STOCK))
             .build();
 
     private static final byte[] GOOGLE_ROOT_CERTIFICATE_0 = readResource("google_root_0.der");
@@ -510,6 +510,10 @@ class AttestationProtocol {
         }
         if (attestation.keymasterSecurityLevel != attestationSecurityLevelEnum) {
             throw new GeneralSecurityException("keymaster security level does not match attestation security level");
+        }
+        // enforce StrongBox for new pairings
+        if (!hasPersistentKey && attestationSecurityLevelEnum != ParsedAttestationRecord.SecurityLevel.STRONG_BOX) {
+            throw new GeneralSecurityException("new pairing without StrongBox security level");
         }
 
         // prevent replay attacks
@@ -593,12 +597,6 @@ class AttestationProtocol {
 
         if (device == null) {
             throw new GeneralSecurityException("invalid verified boot key fingerprint: " + verifiedBootKey);
-        }
-
-        // enforce StrongBox for new pairings with devices supporting it
-        if (!hasPersistentKey && device.enforceStrongBox &&
-                attestationSecurityLevelEnum != ParsedAttestationRecord.SecurityLevel.STRONG_BOX) {
-            throw new GeneralSecurityException("non-StrongBox security level for device supporting it");
         }
 
         // OS version sanity checks
