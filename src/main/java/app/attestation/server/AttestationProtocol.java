@@ -91,6 +91,7 @@ class AttestationProtocol {
     // 6: portSecurityMode added
     // 6: userCount added
     // 6: oemUnlockAllowed added
+    // 7: new DEFLATE dictionary with new ECDSA root included
     //
     // n/a
     //
@@ -130,7 +131,7 @@ class AttestationProtocol {
     // the outer signature and the rest of the chain for pinning the expected chain. It enforces
     // downgrade protection for the OS version/patch (bootloader/TEE enforced) and app version (OS
     // enforced) by keeping them updated.
-    static final byte PROTOCOL_VERSION = 6;
+    static final byte PROTOCOL_VERSION = 7;
     private static final byte PROTOCOL_VERSION_MINIMUM = 5;
     // can become longer in the future, but this is the minimum length
     private static final byte CHALLENGE_MESSAGE_LENGTH = 1 + RANDOM_TOKEN_LENGTH * 2;
@@ -444,6 +445,7 @@ class AttestationProtocol {
     private static final byte[] GOOGLE_ROOT_CERTIFICATE_4 = readResource("google_root_4.der");
     static final byte[] DEFLATE_DICTIONARY_2 = readResource("deflate_dictionary_2.bin");
     static final byte[] DEFLATE_DICTIONARY_4 = readResource("deflate_dictionary_4.bin");
+    static final byte[] DEFLATE_DICTIONARY_5 = readResource("deflate_dictionary_5.bin");
 
     private static byte[] readResource(final String path) {
         try (final InputStream stream = AttestationProtocol.class.getResourceAsStream(path)) {
@@ -1239,7 +1241,7 @@ class AttestationProtocol {
         final byte[] compressedChain = new byte[compressedChainLength];
         deserializer.get(compressedChain);
 
-        final byte[] dictionary = DEFLATE_DICTIONARY_4;
+        final byte[] dictionary = version < 7 ? DEFLATE_DICTIONARY_4 : DEFLATE_DICTIONARY_5;
         final Certificate[] certificates = decodeChain(dictionary, compressedChain);
 
         final byte[] fingerprint = new byte[FINGERPRINT_LENGTH];
