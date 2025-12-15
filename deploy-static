@@ -50,6 +50,8 @@ ssh $remote nginx -s reload
 echo
 echo active is now $target
 
+ssh $remote 'id -u attestation &>/dev/null || useradd -r attestation -md /var/lib/attestation -s /usr/bin/fish'
+
 rsync -pcv --chmod=755 --fsync --preallocate remote-backup $remote:/usr/local/bin/
 rsync -pcv --chmod=644 --fsync --preallocate systemd/system/remote-backup.timer $remote:/etc/systemd/system/remote-backup.timer
 rsync -pcv --chmod=644 --fsync --preallocate systemd/system/remote-backup.service $remote:/etc/systemd/system/remote-backup.service
