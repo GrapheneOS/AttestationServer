@@ -9,7 +9,7 @@ mkdir remote-backup
 mkdir remote-backup/$timestamp
 sqlite3 attestation.db ".backup remote-backup/$timestamp/attestation.db"
 sqlite3 samples.db ".backup remote-backup/$timestamp/samples.db"
-tar -cC remote-backup $timestamp | zstd -9 | age -r $(cat backup-public-key.txt) -o remote-backup/$timestamp.tar.zst.age
+tar -cC remote-backup $timestamp | zstd -9 --long | age -r $(cat backup-public-key.txt) -o remote-backup/$timestamp.tar.zst.age
 
 expiry=$(date -ud '+60 day' +%s)
 
