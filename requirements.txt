@@ -12,9 +12,9 @@ crossplane==0.5.8 \
     --hash=sha256:b193bd8b963a041d5414ea18dcbb1c55b5424fee3d73bfa1809124605b322101 \
     --hash=sha256:ede8e83c9e3a58dfc37c69f5ee065d4b3adc44ae42749ced496962a0e7f545b7
     # via gixy-ng
-gixy-ng==0.2.26 \
-    --hash=sha256:1a18200087230f36984f2f116e09bbea3b47c3c0bf7cfadcef540bf826943f4f \
-    --hash=sha256:1bd0114373ff3409007281f9f29be2f8ee51f788490ca15812aae9386467fab5
+gixy-ng==0.2.27 \
+    --hash=sha256:4d8c00818c9dc22d14a1c0f49fa16d0a0edac68934d3d9e9293f409316e1c817 \
+    --hash=sha256:5ab053cfb1b3fbd59f2fb048c1a48baa8f63c96bfd1cc6f497e35a5184f51558
     # via -r requirements.in
 jinja2==3.1.6 \
     --hash=sha256:0137fb05990d35f1275a587e9aee6d56da821fc83491a0fb838183be43f66d6d \
