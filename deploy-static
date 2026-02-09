@@ -44,7 +44,7 @@ rsync -rpcv --chmod=D755,F644 --delete --fsync --preallocate static-production/ 
 ssh $remote "ln -snf $target /srv/attestation.app && sync /srv/attestation.app"
 
 echo "root $target;" > nginx-tmp/root_attestation.app.conf
-rsync -rpcv --chmod=D755,F644 --delete --fsync --preallocate nginx-tmp/{nginx.conf,mime.types,root_attestation.app.conf,snippets} $remote:/etc/nginx/
+rsync -pcv --chmod=644 --fsync --preallocate nginx-tmp/{nginx.conf,mime.types,preload.conf,root_attestation.app.conf,security-headers.conf} $remote:/etc/nginx/
 ssh $remote systemctl reload nginx
 
 echo
