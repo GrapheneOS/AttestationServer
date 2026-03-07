@@ -1298,7 +1298,7 @@ class AttestationServer {
 
             final Base64.Encoder encoder = Base64.getEncoder();
             exchange.getResponseHeaders().set("Set-Cookie",
-                    "__Host-session=%d|%s; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=%d".formatted(
+                    "__Host-Http-session=%d|%s; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=%d".formatted(
                         session.sessionId, new String(encoder.encode(session.token)),
                         SESSION_LENGTH / 1000));
             exchange.sendResponseHeaders(200, -1);
@@ -1382,14 +1382,14 @@ class AttestationServer {
 
     private static void purgeSessionCookie(final HttpExchange exchange) {
         exchange.getResponseHeaders().set("Set-Cookie",
-                "__Host-session=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0");
+                "__Host-Http-session=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0");
     }
 
     private record Account(long userId, String username, byte[] subscribeKey, int verifyInterval, int alertDelay) {}
 
     private static Account verifySession(final HttpExchange exchange, final boolean end)
             throws IOException, SQLiteException {
-        final String cookie = getCookie(exchange, "__Host-session");
+        final String cookie = getCookie(exchange, "__Host-Http-session");
         if (cookie == null) {
             exchange.sendResponseHeaders(403, -1);
             return null;
