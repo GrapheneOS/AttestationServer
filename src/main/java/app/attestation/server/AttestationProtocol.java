@@ -208,6 +208,7 @@ class AttestationProtocol {
     private static final String DEVICE_PIXEL_10_PRO = "Google Pixel 10 Pro";
     private static final String DEVICE_PIXEL_10_PRO_XL = "Google Pixel 10 Pro XL";
     private static final String DEVICE_PIXEL_10_PRO_FOLD = "Google Pixel 10 Pro Fold";
+    private static final String DEVICE_PIXEL_10A = "Google Pixel 10a";
 
     private static final String OS_STOCK = "Stock";
     private static final String OS_GRAPHENE = "GrapheneOS";
@@ -277,6 +278,8 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_PIXEL_10_PRO_XL, 300, 300, false, OS_GRAPHENE))
             .put("55A2D44103E56D5EC65496399C417987BA77730E6488FC60BA058D09FC3CAEE3",
                     new DeviceInfo(DEVICE_PIXEL_10_PRO_FOLD, 300, 300, false, OS_GRAPHENE))
+            .put("D8F879D10419EDDC9FCDA6280718BE763F6BF12299E1F72DF3EA8AD8A8EB7F80",
+                    new DeviceInfo(DEVICE_PIXEL_10A, 300, 300, false, OS_GRAPHENE))
             .build();
     static final ImmutableMap<String, DeviceInfo> fingerprintsStock = ImmutableMap
             .<String, DeviceInfo>builder()
@@ -328,6 +331,8 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_PIXEL_10_PRO_XL, 300, 300, false, OS_STOCK))
             .put("072D8E3269350849F3DE787AC7A319F264C34FA326A7E70917FD96AAEFD2FB0E",
                     new DeviceInfo(DEVICE_PIXEL_10_PRO_FOLD, 300, 300, false, OS_STOCK))
+            .put("E354CD6BBB15D64B2E95B2F79E9DF6CE22B8A5D0D66CFB70330D6A1BCD7212A0",
+                    new DeviceInfo(DEVICE_PIXEL_10A, 300, 300, false, OS_STOCK))
             .build();
 
     static final ImmutableMap<String, DeviceInfo> fingerprintsStrongBoxNonStock = ImmutableMap
@@ -385,6 +390,8 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_PIXEL_10_PRO_XL, 300, 300, false, OS_GRAPHENE))
             .put("55A2D44103E56D5EC65496399C417987BA77730E6488FC60BA058D09FC3CAEE3",
                     new DeviceInfo(DEVICE_PIXEL_10_PRO_FOLD, 300, 300, false, OS_GRAPHENE))
+            .put("D8F879D10419EDDC9FCDA6280718BE763F6BF12299E1F72DF3EA8AD8A8EB7F80",
+                    new DeviceInfo(DEVICE_PIXEL_10A, 300, 300, false, OS_GRAPHENE))
             .build();
     static final ImmutableMap<String, DeviceInfo> fingerprintsStrongBoxStock = ImmutableMap
             .<String, DeviceInfo>builder()
@@ -436,6 +443,8 @@ class AttestationProtocol {
                     new DeviceInfo(DEVICE_PIXEL_10_PRO_XL, 300, 300, false, OS_STOCK))
             .put("072D8E3269350849F3DE787AC7A319F264C34FA326A7E70917FD96AAEFD2FB0E",
                     new DeviceInfo(DEVICE_PIXEL_10_PRO_FOLD, 300, 300, false, OS_STOCK))
+            .put("E354CD6BBB15D64B2E95B2F79E9DF6CE22B8A5D0D66CFB70330D6A1BCD7212A0",
+                    new DeviceInfo(DEVICE_PIXEL_10A, 300, 300, false, OS_STOCK))
             .build();
 
     private static final byte[] GOOGLE_ROOT_CERTIFICATE_0 = readResource("google_root_0.der");
