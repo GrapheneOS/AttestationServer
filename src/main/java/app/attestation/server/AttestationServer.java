@@ -889,6 +889,7 @@ class AttestationServer {
                 new LinkedBlockingQueue<Runnable>(1024),
                 new ThreadFactoryBuilder().setNameFormat("HTTP %d").build());
 
+        System.setProperty("sun.net.httpserver.idleInterval", "65");
         System.setProperty("sun.net.httpserver.nodelay", "true");
         try {
             final HttpServer server = HttpServer.create(new InetSocketAddress("::1", 8080), 4096);
