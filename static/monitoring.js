@@ -496,8 +496,8 @@ createUsername.oninput = clearValidity;
 loginUsername.oninput = clearValidity;
 loginPassword.oninput = clearValidity;
 
-function login(username, password) {
-    const loginJson = JSON.stringify({username: username, password: password});
+function login(loginUser, password) {
+    const loginJson = JSON.stringify({username: loginUser, password: password});
     post("/api/login", loginJson).then(response => {
         if (!response.ok) {
             if (response.status === 400) {
@@ -509,11 +509,11 @@ function login(username, password) {
             }
             return Promise.reject(new Error(response.status));
         }
-        post("/api/account").then(response => {
-            if (!response.ok) {
-                return Promise.reject(new Error(response.status));
+        post("/api/account").then(accountResponse => {
+            if (!accountResponse.ok) {
+                return Promise.reject(new Error(accountResponse.status));
             }
-            return response.json();
+            return accountResponse.json();
         }).then(account => {
             loginForm.hidden = true;
             loginForm.reset();
@@ -537,8 +537,8 @@ createForm.onsubmit = event => {
         createPasswordConfirm.reportValidity();
         return;
     }
-    const username = createUsername.value;
-    const createJson = JSON.stringify({username: username, password: password});
+    const newUsername = createUsername.value;
+    const createJson = JSON.stringify({username: newUsername, password: password});
     createForm.submit.disabled = true;
     post("/api/create-account", createJson).then(response => {
         if (!response.ok) {
@@ -552,7 +552,7 @@ createForm.onsubmit = event => {
         createForm.reset();
         createForm.submit.disabled = false;
         loggedOutButtons.hidden = false;
-        login(username, password);
+        login(newUsername, password);
     }).catch(error => {
         createForm.submit.disabled = false;
         console.log(error);
