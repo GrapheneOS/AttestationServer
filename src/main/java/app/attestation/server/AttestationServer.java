@@ -76,7 +76,7 @@ class AttestationServer {
 
     private static final int DEFAULT_VERIFY_INTERVAL = 6 * 60 * 60;
     private static final int MIN_VERIFY_INTERVAL = 60 * 60;
-    private static final int MAX_VERIFY_INTERVAL = 7 * 24 * 70 * 60;
+    private static final int MAX_VERIFY_INTERVAL = 7 * 24 * 60 * 60;
     private static final int DEFAULT_ALERT_DELAY = 48 * 60 * 60;
     private static final int MIN_ALERT_DELAY = 32 * 60 * 60;
     private static final int MAX_ALERT_DELAY = 2 * 7 * 24 * 60 * 60;
