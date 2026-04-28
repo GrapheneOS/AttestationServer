@@ -1987,12 +1987,12 @@ class AttestationServer {
             final ByteArrayOutputStream attestation = new ByteArrayOutputStream();
             final byte[] buffer = new byte[4096];
             for (int read = input.read(buffer); read != -1; read = input.read(buffer)) {
-                attestation.write(buffer, 0, read);
-
-                if (attestation.size() > AttestationProtocol.MAX_MESSAGE_SIZE) {
+                if (attestation.size() + read > AttestationProtocol.MAX_MESSAGE_SIZE) {
                     exchange.sendResponseHeaders(413, -1);
                     return;
                 }
+
+                attestation.write(buffer, 0, read);
             }
 
             final byte[] attestationResult = attestation.toByteArray();
