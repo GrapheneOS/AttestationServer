@@ -53,7 +53,8 @@ class AlertDispatcher implements Runnable {
                     (SELECT value FROM Configuration WHERE key = 'emailUsername'),
                     (SELECT value FROM Configuration WHERE key = 'emailPassword'),
                     (SELECT value FROM Configuration WHERE key = 'emailHost'),
-                    (SELECT value FROM Configuration WHERE key = 'emailPort')""");
+                    (SELECT value FROM Configuration WHERE key = 'emailPort'),
+                    (SELECT value FROM Configuration WHERE key = 'emailFrom')""");
             selectAccountsForExpiryAlert = conn.prepare("""
                     SELECT userId, username, alertDelay FROM Accounts
                     WHERE (SELECT 1 FROM Devices WHERE userId = Accounts.userID
@@ -89,6 +90,7 @@ class AlertDispatcher implements Runnable {
                 final String emailPassword;
                 final String emailHost;
                 final String emailPort;
+                final String emailFrom;
                 try {
                     selectConfiguration.step();
                     local = selectConfiguration.columnInt(0);
@@ -96,13 +98,14 @@ class AlertDispatcher implements Runnable {
                     emailPassword = selectConfiguration.columnString(2);
                     emailHost = selectConfiguration.columnString(3);
                     emailPort = selectConfiguration.columnString(4);
+                    emailFrom = selectConfiguration.columnString(5);
                 } finally {
                     selectConfiguration.reset();
                 }
 
                 final Session session;
                 if (local == 1) {
-                    if (emailUsername == null) {
+                    if (emailFrom == null) {
                         logger.warning("missing configuration for sending alert emails");
                         continue;
                     }
@@ -112,7 +115,7 @@ class AlertDispatcher implements Runnable {
                     props.put("mail.smtp.writetimeout", Integer.toString(TIMEOUT_MS));
                     session = Session.getInstance(props);
                 } else {
-                    if (emailUsername == null || emailPassword == null || emailHost == null || emailPort == null) {
+                    if (emailUsername == null || emailPassword == null || emailHost == null || emailPort == null || emailFrom == null) {
                         logger.warning("missing configuration for sending alert emails");
                         continue;
                     }
@@ -196,7 +199,7 @@ class AlertDispatcher implements Runnable {
                         logger.info("sending expiry email to " + address + " for account " + account.userId);
                         try {
                             final Message message = new MimeMessage(session);
-                            message.setFrom(new InternetAddress(emailUsername));
+                            message.setFrom(new InternetAddress(emailFrom));
                             message.setRecipients(Message.RecipientType.TO,
                                     InternetAddress.parse(address));
                             message.setSubject(
@@ -257,7 +260,7 @@ class AlertDispatcher implements Runnable {
                         logger.info("sending failure email to " + address + " for account " + account.userId);
                         try {
                             final Message message = new MimeMessage(session);
-                            message.setFrom(new InternetAddress(emailUsername));
+                            message.setFrom(new InternetAddress(emailFrom));
                             message.setRecipients(Message.RecipientType.TO,
                                     InternetAddress.parse(address));
                             message.setSubject("Devices provided invalid attestations");

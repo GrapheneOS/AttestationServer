@@ -75,7 +75,7 @@ sending emails.
 
 For example, making an initial configuration:
 
-    sqlite3 attestation.db "INSERT INTO Configuration VALUES ('emailUsername', 'alert@attestation.app'), ('emailPassword', '<password>'), ('emailHost', 'mail.grapheneos.org'), ('emailPort', '465')"
+    sqlite3 attestation.db "INSERT INTO Configuration VALUES ('emailUsername', 'attestation'), ('emailPassword', '<password>'), ('emailHost', 'mail.grapheneos.org'), ('emailPort', '465'), ('emailFrom', 'noreply@attestation.app')"
 
 The `attestation.service` unit only allows the service to communicate over `localhost` by default
 so the `IPAddressDeny`/`IPAddressAllow` configuration either needs to be removed or extended to
