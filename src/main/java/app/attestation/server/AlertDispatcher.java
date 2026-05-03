@@ -85,7 +85,7 @@ class AlertDispatcher implements Runnable {
             logger.info("dispatching alerts");
 
             try {
-                final int local;
+                final int emailLocal;
                 final String emailUsername;
                 final String emailPassword;
                 final String emailHost;
@@ -93,7 +93,7 @@ class AlertDispatcher implements Runnable {
                 final String emailFrom;
                 try {
                     selectConfiguration.step();
-                    local = selectConfiguration.columnInt(0);
+                    emailLocal = selectConfiguration.columnInt(0);
                     emailUsername = selectConfiguration.columnString(1);
                     emailPassword = selectConfiguration.columnString(2);
                     emailHost = selectConfiguration.columnString(3);
@@ -104,7 +104,7 @@ class AlertDispatcher implements Runnable {
                 }
 
                 final Session session;
-                if (local == 1) {
+                if (emailLocal == 1) {
                     if (emailFrom == null) {
                         logger.warning("missing configuration for sending alert emails");
                         continue;
