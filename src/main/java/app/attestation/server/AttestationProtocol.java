@@ -1185,15 +1185,15 @@ class AttestationProtocol {
     static Certificate[] decodeChain(final byte[] dictionary, final byte[] compressedChain)
             throws DataFormatException, GeneralSecurityException {
         final byte[] chain = new byte[MAX_ENCODED_CHAIN_LENGTH];
-        final Inflater inflater = new Inflater(true);
-        inflater.setInput(compressedChain);
-        inflater.setDictionary(dictionary);
-        final int chainLength = inflater.inflate(chain);
-        if (!inflater.finished()) {
-            throw new GeneralSecurityException("certificate chain is too large");
+        final int chainLength;
+        try (Inflater inflater = new Inflater(true)) {
+            inflater.setInput(compressedChain);
+            inflater.setDictionary(dictionary);
+            chainLength = inflater.inflate(chain);
+            if (!inflater.finished()) {
+                throw new GeneralSecurityException("certificate chain is too large");
+            }
         }
-        inflater.end();
-
         final ByteBuffer chainDeserializer = ByteBuffer.wrap(chain, 0, chainLength);
         final List<Certificate> certs = new ArrayList<>();
         while (chainDeserializer.hasRemaining()) {
@@ -1225,14 +1225,13 @@ class AttestationProtocol {
         }
 
         final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-        final Deflater deflater = new Deflater(Deflater.BEST_COMPRESSION, true);
-        deflater.setDictionary(dictionary);
-        final DeflaterOutputStream deflaterStream = new DeflaterOutputStream(byteStream, deflater);
-        deflaterStream.write(chain);
-        deflaterStream.finish();
-        final byte[] compressed = byteStream.toByteArray();
-
-        return compressed;
+        try (Deflater deflater = new Deflater(Deflater.BEST_COMPRESSION, true)) {
+            deflater.setDictionary(dictionary);
+            final DeflaterOutputStream deflaterStream = new DeflaterOutputStream(byteStream, deflater);
+            deflaterStream.write(chain);
+            deflaterStream.finish();
+            return byteStream.toByteArray();
+        }
     }
 
     static void verifySerialized(final byte[] attestationResult,
