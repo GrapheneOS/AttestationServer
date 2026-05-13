@@ -251,7 +251,7 @@ function fetchHistory(parent, nextOffset, hasPogoPins) {
             appendLine(parent, "Add users from lock screen: " + toYesNoString(attestation.addUsersWhenLocked));
 
             if (attestation.oemUnlockAllowed2 !== undefined
-                    && (attestation.oemUnlockedAllowed2 >= 0 || attestation.oemUnlockAllowed == -2)) {
+                    && (attestation.oemUnlockAllowed2 >= 0 || attestation.oemUnlockAllowed == -2)) {
                 appendLine(parent, "OEM unlocking allowed: " + oemUnlockAllowedString(attestation.oemUnlockAllowed2));
             }
             appendLine(parent, "Main user account: " + toYesNoString(attestation.systemUser));
