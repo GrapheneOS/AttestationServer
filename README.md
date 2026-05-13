@@ -21,8 +21,8 @@ the same directory in AttestationServer and change the binary path in `process-s
 `validatornu` to `vnu-runtime-image/bin/vnu` using sed: `sed -i
 's+validatornu+vnu-runtime-image/bin/vnu+g' process-static`
 
-Install a headless Java 18 runtime environment. The package name on Debian-based distributions is
-`openjdk-18-jre-headless` or `jre-openjdk-headless` on Arch Linux. Install `sqlite3` in order to
+Install a headless Java 25 runtime environment. The package name on Debian-based distributions is
+`openjdk-25-jre-headless` or `jre-openjdk-headless` on Arch Linux. Install `sqlite3` in order to
 set up the email configuration for the database.
 
 As root, on the server:
