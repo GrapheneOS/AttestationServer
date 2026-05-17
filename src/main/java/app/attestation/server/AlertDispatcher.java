@@ -12,6 +12,7 @@ import jakarta.mail.Transport;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -20,6 +21,7 @@ import java.util.logging.Logger;
 import static app.attestation.server.SyslogLevel.CRIT;
 
 class AlertDispatcher implements Runnable {
+    private static final String EMAIL_DISPLAY_NAME = "Attestation Service";
     private static final long WAIT_MS = 60 * 1000;
     private static final int TIMEOUT_MS = 30 * 1000;
     private static final long ALERT_THROTTLE_MS = 24 * 60 * 60 * 1000;
@@ -201,7 +203,7 @@ class AlertDispatcher implements Runnable {
                         logger.info("sending expiry email to " + address + " for account " + account.userId);
                         try {
                             final Message message = new MimeMessage(session);
-                            message.setFrom(new InternetAddress(emailFrom));
+                            message.setFrom(new InternetAddress(emailFrom, EMAIL_DISPLAY_NAME));
                             message.setRecipients(Message.RecipientType.TO,
                                     InternetAddress.parse(address));
                             message.setSubject(
@@ -223,7 +225,7 @@ class AlertDispatcher implements Runnable {
                                     updateExpired.reset();
                                 }
                             }
-                        } catch (final MessagingException e) {
+                        } catch (final MessagingException | UnsupportedEncodingException e) {
                             logger.log(Level.WARNING, "email error", e);
                         }
                     }
@@ -262,7 +264,7 @@ class AlertDispatcher implements Runnable {
                         logger.info("sending failure email to " + address + " for account " + account.userId);
                         try {
                             final Message message = new MimeMessage(session);
-                            message.setFrom(new InternetAddress(emailFrom));
+                            message.setFrom(new InternetAddress(emailFrom, EMAIL_DISPLAY_NAME));
                             message.setRecipients(Message.RecipientType.TO,
                                     InternetAddress.parse(address));
                             message.setSubject("Devices provided invalid attestations");
@@ -272,7 +274,7 @@ class AlertDispatcher implements Runnable {
                                     "If you do not want to receive these alerts and cannot log in to the account,\nemail contact@" + AttestationServer.DOMAIN + " from the address receiving the alerts");
 
                             Transport.send(message);
-                        } catch (final MessagingException e) {
+                        } catch (final MessagingException | UnsupportedEncodingException e) {
                             logger.log(Level.WARNING, "email error", e);
                         }
                     }
