@@ -110,6 +110,7 @@ class AlertDispatcher implements Runnable {
                         continue;
                     }
                     final Properties props = new Properties();
+                    props.put("mail.from", emailFrom);
                     props.put("mail.smtp.connectiontimeout", Integer.toString(TIMEOUT_MS));
                     props.put("mail.smtp.timeout", Integer.toString(TIMEOUT_MS));
                     props.put("mail.smtp.writetimeout", Integer.toString(TIMEOUT_MS));
@@ -121,6 +122,7 @@ class AlertDispatcher implements Runnable {
                     }
 
                     final Properties props = new Properties();
+                    props.put("mail.from", emailFrom);
                     props.put("mail.transport.protocol.rfc822", "smtps");
                     props.put("mail.smtps.auth", true);
                     props.put("mail.smtps.host", emailHost);
