@@ -3,6 +3,7 @@ Description=Perform remote backup four times daily
 
 [Timer]
 OnCalendar=0/6:00:00
+Persistent=true
 
 [Install]
 WantedBy=timers.target
