@@ -132,7 +132,7 @@ class AttestationProtocol {
     // downgrade protection for the OS version/patch (bootloader/TEE enforced) and app version (OS
     // enforced) by keeping them updated.
     static final byte PROTOCOL_VERSION = 7;
-    private static final byte PROTOCOL_VERSION_MINIMUM = 5;
+    private static final byte PROTOCOL_VERSION_MINIMUM = 6;
     // can become longer in the future, but this is the minimum length
     private static final byte CHALLENGE_MESSAGE_LENGTH = 1 + RANDOM_TOKEN_LENGTH * 2;
     private static final int MAX_ENCODED_CHAIN_LENGTH = 5000;
@@ -174,7 +174,7 @@ class AttestationProtocol {
     private static final byte AUDITOR_APP_VARIANT_PLAY = 1;
     private static final byte AUDITOR_APP_VARIANT_DEBUG = 2;
 
-    private static final int AUDITOR_APP_MINIMUM_VERSION = 87;
+    private static final int AUDITOR_APP_MINIMUM_VERSION = 89;
     private static final int OS_VERSION_MINIMUM = 130000;
     private static final int OS_PATCH_LEVEL_MINIMUM = 202208;
     private static final int VENDOR_PATCH_LEVEL_MINIMUM = 20220805;
@@ -817,8 +817,6 @@ class AttestationProtocol {
             int autoRebootSeconds, byte portSecurityMode, byte userCount, byte oemUnlocked) {
         static final int UNKNOWN_VALUE = -1;
         static final int INVALID_VALUE = -2;
-        static final SecurityStateExt UNKNOWN = new SecurityStateExt(UNKNOWN_VALUE,
-                (byte) UNKNOWN_VALUE, (byte) UNKNOWN_VALUE, (byte) UNKNOWN_VALUE);
     }
 
     private static void verify(final byte[] fingerprint,
@@ -1269,17 +1267,12 @@ class AttestationProtocol {
             throw new GeneralSecurityException("invalid device administrator state");
         }
 
-        SecurityStateExt securityStateExt;
-        if (version >= 6) {
-            final int autoRebootSeconds = deserializer.getInt();
-            final byte portSecurityMode = deserializer.get();
-            final byte userCount = deserializer.get();
-            final byte oemUnlockAllowed = deserializer.get();
-            securityStateExt = new SecurityStateExt(autoRebootSeconds, portSecurityMode,
-                    userCount, oemUnlockAllowed);
-        } else {
-            securityStateExt = SecurityStateExt.UNKNOWN;
-        }
+        final int autoRebootSeconds = deserializer.getInt();
+        final byte portSecurityMode = deserializer.get();
+        final byte userCount = deserializer.get();
+        final byte oemUnlockAllowed = deserializer.get();
+        final SecurityStateExt securityStateExt = new SecurityStateExt(autoRebootSeconds, portSecurityMode,
+                userCount, oemUnlockAllowed);
 
         final int signatureLength = deserializer.remaining();
         final byte[] signature = new byte[signatureLength];
