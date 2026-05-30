@@ -654,7 +654,7 @@ class AttestationProtocol {
         }
 
         final byte[] verifiedBootHash = rootOfTrust.verifiedBootHash.orElse(null);
-        if (attestationVersion >= 3 && verifiedBootHash == null) {
+        if (verifiedBootHash == null) {
             throw new GeneralSecurityException("verifiedBootHash expected for attestation version >= 3");
         }
 
