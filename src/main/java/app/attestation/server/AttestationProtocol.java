@@ -176,9 +176,9 @@ class AttestationProtocol {
 
     private static final int AUDITOR_APP_MINIMUM_VERSION = 89;
     private static final int OS_VERSION_MINIMUM = 130000;
-    private static final int OS_PATCH_LEVEL_MINIMUM = 202208;
-    private static final int VENDOR_PATCH_LEVEL_MINIMUM = 20220805;
-    private static final int BOOT_PATCH_LEVEL_MINIMUM = 20220805;
+    private static final int OS_PATCH_LEVEL_MINIMUM = 202505;
+    private static final int VENDOR_PATCH_LEVEL_MINIMUM = 20250505;
+    private static final int BOOT_PATCH_LEVEL_MINIMUM = 20250505;
 
     private static final String DEVICE_PIXEL_6 = "Google Pixel 6";
     private static final String DEVICE_PIXEL_6_PRO = "Google Pixel 6 Pro";
