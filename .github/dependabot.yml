@@ -5,18 +5,22 @@ updates:
     schedule:
       interval: daily
     target-branch: main
+    open-pull-requests-limit: 20
   - package-ecosystem: gradle
     directory: "/"
     schedule:
       interval: daily
     target-branch: main
+    open-pull-requests-limit: 20
   - package-ecosystem: npm
     directory: "/"
     schedule:
       interval: daily
     target-branch: main
+    open-pull-requests-limit: 20
   - package-ecosystem: pip
     directory: "/"
     schedule:
       interval: daily
     target-branch: main
+    open-pull-requests-limit: 20
