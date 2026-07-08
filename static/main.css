@@ -110,8 +110,10 @@ pre {
     list-style-type: none;
 }
 
-#site-menu ul li:hover {
-    background-color: color-mix(in oklab, var(--md-sys-color-on-surface) 8%, transparent);
+@media (hover: hover) {
+    #site-menu ul li:hover {
+        background-color: color-mix(in oklab, var(--md-sys-color-on-surface) 8%, transparent);
+    }
 }
 
 #site-menu ul li a {
@@ -159,8 +161,10 @@ button {
     transition: border-radius cubic-bezier(0.42, 1.67, 0.21, 0.90) 350ms;
 }
 
-button:hover {
-    background-color: color-mix(in oklab, var(--md-sys-color-on-surface) 8%, transparent);
+@media (hover: hover) {
+    button:hover {
+        background-color: color-mix(in oklab, var(--md-sys-color-on-surface) 8%, transparent);
+    }
 }
 
 button:focus-visible,
