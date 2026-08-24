@@ -8,9 +8,9 @@ configargparse==1.7.5 \
     --hash=sha256:1e63fdffedf94da9cd435fc13a1cd24777e76879dd2343912c1f871d4ac8c592 \
     --hash=sha256:e3f9a7bb6be34d66b2e3c4a2f58e3045f8dfae47b0dc039f87bcfaa0f193fb0f
     # via gixy-ng
-gixy-ng==0.2.50 \
-    --hash=sha256:5db0af3d47e5fba7b7953727fa2db9c3695189ab0c517ffc69c0a3e1ba8836e3 \
-    --hash=sha256:6ca18d0418ccb904b0a9fb37aaed21984d36f6969f782de82d7f8874b0273a58
+gixy-ng==0.2.51 \
+    --hash=sha256:55b7edf4c99cdacce07138435fa5ddb26e2fd53c8b05732d667758a27365431c \
+    --hash=sha256:bb2209087c27c75c374d51c820c3588b3827c9c14d7ba918c7bf87534bf3241d
     # via -r requirements.in
 jinja2==3.1.6 \
     --hash=sha256:0137fb05990d35f1275a587e9aee6d56da821fc83491a0fb838183be43f66d6d \
