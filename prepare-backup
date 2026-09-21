@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -o errexit -o nounset -o pipefail
+
+destination="$1"
+timestamp="$2"
+
+rm -rf "$destination"
+mkdir "$destination"
+
+mkdir "$destination/$timestamp"
+sqlite3 attestation.db ".backup $destination/$timestamp/attestation.db"
+sqlite3 samples.db ".backup $destination/$timestamp/samples.db"
+tar -cC "$destination" "$timestamp" | zstd -9 --long | age -r $(cat backup-public-key.txt) -o "$destination/$timestamp.tar.zst.age"
