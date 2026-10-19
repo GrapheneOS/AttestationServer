@@ -23,6 +23,70 @@ class Maintenance implements Runnable {
 
     private static final Logger logger = Logger.getLogger(Maintenance.class.getName());
 
+    static void maintain(final SQLiteConnection samplesConn, final SQLiteConnection attestationConn,
+            final long now) throws SQLiteException {
+        samplesConn.exec("VACUUM");
+
+        // This is also done as part of every login
+        final SQLiteStatement deleteExpiredSessions =
+                attestationConn.prepare("DELETE FROM Sessions WHERE expiryTime < ?");
+        try {
+            deleteExpiredSessions.bind(1, now);
+            deleteExpiredSessions.step();
+        } finally {
+            deleteExpiredSessions.dispose();
+        }
+
+        final SQLiteStatement deleteDeletedDevices =
+                attestationConn.prepare("DELETE FROM Devices WHERE deletionTime < ?");
+        try {
+            deleteDeletedDevices.bind(1, now - DELETE_EXPIRY_MS);
+            deleteDeletedDevices.step();
+        } finally {
+            deleteDeletedDevices.dispose();
+        }
+
+        if (DELETE_INACTIVE_DEVICES) {
+            final SQLiteStatement deleteInactiveDevices =
+                    attestationConn.prepare("DELETE FROM Devices WHERE verifiedTimeLast < ?");
+            try {
+                deleteInactiveDevices.bind(1, now - INACTIVE_DEVICE_EXPIRY_MS);
+                deleteInactiveDevices.step();
+            } finally {
+                deleteInactiveDevices.dispose();
+            }
+            logger.info("deleted " + attestationConn.getChanges() + " inactive devices");
+        }
+
+        if (DELETE_LEGACY_HISTORY) {
+            final SQLiteStatement deleteLegacyHistory =
+                    attestationConn.prepare("DELETE FROM Attestations WHERE time < ?");
+            try {
+                deleteLegacyHistory.bind(1, now - HISTORY_EXPIRY_MS);
+                deleteLegacyHistory.step();
+            } finally {
+                deleteLegacyHistory.dispose();
+            }
+            logger.info("deleted " + attestationConn.getChanges() + " legacy history entries");
+        }
+
+        if (DELETE_INACTIVE_ACCOUNTS) {
+            final SQLiteStatement deleteInactiveAccounts = attestationConn.prepare("""
+                    DELETE FROM Accounts WHERE loginTime < ? AND NOT EXISTS
+                        (SELECT 1 FROM Devices WHERE Accounts.userId = Devices.userId)""");
+            try {
+                deleteInactiveAccounts.bind(1, now - INACTIVE_ACCOUNT_EXPIRY_MS);
+                deleteInactiveAccounts.step();
+            } finally {
+                deleteInactiveAccounts.dispose();
+            }
+            logger.info("deleted " + attestationConn.getChanges() + " inactive accounts");
+        }
+
+        attestationConn.exec("ANALYZE");
+        attestationConn.exec("VACUUM");
+    }
+
     @Override
     public void run() {
         final SQLiteConnection samplesConn;
@@ -31,25 +95,6 @@ class Maintenance implements Runnable {
             samplesConn = AttestationServer.open(AttestationServer.SAMPLES_DATABASE);
             attestationConn = AttestationServer.open(AttestationServer.ATTESTATION_DATABASE);
         } catch (final SQLiteException e) {
-            logger.log(CRIT, "database error, cannot set up Maintenance thread", e);
-            return;
-        }
-        final SQLiteStatement deleteExpiredSessions;
-        final SQLiteStatement deleteDeletedDevices;
-        final SQLiteStatement deleteInactiveDevices;
-        final SQLiteStatement deleteLegacyHistory;
-        final SQLiteStatement deleteInactiveAccounts;
-        try {
-            deleteExpiredSessions = attestationConn.prepare("DELETE FROM Sessions WHERE expiryTime < ?");
-            deleteDeletedDevices = attestationConn.prepare("DELETE FROM Devices WHERE deletionTime < ?");
-            deleteInactiveDevices = attestationConn.prepare("DELETE FROM Devices WHERE verifiedTimeLast < ?");
-            deleteLegacyHistory = attestationConn.prepare("DELETE FROM Attestations WHERE time < ?");
-            deleteInactiveAccounts = attestationConn.prepare("""
-                    DELETE FROM Accounts WHERE loginTime < ? AND NOT EXISTS
-                        (SELECT 1 FROM Devices WHERE Accounts.userId = Devices.userId)""");
-        } catch (final SQLiteException e) {
-            attestationConn.dispose();
-            samplesConn.dispose();
             logger.log(CRIT, "database error, cannot set up Maintenance thread", e);
             return;
         }
@@ -64,57 +109,7 @@ class Maintenance implements Runnable {
             logger.info("maintenance started");
 
             try {
-                samplesConn.exec("VACUUM");
-
-                final long now = System.currentTimeMillis();
-
-                // This is also done as part of every login
-                try {
-                    deleteExpiredSessions.bind(1, now);
-                    deleteExpiredSessions.step();
-                } finally {
-                    deleteExpiredSessions.reset();
-                }
-
-                try {
-                    deleteDeletedDevices.bind(1, now - DELETE_EXPIRY_MS);
-                    deleteDeletedDevices.step();
-                } finally {
-                    deleteDeletedDevices.reset();
-                }
-
-                if (DELETE_INACTIVE_DEVICES) {
-                    try {
-                        deleteInactiveDevices.bind(1, now - INACTIVE_DEVICE_EXPIRY_MS);
-                        deleteInactiveDevices.step();
-                    } finally {
-                        deleteInactiveDevices.reset();
-                    }
-                    logger.info("deleted " + attestationConn.getChanges() + " inactive devices");
-                }
-
-                if (DELETE_LEGACY_HISTORY) {
-                    try {
-                        deleteLegacyHistory.bind(1, now - HISTORY_EXPIRY_MS);
-                        deleteLegacyHistory.step();
-                    } finally {
-                        deleteLegacyHistory.reset();
-                    }
-                    logger.info("deleted " + attestationConn.getChanges() + " legacy history entries");
-                }
-
-                if (DELETE_INACTIVE_ACCOUNTS) {
-                    try {
-                        deleteInactiveAccounts.bind(1, now - INACTIVE_ACCOUNT_EXPIRY_MS);
-                        deleteInactiveAccounts.step();
-                    } finally {
-                        deleteInactiveAccounts.reset();
-                    }
-                    logger.info("deleted " + attestationConn.getChanges() + " inactive accounts");
-                }
-
-                attestationConn.exec("ANALYZE");
-                attestationConn.exec("VACUUM");
+                maintain(samplesConn, attestationConn, System.currentTimeMillis());
             } catch (final SQLiteException e) {
                 logger.log(Level.WARNING, "database error", e);
             }
