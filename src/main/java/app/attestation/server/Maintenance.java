@@ -1,9 +1,8 @@
 package app.attestation.server;
 
-import com.almworks.sqlite4java.SQLiteBackup;
-import com.almworks.sqlite4java.SQLiteConnection;
-import com.almworks.sqlite4java.SQLiteException;
-import com.almworks.sqlite4java.SQLiteStatement;
+import app.attestation.server.sqlite.SQLiteConnection;
+import app.attestation.server.sqlite.SQLiteException;
+import app.attestation.server.sqlite.SQLiteStatement;
 
 import java.io.File;
 import java.util.logging.Level;

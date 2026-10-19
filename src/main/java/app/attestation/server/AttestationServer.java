@@ -2,9 +2,9 @@ package app.attestation.server;
 
 import app.attestation.server.AttestationProtocol.DeviceInfo;
 import app.attestation.server.attestation.ParsedAttestationRecord;
-import com.almworks.sqlite4java.SQLiteConnection;
-import com.almworks.sqlite4java.SQLiteException;
-import com.almworks.sqlite4java.SQLiteStatement;
+import app.attestation.server.sqlite.SQLiteConnection;
+import app.attestation.server.sqlite.SQLiteException;
+import app.attestation.server.sqlite.SQLiteStatement;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.io.BaseEncoding;
@@ -68,7 +68,7 @@ import static app.attestation.server.AttestationProtocol.fingerprintsStock;
 import static app.attestation.server.AttestationProtocol.fingerprintsStrongBoxNonStock;
 import static app.attestation.server.AttestationProtocol.fingerprintsStrongBoxStock;
 import static app.attestation.server.SyslogLevel.ALERT;
-import static com.almworks.sqlite4java.SQLiteConstants.SQLITE_CONSTRAINT_UNIQUE;
+import static org.sqlite.jni.capi.CApi.SQLITE_CONSTRAINT_UNIQUE;
 
 class AttestationServer {
     static final File ATTESTATION_DATABASE = new File("attestation.db");
@@ -324,8 +324,6 @@ class AttestationServer {
     public static void main(final String[] args) {
         Thread.currentThread().setName("Main");
 
-        Logger.getLogger("com.almworks.sqlite4java").setLevel(Level.OFF);
-
         Logger.getLogger("app.attestation").setUseParentHandlers(false);
         final ConsoleHandler handler = new ConsoleHandler();
         handler.setFormatter(new JournaldFormatter());
@@ -334,7 +332,7 @@ class AttestationServer {
         try {
             setupSamplesDatabase(SAMPLES_DATABASE);
             setupAttestationDatabase(ATTESTATION_DATABASE);
-        } catch (final SQLiteException e) {
+        } catch (final SQLiteException | LinkageError e) {
             logger.log(ALERT, "failed to setup databases", e);
             System.exit(1);
         }
