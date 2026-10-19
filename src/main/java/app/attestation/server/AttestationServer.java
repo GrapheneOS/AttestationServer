@@ -19,6 +19,7 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import jakarta.json.JsonArray;
 import jakarta.json.JsonArrayBuilder;
 import jakarta.json.JsonException;
 import jakarta.json.JsonObject;
@@ -156,8 +157,8 @@ class AttestationServer {
                 time INTEGER NOT NULL
             ) STRICT""";
 
-    private static void setupSamplesDatabase() throws SQLiteException {
-        final SQLiteConnection conn = open(SAMPLES_DATABASE);
+    static void setupSamplesDatabase(final File database) throws SQLiteException {
+        final SQLiteConnection conn = open(database);
         try {
             final SQLiteStatement selectCreated = conn.prepare(
                     "SELECT 1 FROM sqlite_master WHERE type='table' AND name='Samples'");
@@ -171,12 +172,12 @@ class AttestationServer {
             conn.exec(CREATE_SAMPLES_TABLE);
 
             if (userVersion < 1) {
-                logger.log(ALERT, SAMPLES_DATABASE + " database schemas older than version 1 are no longer " +
+                logger.log(ALERT, database + " database schemas older than version 1 are no longer " +
                         "supported. Use an older AttestationServer revision to upgrade.");
                 System.exit(1);
             }
 
-            logger.info("Finished database setup for " + SAMPLES_DATABASE);
+            logger.info("Finished database setup for " + database);
         } finally {
             conn.dispose();
         }
@@ -293,8 +294,8 @@ class AttestationServer {
             CREATE INDEX IF NOT EXISTS Attestations_fingerprint_id
             ON Attestations (fingerprint, id)""";
 
-    private static void setupAttestationDatabase() throws SQLiteException {
-        final SQLiteConnection conn = open(ATTESTATION_DATABASE);
+    static void setupAttestationDatabase(final File database) throws SQLiteException {
+        final SQLiteConnection conn = open(database);
         try {
             final SQLiteStatement selectCreated = conn.prepare(
                     "SELECT 1 FROM sqlite_master WHERE type='table' AND name='Configuration'");
@@ -309,12 +310,12 @@ class AttestationServer {
             conn.exec(CREATE_ATTESTATION_INDICES);
 
             if (userVersion < 16) {
-                logger.log(ALERT, ATTESTATION_DATABASE + " database schemas older than version 16 are no longer " +
+                logger.log(ALERT, database + " database schemas older than version 16 are no longer " +
                         "supported. Use an older AttestationServer revision to upgrade.");
                 System.exit(1);
             }
 
-            logger.info("Finished database setup for " + ATTESTATION_DATABASE);
+            logger.info("Finished database setup for " + database);
         } finally {
             conn.dispose();
         }
@@ -331,8 +332,8 @@ class AttestationServer {
         Logger.getLogger("app.attestation").addHandler(handler);
 
         try {
-            setupSamplesDatabase();
-            setupAttestationDatabase();
+            setupSamplesDatabase(SAMPLES_DATABASE);
+            setupAttestationDatabase(ATTESTATION_DATABASE);
         } catch (final SQLiteException e) {
             logger.log(ALERT, "failed to setup databases", e);
             System.exit(1);
@@ -473,7 +474,7 @@ class AttestationServer {
         return SCrypt.generate(password, salt, 32768, 8, 1, 32);
     }
 
-    private static class UsernameUnavailableException extends GeneralSecurityException {
+    static class UsernameUnavailableException extends GeneralSecurityException {
         public UsernameUnavailableException() {}
     }
 
@@ -499,7 +500,7 @@ class AttestationServer {
         }
     }
 
-    private static void createAccount(final String username, final String password)
+    static void createAccount(final SQLiteConnection conn, final String username, final String password)
             throws GeneralSecurityException, SQLiteException {
         validateUsername(username);
         validatePassword(password);
@@ -508,7 +509,6 @@ class AttestationServer {
         final byte[] passwordHash = hash(password.getBytes(), passwordSalt);
         final byte[] subscribeKey = AttestationProtocol.generateRandomToken();
 
-        final SQLiteConnection conn = getLocalAttestationConn();
         try {
             final SQLiteStatement insert = conn.prepare("""
                     INSERT INTO Accounts (
@@ -544,12 +544,11 @@ class AttestationServer {
         }
     }
 
-    private static void changePassword(final long userId, final String currentPassword, final String newPassword)
-            throws GeneralSecurityException, SQLiteException {
+    static void changePassword(final SQLiteConnection conn, final long userId, final String currentPassword,
+            final String newPassword) throws GeneralSecurityException, SQLiteException {
         validatePassword(currentPassword);
         validatePassword(newPassword);
 
-        final SQLiteConnection conn = getLocalAttestationConn();
         try {
             conn.exec("BEGIN IMMEDIATE TRANSACTION");
 
@@ -590,13 +589,12 @@ class AttestationServer {
         }
     }
 
-    private record Session(long sessionId, byte[] token) {}
+    record Session(long sessionId, byte[] token) {}
 
-    private static Session login(final String username, final String password)
+    static Session login(final SQLiteConnection conn, final String username, final String password)
             throws GeneralSecurityException, SQLiteException {
         validatePassword(password);
 
-        final SQLiteConnection conn = getLocalAttestationConn();
         try {
             conn.exec("BEGIN IMMEDIATE TRANSACTION");
 
@@ -678,7 +676,7 @@ class AttestationServer {
             }
 
             try {
-                createAccount(username, password);
+                createAccount(getLocalAttestationConn(), username, password);
             } catch (final UsernameUnavailableException e) {
                 exchange.sendResponseHeaders(409, -1);
                 return;
@@ -712,7 +710,7 @@ class AttestationServer {
             }
 
             try {
-                changePassword(account.userId, currentPassword, newPassword);
+                changePassword(getLocalAttestationConn(), account.userId, currentPassword, newPassword);
             } catch (final GeneralSecurityException e) {
                 logger.log(Level.WARNING, "invalid request", e);
                 exchange.sendResponseHeaders(400, -1);
@@ -739,7 +737,7 @@ class AttestationServer {
 
             final Session session;
             try {
-                session = login(username, password);
+                session = login(getLocalAttestationConn(), username, password);
             } catch (final UsernameUnavailableException e) {
                 logger.log(Level.WARNING, "login error: no account for username " + username);
                 exchange.sendResponseHeaders(400, -1);
@@ -839,7 +837,7 @@ class AttestationServer {
                 "__Host-Http-session=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0");
     }
 
-    private record Account(long userId, String username, byte[] subscribeKey, int verifyInterval, int alertDelay) {}
+    record Account(long userId, String username, byte[] subscribeKey, int verifyInterval, int alertDelay) {}
 
     private static Account verifySession(final HttpExchange exchange, final boolean end)
             throws IOException, SQLiteException {
@@ -857,7 +855,16 @@ class AttestationServer {
         final long sessionId = Long.parseLong(session[0]);
         final byte[] token = Base64.getDecoder().decode(session[1]);
 
-        final SQLiteConnection conn = getLocalAttestationConn();
+        final Account account = verifySession(getLocalAttestationConn(), sessionId, token, end);
+        if (account == null) {
+            purgeSessionCookie(exchange);
+            exchange.sendResponseHeaders(403, -1);
+        }
+        return account;
+    }
+
+    static Account verifySession(final SQLiteConnection conn, final long sessionId, final byte[] token,
+            final boolean end) throws SQLiteException {
         final SQLiteStatement select = conn.prepare("""
                 SELECT
                     token,
@@ -873,14 +880,10 @@ class AttestationServer {
         try {
             select.bind(1, sessionId);
             if (!select.step() || !MessageDigest.isEqual(token, select.columnBlob(0))) {
-                purgeSessionCookie(exchange);
-                exchange.sendResponseHeaders(403, -1);
                 return null;
             }
 
             if (select.columnLong(1) < System.currentTimeMillis()) {
-                purgeSessionCookie(exchange);
-                exchange.sendResponseHeaders(403, -1);
                 return null;
             }
 
@@ -1076,25 +1079,28 @@ class AttestationServer {
                 return;
             }
 
-            final SQLiteConnection conn = getLocalAttestationConn();
-            final SQLiteStatement update = conn.prepare(
-                    "UPDATE Devices SET deletionTime = ? WHERE userId = ? AND fingerprint = ?");
-            try {
-                update.bind(1, System.currentTimeMillis());
-                update.bind(2, account.userId);
-                update.bind(3, BaseEncoding.base16().decode(fingerprint));
-                update.step();
-            } finally {
-                update.dispose();
-            }
-
-            if (conn.getChanges() == 0) {
+            if (!deleteDevice(getLocalAttestationConn(), account.userId, BaseEncoding.base16().decode(fingerprint))) {
                 exchange.sendResponseHeaders(400, -1);
                 return;
             }
             logger.info("scheduled deletion of device " + fingerprint + " from account " + account.userId);
             exchange.sendResponseHeaders(200, -1);
         }
+    }
+
+    static boolean deleteDevice(final SQLiteConnection conn, final long userId, final byte[] fingerprint)
+            throws SQLiteException {
+        final SQLiteStatement update = conn.prepare(
+                "UPDATE Devices SET deletionTime = ? WHERE userId = ? AND fingerprint = ?");
+        try {
+            update.bind(1, System.currentTimeMillis());
+            update.bind(2, userId);
+            update.bind(3, fingerprint);
+            update.step();
+        } finally {
+            update.dispose();
+        }
+        return conn.getChanges() != 0;
     }
 
     private static String convertToPem(final byte[] derEncoded) {
@@ -1105,8 +1111,18 @@ class AttestationServer {
 
     private static void writeDevicesJson(final HttpExchange exchange, final long userId)
             throws IOException, SQLiteException {
+        final JsonArray devices = getDevicesJson(getLocalAttestationConn(), userId);
+        exchange.getResponseHeaders().set("Content-Type", "application/json");
+        exchange.sendResponseHeaders(200, 0);
+        try (final OutputStream output = exchange.getResponseBody();
+                final JsonWriter writer = Json.createWriter(output)) {
+            writer.write(devices);
+        }
+    }
+
+    static JsonArray getDevicesJson(final SQLiteConnection conn, final long userId)
+            throws IOException, SQLiteException {
         final JsonArrayBuilder devices = Json.createArrayBuilder();
-        final SQLiteConnection conn = getLocalAttestationConn();
         final SQLiteStatement select = conn.prepare("""
                 SELECT
                     fingerprint,
@@ -1229,13 +1245,7 @@ class AttestationServer {
         } finally {
             select.dispose();
         }
-
-        exchange.getResponseHeaders().set("Content-Type", "application/json");
-        exchange.sendResponseHeaders(200, 0);
-        try (final OutputStream output = exchange.getResponseBody();
-                final JsonWriter writer = Json.createWriter(output)) {
-            writer.write(devices.build());
-        }
+        return devices.build();
     }
 
     private static class DevicesHandler extends PostHandler {
@@ -1272,9 +1282,20 @@ class AttestationServer {
     private static void writeAttestationHistoryJson(final HttpExchange exchange, final String deviceFingerprint,
             final Account userAccount, final long offsetId)
             throws IOException, SQLiteException, GeneralSecurityException {
+        final JsonArray attestations = getAttestationHistoryJson(getLocalAttestationConn(), deviceFingerprint,
+                userAccount.userId, offsetId);
+        exchange.getResponseHeaders().set("Content-Type", "application/json");
+        exchange.sendResponseHeaders(200, 0);
+        try (final OutputStream output = exchange.getResponseBody();
+                final JsonWriter writer = Json.createWriter(output)) {
+            writer.write(attestations);
+        }
+    }
+
+    static JsonArray getAttestationHistoryJson(final SQLiteConnection conn, final String deviceFingerprint,
+            final long userId, final long offsetId) throws SQLiteException, GeneralSecurityException {
         final JsonArrayBuilder attestations = Json.createArrayBuilder();
         final byte[] fingerprint = BaseEncoding.base16().decode(deviceFingerprint);
-        final SQLiteConnection conn = getLocalAttestationConn();
         final SQLiteStatement history = conn.prepare("""
                 SELECT
                     id,
@@ -1305,7 +1326,7 @@ class AttestationServer {
         int rowCount = 0;
         try {
             history.bind(1, fingerprint);
-            history.bind(2, userAccount.userId);
+            history.bind(2, userId);
             history.bind(3, offsetId);
             while (history.step()) {
                 final JsonObjectBuilder attestation = Json.createObjectBuilder();
@@ -1363,15 +1384,10 @@ class AttestationServer {
             history.dispose();
         }
         if (rowCount == 0) {
-            throw new GeneralSecurityException("found no attestation history for userId: " + userAccount.userId +
+            throw new GeneralSecurityException("found no attestation history for userId: " + userId +
                     ", fingerprint: " + deviceFingerprint);
         }
-        exchange.getResponseHeaders().set("Content-Type", "application/json");
-        exchange.sendResponseHeaders(200, 0);
-        try (final OutputStream output = exchange.getResponseBody();
-                final JsonWriter writer = Json.createWriter(output)) {
-            writer.write(attestations.build());
-        }
+        return attestations.build();
     }
 
     private static class ChallengeHandler extends AppPostHandler {
