@@ -5,9 +5,9 @@ import app.attestation.server.attestation.AttestationApplicationId.AttestationPa
 import app.attestation.server.attestation.AuthorizationList;
 import app.attestation.server.attestation.ParsedAttestationRecord;
 import app.attestation.server.attestation.RootOfTrust;
-import com.almworks.sqlite4java.SQLiteConnection;
-import com.almworks.sqlite4java.SQLiteException;
-import com.almworks.sqlite4java.SQLiteStatement;
+import app.attestation.server.sqlite.SQLiteConnection;
+import app.attestation.server.sqlite.SQLiteException;
+import app.attestation.server.sqlite.SQLiteStatement;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
