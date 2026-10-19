@@ -293,7 +293,7 @@ class AttestationServer {
             CREATE INDEX IF NOT EXISTS Attestations_fingerprint_id
             ON Attestations (fingerprint, id)""";
 
-    private static void setupAttestationDatabase() throws DataFormatException, GeneralSecurityException, IOException, SQLiteException {
+    private static void setupAttestationDatabase() throws SQLiteException {
         final SQLiteConnection conn = open(ATTESTATION_DATABASE);
         try {
             final SQLiteStatement selectCreated = conn.prepare(
@@ -333,7 +333,7 @@ class AttestationServer {
         try {
             setupSamplesDatabase();
             setupAttestationDatabase();
-        } catch (final DataFormatException | GeneralSecurityException | IOException | SQLiteException e) {
+        } catch (final SQLiteException e) {
             logger.log(ALERT, "failed to setup databases", e);
             System.exit(1);
         }
