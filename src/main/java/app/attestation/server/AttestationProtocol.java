@@ -5,9 +5,9 @@ import app.attestation.server.attestation.AttestationApplicationId.AttestationPa
 import app.attestation.server.attestation.AuthorizationList;
 import app.attestation.server.attestation.ParsedAttestationRecord;
 import app.attestation.server.attestation.RootOfTrust;
-import com.almworks.sqlite4java.SQLiteConnection;
-import com.almworks.sqlite4java.SQLiteException;
-import com.almworks.sqlite4java.SQLiteStatement;
+import app.attestation.server.sqlite.SQLiteConnection;
+import app.attestation.server.sqlite.SQLiteException;
+import app.attestation.server.sqlite.SQLiteStatement;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -404,7 +404,6 @@ class AttestationProtocol {
     private static final byte[] GOOGLE_ROOT_CERTIFICATE_2 = readResource("google_root_2.der");
     private static final byte[] GOOGLE_ROOT_CERTIFICATE_3 = readResource("google_root_3.der");
     private static final byte[] GOOGLE_ROOT_CERTIFICATE_4 = readResource("google_root_4.der");
-    static final byte[] DEFLATE_DICTIONARY_2 = readResource("deflate_dictionary_2.bin");
     static final byte[] DEFLATE_DICTIONARY_4 = readResource("deflate_dictionary_4.bin");
     static final byte[] DEFLATE_DICTIONARY_5 = readResource("deflate_dictionary_5.bin");
 
