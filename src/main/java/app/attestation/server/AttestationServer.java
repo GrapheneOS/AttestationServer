@@ -416,6 +416,10 @@ class AttestationServer {
         @Override
         public final void handle(final HttpExchange exchange) throws IOException {
             try {
+                if (!exchange.getHttpContext().getPath().equals(exchange.getRequestURI().getRawPath())) {
+                    exchange.sendResponseHeaders(404, -1);
+                    return;
+                }
                 if (!exchange.getRequestMethod().equals("POST")) {
                     exchange.getResponseHeaders().set("Allow", "POST");
                     exchange.sendResponseHeaders(405, -1);
