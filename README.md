@@ -4,7 +4,12 @@ See the overview of the project at https://attestation.app/about.
 
 This is a generic guide on setting up the attestation server.
 
-Sync submodules for sqlite4java prebuilt in libs/.
+Building the server compiles SQLite and its JNI library from the official sqlite.org sources. This
+requires gcc and binutils (`readelf`) on a Linux development machine, plus network access to
+sqlite.org for the first build. The downloads are verified against
+`gradle/verification-metadata.xml`. The build fails if the library needs a newer glibc than
+`sqliteJniMaxGlibc` in `build.gradle.kts`, so build on a system with a glibc no newer than the
+server's and only raise the pin after confirming the server's glibc version.
 
 You need to set up nginx using the nginx configuration in the nginx directory in this repository.
 You'll need to adjust it based on your domain name. The sample configuration relies on certbot,

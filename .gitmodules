@@ -1,3 +1,0 @@
-[submodule "libs/sqlite4java-prebuilt"]
-	path = libs/sqlite4java-prebuilt
-	url = https://github.com/GrapheneOS/sqlite4java-prebuilt.git
