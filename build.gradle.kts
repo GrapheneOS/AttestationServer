@@ -64,10 +64,8 @@ val extractSqliteJni = tasks.register<Sync>("extractSqliteJni") {
         // Upstream bugs: sqlite3_jni_internal_details() uses the metrics struct even when
         // SQLITE_JNI_ENABLE_METRICS is undefined, and closing finds the connection through client
         // data, which API armor hides when opening failed, so the failed connection was never freed.
-        // Math functions would require libm and can only be disabled by removing the forced default.
         val replacements = mapOf(
             "\n  SO(S3JniGlobal.metrics);\n" to "\n",
-            "\n#  define SQLITE_ENABLE_MATH_FUNCTIONS 1\n" to "\n",
             """
             |  int rc = 0;
             |  S3JniDb * const ps = S3JniDb_from_jlong(jpDb);
@@ -124,17 +122,16 @@ val compileSqliteJni = tasks.register<Exec>("compileSqliteJni") {
         "aarch64" -> listOf("-mbranch-protection=standard")
         else -> emptyList()
     }
-    val flags = listOf(
-        "-std=c99", "-O2", "-fPIC", "-fno-plt", "-fstack-clash-protection", "-fstack-protector-strong",
-        "-U_FORTIFY_SOURCE", "-D_FORTIFY_SOURCE=3", "-fno-strict-aliasing", "-fwrapv",
-        "-fno-omit-frame-pointer", "-D_GNU_SOURCE", "-DNDEBUG", "-Wall",
-    ) + archFlags + listOf(
-        "-DSQLITE_THREADSAFE=1", "-DSQLITE_DQS=0", "-DSQLITE_OMIT_DEPRECATED", "-DSQLITE_TRUSTED_SCHEMA=0",
-        "-DSQLITE_DEFAULT_DEFENSIVE", "-DSQLITE_ENABLE_RTREE=1", "-DSQLITE_ENABLE_COLUMN_METADATA",
-        "-DSQLITE_ENABLE_MEMORY_MANAGEMENT", "-DSQLITE_TEMP_STORE=1", "-DSQLITE_DEFAULT_CACHE_SIZE=-2000",
-        "-DSQLITE_DEFAULT_PAGE_SIZE=4096",
-        "-shared", "-s", "-Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now,-z,defs",
-    )
+    val flags = """
+        -std=c99 -O2 -fPIC -fno-plt -fstack-clash-protection -fstack-protector-strong
+        -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3 -fno-strict-aliasing -fwrapv
+        -fno-omit-frame-pointer -D_GNU_SOURCE -DNDEBUG -Wall
+        -DSQLITE_THREADSAFE=1 -DSQLITE_DQS=0 -DSQLITE_OMIT_DEPRECATED -DSQLITE_TRUSTED_SCHEMA=0
+        -DSQLITE_DEFAULT_DEFENSIVE -DSQLITE_ENABLE_RTREE=1 -DSQLITE_ENABLE_COLUMN_METADATA
+        -DSQLITE_ENABLE_MEMORY_MANAGEMENT -DSQLITE_TEMP_STORE=1 -DSQLITE_DEFAULT_CACHE_SIZE=-2000
+        -DSQLITE_DEFAULT_PAGE_SIZE=4096
+        -shared -s -Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now,-z,defs
+    """.trim().split(Regex("\\s+")) + archFlags
     val sources = extractSqliteJni.map { it.destinationDir.resolve("c") }
     val javaHome = javaToolchains.compilerFor(java.toolchain).map { it.metadata.installationPath.asFile }
     val library = sqliteJniDir.map { it.file("native/libsqlite3-jni.so") }
@@ -153,6 +150,7 @@ val compileSqliteJni = tasks.register<Exec>("compileSqliteJni") {
             "-I${jdkInclude.resolve("linux")}",
             "-o", library.get().asFile.absolutePath,
             "sqlite3-jni.c",
+            "-lm",
         )
     })
     doFirst {
