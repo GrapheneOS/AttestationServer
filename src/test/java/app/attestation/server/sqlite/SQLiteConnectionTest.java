@@ -66,7 +66,7 @@ class SQLiteConnectionTest {
     @Test
     void bundledLibraryVersion() throws SQLiteException {
         try (final SQLiteConnection conn = new SQLiteConnection(file()).open()) {
-            assertEquals("3.54.0", queryString(conn, "SELECT sqlite_version()"));
+            assertEquals("3.54.1", queryString(conn, "SELECT sqlite_version()"));
         }
     }
 

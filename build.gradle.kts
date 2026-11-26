@@ -9,7 +9,7 @@ java {
 }
 
 val sqliteYear = "2026"
-val sqliteVersion = "3540000"
+val sqliteVersion = "3540100"
 val sqliteJniMaxGlibc = "2.44"
 
 repositories {
