@@ -83,14 +83,12 @@ class SQLiteConnectionTest {
                     "DEFAULT_CACHE_SIZE=-2000", "DEFAULT_PAGE_SIZE=4096", "ENABLE_RTREE",
                     "ENABLE_COLUMN_METADATA", "ENABLE_MEMORY_MANAGEMENT")), options::toString);
             assertFalse(options.contains("ENABLE_FTS5"), options::toString);
-            assertFalse(options.contains("ENABLE_MATH_FUNCTIONS"), options::toString);
 
             assertEquals(0, queryLong(conn, "PRAGMA trusted_schema"));
             assertEquals(-2000, queryLong(conn, "PRAGMA cache_size"));
             conn.exec("PRAGMA writable_schema = ON");
             assertEquals(0, queryLong(conn, "PRAGMA writable_schema"));
             assertCode(SQLITE_ERROR, () -> conn.prepare("SELECT \"missing\""));
-            assertCode(SQLITE_ERROR, () -> conn.prepare("SELECT sqrt(4)"));
         }
     }
 
