@@ -10,7 +10,7 @@ java {
 
 val sqliteYear = "2026"
 val sqliteVersion = "3540000"
-val sqliteJniMaxGlibc = "2.34"
+val sqliteJniMaxGlibc = "2.44"
 
 repositories {
     mavenCentral()
