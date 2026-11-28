@@ -1,0 +1,38 @@
+Fix two bugs in the SQLite JNI bindings:
+
+- closing finds the connection through client data, which API armor hides when opening failed,
+  so a connection that failed to open was never freed
+- sqlite3_jni_internal_details() uses the metrics struct even when SQLITE_JNI_ENABLE_METRICS is
+  undefined
+
+--- a/c/sqlite3-jni.c
++++ b/c/sqlite3-jni.c
+@@ -3030,16 +3030,12 @@
+ 
+ /* Wrapper for sqlite3_close(_v2)(). */
+ static jint s3jni_close_db(JNIEnv * const env, jlong jpDb, int version){
+-  int rc = 0;
+-  S3JniDb * const ps = S3JniDb_from_jlong(jpDb);
++  sqlite3 * const pDb = LongPtrGet_sqlite3(jpDb);
+ 
+   assert(version == 1 || version == 2);
+-  if( ps ){
+-    rc = 1==version
+-      ? (jint)sqlite3_close(ps->pDb)
+-      : (jint)sqlite3_close_v2(ps->pDb);
+-  }
+-  return (jint)rc;
++  return 1==version
++    ? (jint)sqlite3_close(pDb)
++    : (jint)sqlite3_close_v2(pDb);
+ }
+ 
+ S3JniApi(sqlite3_close(),jint,1close)(JniArgsEnvClass, jlong pDb){
+@@ -5377,7 +5373,6 @@
+          (unsigned)S3Jni_NphCache_size);
+   SO(S3JniGlobal);
+   SO(S3JniGlobal.nph);
+-  SO(S3JniGlobal.metrics);
+   SO(S3JniAutoExtension);
+   SO(S3JniUdf);
+ #undef SO

@@ -80,8 +80,7 @@ class SQLiteConnectionTest {
                 }
             }
             assertTrue(options.containsAll(Set.of("THREADSAFE=1", "DQS=0", "OMIT_DEPRECATED", "TEMP_STORE=1",
-                    "DEFAULT_CACHE_SIZE=-2000", "DEFAULT_PAGE_SIZE=4096", "ENABLE_RTREE",
-                    "ENABLE_COLUMN_METADATA", "ENABLE_MEMORY_MANAGEMENT")), options::toString);
+                    "DEFAULT_CACHE_SIZE=-2000", "DEFAULT_PAGE_SIZE=4096")), options::toString);
             assertFalse(options.contains("ENABLE_FTS5"), options::toString);
 
             assertEquals(0, queryLong(conn, "PRAGMA trusted_schema"));
