@@ -44,7 +44,11 @@ fun sqliteArchive(module: String): Provider<File> {
     return sqliteSources.filter { it.name == fileName }.elements.map { it.single().asFile }
 }
 
+val sqliteJniPatch = layout.projectDirectory.file("patches/sqlite3-jni.patch")
+
 val extractSqliteJni = tasks.register<Sync>("extractSqliteJni") {
+    val patch = sqliteJniPatch.asFile
+    inputs.file(patch)
     into(sqliteJniDir.map { it.dir("src") })
     includeEmptyDirs = false
     from(zipTree(sqliteArchive("sqlite-amalgamation"))) {
@@ -53,47 +57,16 @@ val extractSqliteJni = tasks.register<Sync>("extractSqliteJni") {
     }
     from(zipTree(sqliteArchive("sqlite-src"))) {
         include("*/ext/jni/src/c/*")
-        eachFile { path = "c/$name" }
-    }
-    from(zipTree(sqliteArchive("sqlite-src"))) {
         include("*/ext/jni/src/org/sqlite/jni/capi/**/*.java", "*/ext/jni/src/org/sqlite/jni/annotation/**/*.java")
         exclude("**/capi/Tester1.java", "**/capi/SQLTester.java")
-        eachFile { path = "java/" + path.substringAfter("/ext/jni/src/") }
+        eachFile { path = path.substringAfter("/ext/jni/src/").replace(Regex("^org/"), "java/org/") }
     }
     doLast {
-        // Upstream bugs: sqlite3_jni_internal_details() uses the metrics struct even when
-        // SQLITE_JNI_ENABLE_METRICS is undefined, and closing finds the connection through client
-        // data, which API armor hides when opening failed, so the failed connection was never freed.
-        val replacements = mapOf(
-            "\n  SO(S3JniGlobal.metrics);\n" to "\n",
-            """
-            |  int rc = 0;
-            |  S3JniDb * const ps = S3JniDb_from_jlong(jpDb);
-            |
-            |  assert(version == 1 || version == 2);
-            |  if( ps ){
-            |    rc = 1==version
-            |      ? (jint)sqlite3_close(ps->pDb)
-            |      : (jint)sqlite3_close_v2(ps->pDb);
-            |  }
-            |  return (jint)rc;
-            |""".trimMargin() to """
-            |  sqlite3 * const pDb = LongPtrGet_sqlite3(jpDb);
-            |
-            |  assert(version == 1 || version == 2);
-            |  return 1==version
-            |    ? (jint)sqlite3_close(pDb)
-            |    : (jint)sqlite3_close_v2(pDb);
-            |""".trimMargin(),
-        )
-        val file = destinationDir.resolve("c/sqlite3-jni.c")
-        var text = file.readText()
-        for ((old, new) in replacements) {
-            val count = text.split(old).size - 1
-            check(count == 1) { "expected exactly one occurrence of '${old.trim()}' in $file, found $count" }
-            text = text.replace(old, new)
-        }
-        file.writeText(text)
+        val process = ProcessBuilder(
+            "patch", "-p1", "-F0", "--batch", "--no-backup-if-mismatch", "-d", destinationDir.path, "-i", patch.path,
+        ).redirectErrorStream(true).start()
+        val output = process.inputStream.bufferedReader().readText()
+        check(process.waitFor() == 0) { "applying $patch failed:\n$output" }
     }
 }
 
@@ -126,10 +99,8 @@ val compileSqliteJni = tasks.register<Exec>("compileSqliteJni") {
         -std=c99 -O2 -fPIC -fno-plt -fstack-clash-protection -fstack-protector-strong
         -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3 -fno-strict-aliasing -fwrapv
         -fno-omit-frame-pointer -D_GNU_SOURCE -DNDEBUG -Wall
-        -DSQLITE_THREADSAFE=1 -DSQLITE_DQS=0 -DSQLITE_OMIT_DEPRECATED -DSQLITE_TRUSTED_SCHEMA=0
-        -DSQLITE_DEFAULT_DEFENSIVE -DSQLITE_ENABLE_RTREE=1 -DSQLITE_ENABLE_COLUMN_METADATA
-        -DSQLITE_ENABLE_MEMORY_MANAGEMENT -DSQLITE_TEMP_STORE=1 -DSQLITE_DEFAULT_CACHE_SIZE=-2000
-        -DSQLITE_DEFAULT_PAGE_SIZE=4096
+        -DSQLITE_TRUSTED_SCHEMA=0 -DSQLITE_DEFAULT_DEFENSIVE
+        -DSQLITE_TEMP_STORE=1 -DSQLITE_DEFAULT_CACHE_SIZE=-2000 -DSQLITE_DEFAULT_PAGE_SIZE=4096
         -shared -s -Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now,-z,defs
     """.trim().split(Regex("\\s+")) + archFlags
     val sources = extractSqliteJni.map { it.destinationDir.resolve("c") }
@@ -163,31 +134,19 @@ val checkSqliteJniGlibc = tasks.register("checkSqliteJniGlibc") {
     val maxGlibc = sqliteJniMaxGlibc
     inputs.file(library)
     doLast {
-        val process = ProcessBuilder("readelf", "--version-info", "-W", library.get().absolutePath)
+        val process = ProcessBuilder("readelf", "--version-info", "-W", library.get().path)
             .redirectErrorStream(true)
             .start()
         val output = process.inputStream.bufferedReader().readText()
         check(process.waitFor() == 0) { "readelf failed:\n$output" }
-        fun parse(version: String) = version.split('.').map(String::toInt)
-        val versionComparator = Comparator<List<Int>> { a, b ->
-            a.zip(b).map { (x, y) -> x.compareTo(y) }.firstOrNull { it != 0 } ?: a.size.compareTo(b.size)
-        }
-        val needed = Regex("""Name: (GLIBC_\S+)""")
-            .findAll(output.substringAfter("Version needs section", ""))
-            .map { it.groupValues[1] }
-            .toSet()
-        val (numbered, markers) = needed.partition { Regex("""GLIBC_[0-9]+(\.[0-9]+)+""").matches(it) }
-        check(markers.isEmpty()) {
-            "libsqlite3-jni.so requires ${markers.joinToString()}, which can't be checked against the pinned " +
-                "sqliteJniMaxGlibc = \"$maxGlibc\". Adjust the compileSqliteJni link flags so it isn't required."
-        }
-        val required = numbered.map { parse(it.removePrefix("GLIBC_")) }
-            .maxWithOrNull(versionComparator)
+        fun key(version: String) = version.split('.').map(String::toInt).plus(listOf(0, 0)).take(3)
+            .reduce { a, b -> a * 1000 + b }
+        val required = Regex("""Name: GLIBC_([0-9.]+)\s""").findAll(output).map { it.groupValues[1] }
+            .maxByOrNull(::key)
             ?: error("no glibc version requirements found in ${library.get()}")
-        check(versionComparator.compare(required, parse(maxGlibc)) <= 0) {
-            "libsqlite3-jni.so requires GLIBC_${required.joinToString(".")}, newer than the pinned " +
-                "sqliteJniMaxGlibc = \"$maxGlibc\". Confirm the server's glibc is at least that " +
-                "version before raising the pin in build.gradle.kts."
+        check(key(required) <= key(maxGlibc)) {
+            "libsqlite3-jni.so requires GLIBC_$required, newer than the pinned sqliteJniMaxGlibc = " +
+                "\"$maxGlibc\". Confirm the server's glibc is at least that version before raising the pin."
         }
     }
 }
